@@ -1,18 +1,16 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
+	witness "gitlab.com/testifysec/witness-cli/pkg"
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
-	"gitlab.com/testifysec/witness-cli/pkg/dsse"
 )
 
 var keyPath string
-var outputFormat string
+var dataType string
 
 var signCmd = &cobra.Command{
 	Use:           "sign [FILE] [OUTFILE]",
@@ -27,7 +25,7 @@ var signCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(signCmd)
 	signCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
-	signCmd.Flags().StringVarP(&outputFormat, "output-format", "f", "dsse", "Format of the output file, valid options: dsse")
+	signCmd.Flags().StringVarP(&dataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")
 }
 
 //todo: this logic should be broken out and moved to pkg/
@@ -51,25 +49,11 @@ func runSign(cmd *cobra.Command, args []string) error {
 	}
 
 	defer inFile.Close()
-	inFileBytes, err := io.ReadAll(inFile)
+	outFile, err := os.Create(outFilePath)
 	if err != nil {
-		return fmt.Errorf("could not read file to sign: %v", err)
+		return fmt.Errorf("could not create output file: %v", err)
 	}
 
-	envelope, err := dsse.Sign("https://witness.testifysec.com/signeddata/v0.1", inFileBytes, signer)
-	if err != nil {
-		return fmt.Errorf("failed to sign data: %v", err)
-	}
-
-	envelopeJson, err := json.Marshal(&envelope)
-	if err != nil {
-		return fmt.Errorf("failed to marshal dsse envelope to json: %v", err)
-	}
-
-	err = os.WriteFile(outFilePath, envelopeJson, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write signed file: %v", err)
-	}
-
-	return nil
+	defer outFile.Close()
+	return witness.Sign(inFile, dataType, outFile, signer)
 }

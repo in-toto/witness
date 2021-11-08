@@ -1,8 +1,11 @@
 package dsse
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"io"
 
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
@@ -22,7 +25,7 @@ type Envelope struct {
 }
 
 type Signature struct {
-	KeyID         []byte   `json:"keyid"`
+	KeyID         string   `json:"keyid"`
 	Signature     []byte   `json:"sig"`
 	Certificate   []byte   `json:"certificate,omitempty"`
 	Intermediates [][]byte `json:"intermediates,omitempty"`
@@ -36,16 +39,23 @@ func preauthEncode(bodyType string, body []byte) []byte {
 	return []byte(fmt.Sprintf("%s %d %s %d %s", dsseVersion, len(bodyType), bodyType, len(body), body))
 }
 
-func Sign(bodyType string, body []byte, signers ...crypto.Signer) (Envelope, error) {
-	pae := preauthEncode(bodyType, body)
-	env := Envelope{
-		PayloadType: bodyType,
-		Payload:     pae,
-		Signatures:  make([]Signature, 0),
+// TODO: it'd be nice to break some of this logic out of what should be a presentation layer only
+func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, error) {
+	env := Envelope{}
+	// TODO: refactor this so we don't read the entire reader into memory.
+	// the PAE has the length of the body as part of it, so path of least
+	// resistance is just read all the bytes for now
+	bodyBytes, err := io.ReadAll(body)
+	if err != nil {
+		return env, err
 	}
 
+	pae := preauthEncode(bodyType, bodyBytes)
+	env.PayloadType = bodyType
+	env.Payload = pae
+	env.Signatures = make([]Signature, 0)
 	for _, signer := range signers {
-		sig, err := signer.Sign(pae)
+		sig, err := signer.Sign(bytes.NewReader(pae))
 		if err != nil {
 			return env, err
 		}
@@ -84,11 +94,22 @@ func (e Envelope) Verify(verifiers ...crypto.Verifier) error {
 
 	for _, sig := range e.Signatures {
 		for _, verifier := range verifiers {
-			if err := verifier.Verify(e.Payload, sig.Signature); err != nil {
+			if err := verifier.Verify(bytes.NewReader(e.Payload), sig.Signature); err != nil {
 				return err
 			}
 		}
 	}
 
 	return nil
+}
+
+func (e Envelope) Encode(w io.Writer) error {
+	return json.NewEncoder(w).Encode(&e)
+}
+
+func Decode(r io.Reader) (Envelope, error) {
+	env := Envelope{}
+	decoder := json.NewDecoder(r)
+	err := decoder.Decode(&env)
+	return env, err
 }

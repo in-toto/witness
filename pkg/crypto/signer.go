@@ -18,11 +18,11 @@ func (e ErrUnsupportedKeyType) Error() string {
 
 type Signer interface {
 	KeyIdentifier
-	Sign(data []byte) ([]byte, error)
+	Sign(r io.Reader) ([]byte, error)
 }
 
 type KeyIdentifier interface {
-	KeyID() ([]byte, error)
+	KeyID() (string, error)
 }
 
 type TrustBundler interface {

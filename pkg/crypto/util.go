@@ -1,8 +1,10 @@
 package crypto
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"io"
@@ -22,24 +24,42 @@ func (e ErrInvalidPemBlock) Error() string {
 	return "invalid pem block"
 }
 
-func Digest(data []byte, hash crypto.Hash) ([]byte, error) {
+func DigestBytes(data []byte, hash crypto.Hash) ([]byte, error) {
+	return Digest(bytes.NewReader(data), hash)
+}
+
+func Digest(r io.Reader, hash crypto.Hash) ([]byte, error) {
 	hashFunc := hash.New()
-	_, err := hashFunc.Write(data)
-	if err != nil {
+	if _, err := io.Copy(hashFunc, r); err != nil {
 		return nil, err
 	}
 
 	return hashFunc.Sum(nil), nil
 }
 
-func GeneratePublicKeyID(pub interface{}, hash crypto.Hash) ([]byte, error) {
+func HexEncode(src []byte) []byte {
+	dst := make([]byte, hex.EncodedLen(len(src)))
+	hex.Encode(dst, src)
+	return dst
+}
+
+func GeneratePublicKeyID(pub interface{}, hash crypto.Hash) (string, error) {
 	keyBytes, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
-	return Digest(pemBytes, hash)
+	if err != nil {
+		return "", err
+	}
+
+	digest, err := DigestBytes(pemBytes, hash)
+	if err != nil {
+		return "", err
+	}
+
+	return string(HexEncode(digest)), nil
 }
 
 func TryParsePEMBlock(block *pem.Block) (interface{}, error) {

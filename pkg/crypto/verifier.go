@@ -13,7 +13,7 @@ type VerifierOpts interface {
 }
 
 type Verifier interface {
-	Verify(body, sig []byte, opts ...VerifierOpts) error
+	Verify(body io.Reader, sig []byte, opts ...VerifierOpts) error
 }
 
 func NewVerifier(pub interface{}) (Verifier, error) {

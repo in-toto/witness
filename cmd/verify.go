@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
+	witness "gitlab.com/testifysec/witness-cli/pkg"
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
-	"gitlab.com/testifysec/witness-cli/pkg/dsse"
 )
 
 var verifyCmd = &cobra.Command{
@@ -47,16 +45,5 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	}
 
 	defer inFile.Close()
-	inFileBytes, err := io.ReadAll(inFile)
-	if err != nil {
-		return fmt.Errorf("could not read file to sign: %v", err)
-	}
-
-	envelope := dsse.Envelope{}
-	err = json.Unmarshal(inFileBytes, &envelope)
-	if err != nil {
-		return fmt.Errorf("failed to marshal dsse envelope to json: %v", err)
-	}
-
-	return envelope.Verify(verifier)
+	return witness.Verify(inFile, verifier)
 }
