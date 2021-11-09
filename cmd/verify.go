@@ -21,7 +21,7 @@ var verifyCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(verifyCmd)
-	verifyCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
+	verifyCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the public key or certificate to verify signatures against")
 }
 
 //todo: this logic should be broken out and moved to pkg/
