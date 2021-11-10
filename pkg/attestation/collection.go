@@ -1,13 +1,19 @@
 package attestation
 
-type Collection map[string]Attestor
+type Collection struct {
+	Name         string              `json:"name"`
+	Attestations map[string]Attestor `json:"attestations"`
+}
 
 const CollectionDataType = "https://witness.testifysec.com/AttestationCollection/v0.1"
 
-func NewCollection(attestors []Attestor) Collection {
-	collection := make(map[string]Attestor)
+func NewCollection(name string, attestors []Attestor) Collection {
+	collection := Collection{
+		Name:         name,
+		Attestations: make(map[string]Attestor),
+	}
 	for _, attestor := range attestors {
-		collection[attestor.URI()] = attestor
+		collection.Attestations[attestor.URI()] = attestor
 	}
 
 	return collection

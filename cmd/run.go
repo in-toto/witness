@@ -13,6 +13,7 @@ import (
 var workingDir string
 var attestations []string
 var outFilePath string
+var stepName string
 
 var runCmd = &cobra.Command{
 	Use:           "run [cmd]",
@@ -25,10 +26,11 @@ var runCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
 	runCmd.Flags().StringVarP(&workingDir, "workingdir", "d", "", "Directory that commands will be run from")
 	runCmd.Flags().StringArrayVarP(&attestations, "attestations", "a", []string{"CommandRun"}, "Attestations to record")
 	runCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data.  If no file is provided data will be printed to stdout")
+	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
+	runCmd.MarkFlagRequired("step")
 }
 
 func runRun(cmd *cobra.Command, args []string) error {
@@ -72,7 +74,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 		attestors = append(attestors, attestor)
 	}
 
-	collection := attestation.NewCollection(attestors)
+	collection := attestation.NewCollection(stepName, attestors)
 	data, err := json.Marshal(&collection)
 	if err != nil {
 		return err

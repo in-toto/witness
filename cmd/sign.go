@@ -8,7 +8,6 @@ import (
 	witness "gitlab.com/testifysec/witness-cli/pkg"
 )
 
-var keyPath string
 var dataType string
 
 var signCmd = &cobra.Command{
@@ -18,12 +17,11 @@ var signCmd = &cobra.Command{
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE:          runSign,
-	Args:          cobra.ExactArgs(2),
+	Args:          cobra.ExactArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(signCmd)
-	signCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
 	signCmd.Flags().StringVarP(&dataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")
 	signCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data. Defaults to stdout")
 }

@@ -50,10 +50,10 @@ func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, 
 		return env, err
 	}
 
-	pae := preauthEncode(bodyType, bodyBytes)
 	env.PayloadType = bodyType
-	env.Payload = pae
+	env.Payload = bodyBytes
 	env.Signatures = make([]Signature, 0)
+	pae := preauthEncode(bodyType, bodyBytes)
 	for _, signer := range signers {
 		sig, err := signer.Sign(bytes.NewReader(pae))
 		if err != nil {
@@ -88,13 +88,14 @@ func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, 
 }
 
 func (e Envelope) Verify(verifiers ...crypto.Verifier) error {
+	pae := preauthEncode(e.PayloadType, e.Payload)
 	if len(e.Signatures) == 0 {
 		return ErrNoSignatures{}
 	}
 
 	for _, sig := range e.Signatures {
 		for _, verifier := range verifiers {
-			if err := verifier.Verify(bytes.NewReader(e.Payload), sig.Signature); err != nil {
+			if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
 				return err
 			}
 		}

@@ -9,14 +9,20 @@ import (
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
 
+var keyPath string
+
 var rootCmd = &cobra.Command{
 	Use:   "witness",
 	Short: "Collect and verify attestations about your build environments",
 }
 
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
+}
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, color.Red.Sprint(err.Error()))
+		fmt.Fprintf(os.Stderr, "%v\n", color.Red.Sprint(err.Error()))
 		os.Exit(1)
 	}
 }
