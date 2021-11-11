@@ -8,7 +8,7 @@ import (
 	"gitlab.com/testifysec/witness-cli/pkg/dsse"
 )
 
-func Verify(r io.Reader, verifiers ...crypto.Verifier) error {
+func VerifySignature(r io.Reader, verifiers ...crypto.Verifier) error {
 	envelope, err := dsse.Decode(r)
 	if err != nil {
 		return fmt.Errorf("could not parse dsse envelope: %v", err)

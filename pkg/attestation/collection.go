@@ -1,5 +1,9 @@
 package attestation
 
+import (
+	"encoding/json"
+)
+
 type Collection struct {
 	Name         string              `json:"name"`
 	Attestations map[string]Attestor `json:"attestations"`
@@ -17,4 +21,33 @@ func NewCollection(name string, attestors []Attestor) Collection {
 	}
 
 	return collection
+}
+
+func (c *Collection) UnmarshalJSON(data []byte) error {
+	rawMsg := struct {
+		Name         string
+		Attestations map[string]json.RawMessage
+	}{}
+
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+
+	c.Name = rawMsg.Name
+	c.Attestations = make(map[string]Attestor)
+	for uri, attest := range rawMsg.Attestations {
+		factory, ok := GetFactoryByURI(uri)
+		if !ok {
+			return ErrAttestationNotFound(uri)
+		}
+
+		newAttest := factory()
+		if err := json.Unmarshal(attest, &newAttest); err != nil {
+			return err
+		}
+
+		c.Attestations[uri] = newAttest
+	}
+
+	return nil
 }

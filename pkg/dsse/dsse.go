@@ -16,6 +16,12 @@ func (e ErrNoSignatures) Error() string {
 	return "no signatures in dsse envelope"
 }
 
+type ErrNoMatchingSigs struct{}
+
+func (e ErrNoMatchingSigs) Error() string {
+	return "no valid signatures for the provided verifiers found"
+}
+
 const PemTypeCertificate = "CERTIFICATE"
 
 type Envelope struct {
@@ -93,12 +99,19 @@ func (e Envelope) Verify(verifiers ...crypto.Verifier) error {
 		return ErrNoSignatures{}
 	}
 
+	matchingSigFound := false
 	for _, sig := range e.Signatures {
 		for _, verifier := range verifiers {
 			if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
 				return err
+			} else {
+				matchingSigFound = true
 			}
 		}
+	}
+
+	if !matchingSigFound {
+		return ErrNoMatchingSigs{}
 	}
 
 	return nil

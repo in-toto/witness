@@ -30,6 +30,11 @@ func RegisterAttestation(name, uri string, factoryFunc AttestorFactory) {
 	attestationsByUri[uri] = factoryFunc
 }
 
+func GetFactoryByURI(uri string) (AttestorFactory, bool) {
+	factory, ok := attestationsByUri[uri]
+	return factory, ok
+}
+
 func GetFactories(attestations []string) ([]AttestorFactory, error) {
 	factories := make([]AttestorFactory, 0)
 	for _, attestation := range attestations {
