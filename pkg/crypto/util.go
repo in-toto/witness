@@ -44,12 +44,7 @@ func HexEncode(src []byte) []byte {
 }
 
 func GeneratePublicKeyID(pub interface{}, hash crypto.Hash) (string, error) {
-	keyBytes, err := x509.MarshalPKIXPublicKey(pub)
-	if err != nil {
-		return "", err
-	}
-
-	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
+	pemBytes, err := GetPublicPemBytes(pub)
 	if err != nil {
 		return "", err
 	}
@@ -60,6 +55,20 @@ func GeneratePublicKeyID(pub interface{}, hash crypto.Hash) (string, error) {
 	}
 
 	return string(HexEncode(digest)), nil
+}
+
+func GetPublicPemBytes(pub interface{}) ([]byte, error) {
+	keyBytes, err := x509.MarshalPKIXPublicKey(pub)
+	if err != nil {
+		return nil, err
+	}
+
+	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
+	if err != nil {
+		return nil, err
+	}
+
+	return pemBytes, err
 }
 
 func TryParsePEMBlock(block *pem.Block) (interface{}, error) {

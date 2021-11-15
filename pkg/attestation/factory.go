@@ -17,6 +17,10 @@ type Attestor interface {
 	Attest(run.Result) error
 }
 
+type Subjecter interface {
+	Subjects() map[string]DigestMap
+}
+
 type AttestorFactory func() Attestor
 
 type ErrAttestationNotFound string

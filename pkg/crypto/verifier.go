@@ -15,6 +15,7 @@ type VerifierOpts interface {
 type Verifier interface {
 	KeyIdentifier
 	Verify(body io.Reader, sig []byte, opts ...VerifierOpts) error
+	Bytes() ([]byte, error)
 }
 
 func NewVerifier(pub interface{}) (Verifier, error) {

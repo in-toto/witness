@@ -19,6 +19,7 @@ func (e ErrUnsupportedKeyType) Error() string {
 type Signer interface {
 	KeyIdentifier
 	Sign(r io.Reader) ([]byte, error)
+	Verifier() (Verifier, error)
 }
 
 type KeyIdentifier interface {

@@ -51,3 +51,17 @@ func (c *Collection) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+func (c *Collection) Subjects() map[string]DigestMap {
+	allSubjects := make(map[string]DigestMap)
+	for _, attestor := range c.Attestations {
+		if subjecter, ok := attestor.(Subjecter); ok {
+			subjects := subjecter.Subjects()
+			for subject, digest := range subjects {
+				allSubjects[subject] = digest
+			}
+		}
+	}
+
+	return allSubjects
+}

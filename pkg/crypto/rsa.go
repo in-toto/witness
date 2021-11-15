@@ -34,6 +34,10 @@ func (s *RSASigner) Sign(r io.Reader) ([]byte, error) {
 	return rsa.SignPSS(rand.Reader, s.priv, s.hash, digest, opts)
 }
 
+func (s *RSASigner) Verifier() (Verifier, error) {
+	return NewRSAVerifier(&s.priv.PublicKey, s.hash), nil
+}
+
 type RSAVerifier struct {
 	pub  *rsa.PublicKey
 	hash crypto.Hash
@@ -59,4 +63,8 @@ func (v *RSAVerifier) Verify(data io.Reader, sig []byte, opts ...VerifierOpts) e
 	}
 
 	return rsa.VerifyPSS(v.pub, v.hash, digest, sig, pssOpts)
+}
+
+func (v *RSAVerifier) Bytes() ([]byte, error) {
+	return GetPublicPemBytes(v.pub)
 }

@@ -1,5 +1,6 @@
 package cmd
 
+/**
 import (
 	"fmt"
 	"os"
@@ -45,4 +46,4 @@ func runVerify(cmd *cobra.Command, args []string) error {
 
 	defer inFile.Close()
 	return witness.Verify(inFile, verifier)
-}
+}**/

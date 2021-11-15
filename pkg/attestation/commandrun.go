@@ -1,6 +1,8 @@
 package attestation
 
 import (
+	"strings"
+
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 	"gitlab.com/testifysec/witness-cli/pkg/run"
 )
@@ -47,7 +49,7 @@ func transformRunArtifacts(runArtifacts map[string]run.Artifact) map[string]Dige
 	for path, runArtifact := range runArtifacts {
 		digestMap := make(DigestMap)
 		for hash, digest := range runArtifact.Digests {
-			digestMap[hash.String()] = string(crypto.HexEncode(digest))
+			digestMap[strings.ToLower(strings.ReplaceAll(hash.String(), "-", ""))] = string(crypto.HexEncode(digest))
 		}
 
 		artifacts[path] = digestMap
@@ -91,4 +93,15 @@ func (rc *CommandRun) Name() string {
 
 func (rc *CommandRun) URI() string {
 	return CommandRunURI
+}
+
+func (rc *CommandRun) Subjects() map[string]DigestMap {
+	allProducts := make(map[string]DigestMap)
+	for _, cmd := range rc.Commands {
+		for prod, digest := range cmd.Products {
+			allProducts[prod] = digest
+		}
+	}
+
+	return allProducts
 }
