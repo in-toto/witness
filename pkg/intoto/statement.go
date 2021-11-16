@@ -1,9 +1,9 @@
 package intoto
 
 import (
+	"crypto"
 	"encoding/json"
-
-	"gitlab.com/testifysec/witness-cli/pkg/attestation"
+	"strings"
 )
 
 const StatementType = "https://in-toto.io/Statement/v0.1"
@@ -21,12 +21,17 @@ type Statement struct {
 	Predicate     json.RawMessage `json:"predicate"`
 }
 
-func NewStatement(predicateType string, predicate []byte, digestMap map[string]attestation.DigestMap) Statement {
+func NewStatement(predicateType string, predicate []byte, digestMap map[string]map[crypto.Hash]string) Statement {
 	subjects := []Subject{}
-	for subject, digest := range digestMap {
+	for subject, digests := range digestMap {
+		digestMap := make(map[string]string)
+		for alg, digest := range digests {
+			digestMap[strings.ToLower(strings.ReplaceAll(alg.String(), "-", ""))] = digest
+		}
+
 		subjects = append(subjects, Subject{
 			Name:   subject,
-			Digest: digest,
+			Digest: digestMap,
 		})
 	}
 

@@ -14,8 +14,10 @@ import (
 	"github.com/spf13/cobra"
 	witness "gitlab.com/testifysec/witness-cli/pkg"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
+	"gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
+	"gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
+	"gitlab.com/testifysec/witness-cli/pkg/attestation/environment"
 	"gitlab.com/testifysec/witness-cli/pkg/intoto"
-	"gitlab.com/testifysec/witness-cli/pkg/run"
 )
 
 var workingDir string
@@ -55,36 +57,21 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	defer out.Close()
-	attestorFactories, err := attestation.GetFactories(attestations)
-	if err != nil {
-		return err
-	}
-
-	runCtx, err := run.New(
-		run.WithCommands([][]string{args}),
-		run.WithWorkingDir(workingDir),
+	attestations := []attestation.Attestor{environment.New(), artifact.New(), commandrun.New(commandrun.WithCommand(args))}
+	runCtx, err := attestation.NewContext(
+		attestations,
+		attestation.WithWorkingDir(workingDir),
 	)
 
 	if err != nil {
 		return err
 	}
 
-	runResult, err := runCtx.Run()
-	if err != nil {
+	if err := runCtx.RunAttestors(); err != nil {
 		return err
 	}
 
-	attestors := make([]attestation.Attestor, 0)
-	for _, factory := range attestorFactories {
-		attestor := factory()
-		err := attestor.Attest(runResult)
-		if err != nil {
-			return err
-		}
-
-		attestors = append(attestors, attestor)
-	}
-
+	attestors := runCtx.CompletedAttestors()
 	collection := attestation.NewCollection(stepName, attestors)
 	data, err := json.Marshal(&collection)
 	if err != nil {
