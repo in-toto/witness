@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
+	"gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
 	witcrypt "gitlab.com/testifysec/witness-cli/pkg/crypto"
 	"gitlab.com/testifysec/witness-cli/pkg/dsse"
 )
@@ -64,14 +65,14 @@ func TestVerify(t *testing.T) {
 				},
 				Attestations: []Attestation{
 					{
-						Predicate: attestation.CommandRunURI,
+						Predicate: commandrun.URI,
 					},
 				},
 			},
 		},
 	}
 
-	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{attestation.NewCommandRun()})
+	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandrun.New()})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
 	step1CollReader := bytes.NewReader(step1CollectionJson)
 	env, err := dsse.Sign(attestation.CollectionDataType, step1CollReader, signer)
