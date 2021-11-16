@@ -17,6 +17,7 @@ import (
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/environment"
+	"gitlab.com/testifysec/witness-cli/pkg/attestation/git"
 	"gitlab.com/testifysec/witness-cli/pkg/intoto"
 )
 
@@ -57,7 +58,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	defer out.Close()
-	attestations := []attestation.Attestor{environment.New(), artifact.New(), commandrun.New(commandrun.WithCommand(args))}
+	attestations := []attestation.Attestor{git.New(), environment.New(), artifact.New(), commandrun.New(commandrun.WithCommand(args))}
 	runCtx, err := attestation.NewContext(
 		attestations,
 		attestation.WithWorkingDir(workingDir),
