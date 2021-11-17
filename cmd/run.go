@@ -79,7 +79,11 @@ func runRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	statment := intoto.NewStatement(attestation.CollectionDataType, data, collection.Subjects())
+	statment, err := intoto.NewStatement(attestation.CollectionDataType, data, collection.Subjects())
+	if err != nil {
+		return err
+	}
+
 	statmentJson, err := json.Marshal(&statment)
 	if err != nil {
 		return err

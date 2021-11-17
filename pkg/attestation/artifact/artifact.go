@@ -24,15 +24,15 @@ func init() {
 
 type Option func(*Attestor)
 
-func WithBaseArtifacts(baseArtifacts map[string]map[crypto.Hash]string) Option {
+func WithBaseArtifacts(baseArtifacts map[string]witcrypt.DigestSet) Option {
 	return func(attestor *Attestor) {
 		attestor.baseArtifacts = baseArtifacts
 	}
 }
 
 type Attestor struct {
-	Artifacts     map[string]map[crypto.Hash]string
-	baseArtifacts map[string]map[crypto.Hash]string
+	Artifacts     map[string]witcrypt.DigestSet `json:"artifacts"`
+	baseArtifacts map[string]witcrypt.DigestSet
 }
 
 func (a Attestor) Name() string {
@@ -71,32 +71,11 @@ func (a *Attestor) UnmarshalJSON(data []byte) error {
 	return json.Unmarshal(data, &attestations)
 }
 
-// equal returns true if every digest for hash functions both artifacts have in common are equal.
-// If the two artifacts don't have any digests from common hash functions, equal will return false.
-// If any digest from common hash functions differ between the two artifacts, equal will return false.
-func equal(first, second map[crypto.Hash]string) bool {
-	hasMatchingDigest := false
-	for hash, digest := range first {
-		otherDigest, ok := second[hash]
-		if !ok {
-			continue
-		}
-
-		if digest == otherDigest {
-			hasMatchingDigest = true
-		} else {
-			return false
-		}
-	}
-
-	return hasMatchingDigest
-}
-
 // recordArtifacts will walk basePath and record the digests of each file with each of the functions in hashes.
 // If file already exists in baseArtifacts and the two artifacts are equal the artifact will not be in the
 // returned map of artifacts.
-func recordArtifacts(basePath string, baseArtifacts map[string]map[crypto.Hash]string, hashes []crypto.Hash) (map[string]map[crypto.Hash]string, error) {
-	artifacts := make(map[string]map[crypto.Hash]string)
+func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSet, hashes []crypto.Hash) (map[string]witcrypt.DigestSet, error) {
+	artifacts := make(map[string]witcrypt.DigestSet)
 	err := filepath.Walk(basePath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -119,7 +98,7 @@ func recordArtifacts(basePath string, baseArtifacts map[string]map[crypto.Hash]s
 		// if the artifact is already in baseArtifacts, check if it's changed
 		// if it is not equal to the existing artifact, record it, otherwise skip it
 		previous, ok := baseArtifacts[relPath]
-		if ok && equal(artifact, previous) {
+		if ok && artifact.Equal(previous) {
 			return nil
 		}
 
@@ -130,8 +109,8 @@ func recordArtifacts(basePath string, baseArtifacts map[string]map[crypto.Hash]s
 	return artifacts, err
 }
 
-func recordArtifact(path string, hashes []crypto.Hash) (map[crypto.Hash]string, error) {
-	artifact := make(map[crypto.Hash]string)
+func recordArtifact(path string, hashes []crypto.Hash) (witcrypt.DigestSet, error) {
+	artifact := make(witcrypt.DigestSet)
 	f, err := os.Open(path)
 	if err != nil {
 		return artifact, err

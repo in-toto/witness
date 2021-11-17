@@ -1,8 +1,9 @@
 package attestation
 
 import (
-	"crypto"
 	"fmt"
+
+	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
 
 var (
@@ -17,7 +18,7 @@ type Attestor interface {
 }
 
 type Subjecter interface {
-	Subjects() map[string]map[crypto.Hash]string
+	Subjects() map[string]crypto.DigestSet
 }
 
 type AttestorFactory func() Attestor

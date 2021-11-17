@@ -1,12 +1,12 @@
 package commandrun
 
 import (
-	"crypto"
 	"io"
 	"os/exec"
 
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
+	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
 
 const (
@@ -28,7 +28,7 @@ func WithCommand(cmd []string) Option {
 	}
 }
 
-func WithMaterials(materials map[string]map[crypto.Hash]string) Option {
+func WithMaterials(materials map[string]crypto.DigestSet) Option {
 	return func(cr *CommandRun) {
 		cr.materials = materials
 	}
@@ -50,7 +50,7 @@ type CommandRun struct {
 	ExitCode int                `json:"exitcode"`
 	Products *artifact.Attestor `json:"products"`
 
-	materials map[string]map[crypto.Hash]string
+	materials map[string]crypto.DigestSet
 }
 
 func (rc *CommandRun) Attest(ctx *attestation.AttestationContext) error {
@@ -85,7 +85,7 @@ func (rc *CommandRun) URI() string {
 	return URI
 }
 
-func (rc *CommandRun) Subjects() map[string]map[crypto.Hash]string {
+func (rc *CommandRun) Subjects() map[string]crypto.DigestSet {
 	return rc.Products.Artifacts
 }
 

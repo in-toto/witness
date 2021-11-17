@@ -1,8 +1,9 @@
 package attestation
 
 import (
-	"crypto"
 	"encoding/json"
+
+	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
 
 type Collection struct {
@@ -53,8 +54,8 @@ func (c *Collection) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *Collection) Subjects() map[string]map[crypto.Hash]string {
-	allSubjects := make(map[string]map[crypto.Hash]string)
+func (c *Collection) Subjects() map[string]crypto.DigestSet {
+	allSubjects := make(map[string]crypto.DigestSet)
 	for _, attestor := range c.Attestations {
 		if subjecter, ok := attestor.(Subjecter); ok {
 			subjects := subjecter.Subjects()
