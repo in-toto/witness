@@ -7,6 +7,13 @@ import (
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
+
+	// imported so their init functions run
+	_ "github.com/sigstore/rekor/pkg/types/intoto/v0.0.1"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/environment"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/git"
 )
 
 var keyPath string

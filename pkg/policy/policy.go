@@ -69,8 +69,8 @@ type Functionary struct {
 }
 
 type Attestation struct {
-	Predicate string   `json:"predicate"`
-	Policies  []string `json:"policies"`
+	Type     string   `json:"predicate"`
+	Policies []string `json:"policies"`
 }
 
 type CertConstraint struct {
@@ -133,11 +133,17 @@ func (s Step) Verify(attestCollections []attestation.Collection) error {
 	}
 
 	for _, collection := range attestCollections {
+		found := make(map[string]struct{})
+		for _, attestation := range collection.Attestations {
+			found[attestation.Type] = struct{}{}
+		}
+
 		for _, expected := range s.Attestations {
-			if _, ok := collection.Attestations[expected.Predicate]; !ok {
+			_, ok := found[expected.Type]
+			if !ok {
 				return ErrMissingAttestation{
 					Step:        s.Name,
-					Attestation: expected.Predicate,
+					Attestation: expected.Type,
 				}
 			}
 		}
@@ -159,7 +165,7 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 			continue
 		}
 
-		if env.PayloadType != attestation.CollectionDataType {
+		if env.PayloadType != attestation.CollectionType {
 			continue
 		}
 

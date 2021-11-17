@@ -10,14 +10,10 @@ import (
 	rekorclient "github.com/sigstore/rekor/pkg/client"
 	rekoreentries "github.com/sigstore/rekor/pkg/generated/client/entries"
 	rekortypes "github.com/sigstore/rekor/pkg/types"
-	_ "github.com/sigstore/rekor/pkg/types/intoto/v0.0.1"
 	"github.com/spf13/cobra"
 	witness "gitlab.com/testifysec/witness-cli/pkg"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation/environment"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation/git"
 	"gitlab.com/testifysec/witness-cli/pkg/intoto"
 )
 
@@ -39,7 +35,7 @@ var runCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd)
 	runCmd.Flags().StringVarP(&workingDir, "workingdir", "d", "", "Directory that commands will be run from")
-	runCmd.Flags().StringArrayVarP(&attestations, "attestations", "a", []string{"CommandRun"}, "Attestations to record")
+	runCmd.Flags().StringArrayVarP(&attestations, "attestations", "a", []string{"Environment", "Artifact", "Git"}, "Attestations to record")
 	runCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data.  If no file is provided data will be printed to stdout")
 	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
 	runCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "If provided the created attestation will be pushed to the provided rekor server")
@@ -58,9 +54,17 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	defer out.Close()
-	attestations := []attestation.Attestor{git.New(), environment.New(), artifact.New(), commandrun.New(commandrun.WithCommand(args))}
+	attestors, err := attestation.GetAttestors(attestations)
+	if err != nil {
+		return err
+	}
+
+	if len(args) > 0 {
+		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args)))
+	}
+
 	runCtx, err := attestation.NewContext(
-		attestations,
+		attestors,
 		attestation.WithWorkingDir(workingDir),
 	)
 
@@ -72,14 +76,14 @@ func runRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	attestors := runCtx.CompletedAttestors()
-	collection := attestation.NewCollection(stepName, attestors)
+	completed := runCtx.CompletedAttestors()
+	collection := attestation.NewCollection(stepName, completed)
 	data, err := json.Marshal(&collection)
 	if err != nil {
 		return err
 	}
 
-	statment, err := intoto.NewStatement(attestation.CollectionDataType, data, collection.Subjects())
+	statment, err := intoto.NewStatement(attestation.CollectionType, data, collection.Subjects())
 	if err != nil {
 		return err
 	}

@@ -11,11 +11,11 @@ import (
 
 const (
 	Name = "Git"
-	URI  = "https://witness.testifysec.com/attestations/Git/v0.1"
+	Type = "https://witness.testifysec.com/attestations/Git/v0.1"
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, URI, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -40,8 +40,8 @@ func (a *Attestor) Name() string {
 	return Name
 }
 
-func (a *Attestor) URI() string {
-	return URI
+func (a *Attestor) Type() string {
+	return Type
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {

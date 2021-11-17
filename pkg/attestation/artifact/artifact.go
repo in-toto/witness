@@ -13,11 +13,11 @@ import (
 
 const (
 	Name = "Artifact"
-	URI  = "https://witness.testifysec.com/attestations/Artifact/v0.1"
+	Type = "https://witness.testifysec.com/attestations/Artifact/v0.1"
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, URI, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -39,8 +39,8 @@ func (a Attestor) Name() string {
 	return Name
 }
 
-func (a Attestor) URI() string {
-	return URI
+func (a Attestor) Type() string {
+	return Type
 }
 
 func New(opts ...Option) *Attestor {

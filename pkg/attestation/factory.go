@@ -8,12 +8,12 @@ import (
 
 var (
 	attestationsByName = map[string]AttestorFactory{}
-	attestationsByUri  = map[string]AttestorFactory{}
+	attestationsByType = map[string]AttestorFactory{}
 )
 
 type Attestor interface {
 	Name() string
-	URI() string
+	Type() string
 	Attest(ctx *AttestationContext) error
 }
 
@@ -31,49 +31,36 @@ func (e ErrAttestationNotFound) Error() string {
 
 func RegisterAttestation(name, uri string, factoryFunc AttestorFactory) {
 	attestationsByName[name] = factoryFunc
-	attestationsByUri[uri] = factoryFunc
+	attestationsByType[uri] = factoryFunc
 }
 
-func GetFactoryByURI(uri string) (AttestorFactory, bool) {
-	factory, ok := attestationsByUri[uri]
+func GetFactoryByType(uri string) (AttestorFactory, bool) {
+	factory, ok := attestationsByType[uri]
 	return factory, ok
 }
 
-func GetFactories(attestations []string) ([]AttestorFactory, error) {
-	factories := make([]AttestorFactory, 0)
-	for _, attestation := range attestations {
-		factory, ok := attestationsByName[attestation]
+func GetFactoryByName(name string) (AttestorFactory, bool) {
+	factory, ok := attestationsByName[name]
+	return factory, ok
+}
+
+func GetAttestors(nameOrTypes []string) ([]Attestor, error) {
+	attestors := make([]Attestor, 0)
+	for _, nameOrType := range nameOrTypes {
+		factory, ok := GetFactoryByName(nameOrType)
 		if ok {
-			factories = append(factories, factory)
+			attestors = append(attestors, factory())
 			continue
 		}
 
-		factory, ok = attestationsByUri[attestation]
+		factory, ok = GetFactoryByType(nameOrType)
 		if ok {
-			factories = append(factories, factory)
+			attestors = append(attestors, factory())
 			continue
 		}
 
-		return nil, ErrAttestationNotFound(attestation)
+		return nil, ErrAttestationNotFound(nameOrType)
 	}
 
-	return factories, nil
-}
-
-func AllNames() []string {
-	names := make([]string, 0)
-	for name := range attestationsByName {
-		names = append(names, name)
-	}
-
-	return names
-}
-
-func AllURIs() []string {
-	uris := make([]string, 0)
-	for uri := range attestationsByUri {
-		uris = append(uris, uri)
-	}
-
-	return uris
+	return attestors, nil
 }

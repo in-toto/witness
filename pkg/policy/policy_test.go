@@ -65,7 +65,7 @@ func TestVerify(t *testing.T) {
 				},
 				Attestations: []Attestation{
 					{
-						Predicate: commandrun.URI,
+						Type: commandrun.Type,
 					},
 				},
 			},
@@ -75,7 +75,7 @@ func TestVerify(t *testing.T) {
 	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandrun.New()})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
 	step1CollReader := bytes.NewReader(step1CollectionJson)
-	env, err := dsse.Sign(attestation.CollectionDataType, step1CollReader, signer)
+	env, err := dsse.Sign(attestation.CollectionType, step1CollReader, signer)
 	require.NoError(t, err)
 	encodedEnv, err := json.Marshal(&env)
 	require.NoError(t, err)

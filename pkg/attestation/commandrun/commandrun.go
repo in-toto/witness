@@ -11,11 +11,11 @@ import (
 
 const (
 	Name = "CommandRun"
-	URI  = "https://witness.testifysec.com/attestations/CommandRun/v0.1"
+	Type = "https://witness.testifysec.com/attestations/CommandRun/v0.1"
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, URI, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -81,8 +81,8 @@ func (rc *CommandRun) Name() string {
 	return Name
 }
 
-func (rc *CommandRun) URI() string {
-	return URI
+func (rc *CommandRun) Type() string {
+	return Type
 }
 
 func (rc *CommandRun) Subjects() map[string]crypto.DigestSet {
@@ -103,7 +103,7 @@ func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 	}
 
 	if err := c.Start(); err != nil {
-		return nil
+		return err
 	}
 
 	stdout, _ := io.ReadAll(stdoutReader)
