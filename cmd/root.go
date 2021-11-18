@@ -13,6 +13,8 @@ import (
 	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
 	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/environment"
 	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/git"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/gitlab"
+	_ "gitlab.com/testifysec/witness-cli/pkg/attestation/jwt"
 )
 
 var keyPath string
