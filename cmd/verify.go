@@ -13,20 +13,25 @@ import (
 )
 
 var attestationFilePaths []string
+var policyFilePath string
+var artifactFilePath string
+var artifactHash string
 
 var verifyCmd = &cobra.Command{
-	Use:           "verify [FILE]",
+	Use:           "verify",
 	Short:         "Verifies a witness layout",
 	Long:          "Verifies a layout provided key source and exits with code 0 if verification succeeds",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE:          runVerify,
-	Args:          cobra.ExactArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(verifyCmd)
-	rootCmd.Flags().StringArrayVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
+	verifyCmd.Flags().StringArrayVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
+	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
+	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
+	verifyCmd.Flags().StringVar(&artifactHash, "artifacthash", "", "Hash of the artifact to verify")
 }
 
 //todo: this logic should be broken out and moved to pkg/
@@ -43,8 +48,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load key: %v", err)
 	}
 
-	inFilePath := args[0]
-	inFile, err := os.Open(inFilePath)
+	inFile, err := os.Open(policyFilePath)
 	if err != nil {
 		return fmt.Errorf("could not open file to sign: %v", err)
 	}

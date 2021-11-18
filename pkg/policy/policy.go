@@ -10,6 +10,7 @@ import (
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
 	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 	"gitlab.com/testifysec/witness-cli/pkg/dsse"
+	"gitlab.com/testifysec/witness-cli/pkg/intoto"
 )
 
 const PolicyPredicate = "https://witness.testifysec.com/policy/v0.1"
@@ -47,7 +48,7 @@ func (e ErrKeyIDMismatch) Error() string {
 type Policy struct {
 	Expires    time.Time            `json:"expires"`
 	Roots      map[string]Root      `json:"roots,omitempty"`
-	PublicKeys map[string]PublicKey `json:"publickey,omitempty"`
+	PublicKeys map[string]PublicKey `json:"publickeys,omitempty"`
 	Steps      map[string]Step      `json:"steps"`
 }
 
@@ -59,7 +60,7 @@ type Root struct {
 type Step struct {
 	Name          string        `json:"name"`
 	Functionaries []Functionary `json:"functionaries"`
-	Attestations  []Attestation `json:"attestation"`
+	Attestations  []Attestation `json:"attestations"`
 }
 
 type Functionary struct {
@@ -69,7 +70,7 @@ type Functionary struct {
 }
 
 type Attestation struct {
-	Type     string   `json:"predicate"`
+	Type     string   `json:"type"`
 	Policies []string `json:"policies"`
 }
 
@@ -165,12 +166,21 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 			continue
 		}
 
-		if env.PayloadType != attestation.CollectionType {
+		if env.PayloadType != intoto.PayloadType {
+			continue
+		}
+
+		statement := intoto.Statement{}
+		if err := json.Unmarshal(env.Payload, &statement); err != nil {
+			continue
+		}
+
+		if statement.PredicateType != attestation.CollectionType {
 			continue
 		}
 
 		collection := attestation.Collection{}
-		if err := json.Unmarshal(env.Payload, &collection); err != nil {
+		if err := json.Unmarshal(statement.Predicate, &collection); err != nil {
 			continue
 		}
 

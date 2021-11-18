@@ -67,7 +67,7 @@ func (a *Attestor) MarshalJSON() ([]byte, error) {
 }
 
 func (a *Attestor) UnmarshalJSON(data []byte) error {
-	attestations := make(map[string]map[crypto.Hash][]byte)
+	attestations := make(map[string]witcrypt.DigestSet)
 	return json.Unmarshal(data, &attestations)
 }
 
@@ -90,7 +90,7 @@ func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSe
 			return err
 		}
 
-		artifact, err := recordArtifact(relPath, hashes)
+		artifact, err := recordArtifact(path, hashes)
 		if err != nil {
 			return err
 		}
