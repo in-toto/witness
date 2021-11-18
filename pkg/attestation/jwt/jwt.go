@@ -75,7 +75,6 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	}
 
 	defer resp.Body.Close()
-
 	jwks := jose.JSONWebKeySet{}
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&jwks); err != nil {

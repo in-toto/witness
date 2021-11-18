@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"bytes"
 	"crypto"
 	"encoding/json"
 	"fmt"
@@ -89,6 +90,20 @@ func NewDigestSet(digestsByName map[string]string) (DigestSet, error) {
 	}
 
 	return ds, nil
+}
+
+func CalculateDigestSet(data []byte, hashes []crypto.Hash) (DigestSet, error) {
+	digestSet := make(DigestSet)
+	for _, hash := range hashes {
+		digest, err := Digest(bytes.NewReader(data), hash)
+		if err != nil {
+			return digestSet, err
+		}
+
+		digestSet[hash] = string(HexEncode(digest))
+	}
+
+	return digestSet, nil
 }
 
 func (ds DigestSet) MarshalJSON() ([]byte, error) {

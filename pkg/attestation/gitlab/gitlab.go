@@ -5,6 +5,7 @@ import (
 
 	"gitlab.com/testifysec/witness-cli/pkg/attestation"
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/jwt"
+	"gitlab.com/testifysec/witness-cli/pkg/crypto"
 )
 
 const (
@@ -39,10 +40,14 @@ type Attestor struct {
 	ProjectUrl   string        `json:"projecturl"`
 	RunnerID     string        `json:"runnerid"`
 	CIHost       string        `json:"cihost"`
+
+	subjects map[string]crypto.DigestSet
 }
 
 func New() *Attestor {
-	return &Attestor{}
+	return &Attestor{
+		subjects: make(map[string]crypto.DigestSet),
+	}
 }
 
 func (a *Attestor) Name() string {
@@ -78,5 +83,22 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	a.ProjectUrl = os.Getenv("CI_PROJECT_URL")
 	a.RunnerID = os.Getenv("CI_RUNNER_ID")
 	a.CIHost = os.Getenv("CI_SERVER_HOST")
+
+	pipelineSubj, err := crypto.CalculateDigestSet([]byte(a.PipelineUrl), ctx.Hashes())
+	if err != nil {
+		return err
+	}
+
+	a.subjects[a.PipelineUrl] = pipelineSubj
+	jobSubj, err := crypto.CalculateDigestSet([]byte(a.JobUrl), ctx.Hashes())
+	if err != nil {
+		return err
+	}
+
+	a.subjects[a.JobUrl] = jobSubj
 	return nil
+}
+
+func (a *Attestor) Subjects() map[string]crypto.DigestSet {
+	return a.subjects
 }
