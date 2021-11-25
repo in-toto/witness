@@ -51,7 +51,7 @@ func (v *RSAVerifier) KeyID() (string, error) {
 	return GeneratePublicKeyID(v.pub, v.hash)
 }
 
-func (v *RSAVerifier) Verify(data io.Reader, sig []byte, opts ...VerifierOpts) error {
+func (v *RSAVerifier) Verify(data io.Reader, sig []byte) error {
 	digest, err := Digest(data, v.hash)
 	if err != nil {
 		return err

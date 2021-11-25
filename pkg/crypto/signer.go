@@ -2,8 +2,9 @@ package crypto
 
 import (
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rsa"
-	"crypto/x509"
 	"fmt"
 	"io"
 )
@@ -26,15 +27,15 @@ type KeyIdentifier interface {
 	KeyID() (string, error)
 }
 
-type TrustBundler interface {
-	TrustBundle() (*x509.Certificate, []*x509.Certificate)
-}
-
 func NewSigner(priv interface{}) (Signer, error) {
 	switch key := priv.(type) {
 	case *rsa.PrivateKey:
 		// todo: make the hash and other options configurable
 		return NewRSASigner(key, crypto.SHA256), nil
+	case *ecdsa.PrivateKey:
+		return NewECDSASigner(key, crypto.SHA256), nil
+	case ed25519.PrivateKey:
+		return NewED25519Signer(key), nil
 	default:
 		return nil, ErrUnsupportedKeyType{
 			t: fmt.Sprintf("%T", priv),
