@@ -2,6 +2,7 @@ package policy
 
 import (
 	"bytes"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -109,6 +110,50 @@ func (p Policy) loadPublicKeys() (map[string]crypto.Verifier, error) {
 	return verifiers, nil
 }
 
+type trustBundle struct {
+	root          *x509.Certificate
+	intermediates []*x509.Certificate
+}
+
+func (p Policy) loadRoots() (map[string]trustBundle, error) {
+	bundles := make(map[string]trustBundle)
+	for id, root := range p.Roots {
+		bundle := trustBundle{}
+		var err error
+		bundle.root, err = parseCertificate(root.Certificate)
+		if err != nil {
+			return bundles, err
+		}
+
+		for _, intBytes := range root.Intermediates {
+			cert, err := parseCertificate(intBytes)
+			if err != nil {
+				return bundles, err
+			}
+
+			bundle.intermediates = append(bundle.intermediates, cert)
+		}
+
+		bundles[id] = bundle
+	}
+
+	return bundles, nil
+}
+
+func parseCertificate(data []byte) (*x509.Certificate, error) {
+	possibleCert, err := crypto.TryParseKeyFromReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+
+	cert, ok := possibleCert.(*x509.Certificate)
+	if !ok {
+		return nil, fmt.Errorf("value is not an x509 certificate")
+	}
+
+	return cert, nil
+}
+
 func (p Policy) Verify(signedCollections []io.Reader) error {
 	if time.Now().After(p.Expires) {
 		return ErrPolicyExpired(p.Expires)
@@ -159,6 +204,11 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 		return nil, err
 	}
 
+	trustBundles, err := p.loadRoots()
+	if err != nil {
+		return nil, err
+	}
+
 	collectionsByStep := make(map[string][]attestation.Collection)
 	for _, r := range signedCollections {
 		env, err := dsse.Decode(r)
@@ -189,15 +239,51 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 			continue
 		}
 
-		allowedPubKeys := make([]crypto.Verifier, 0)
+		functionaries := make([]crypto.Verifier, 0)
 		for _, functionary := range step.Functionaries {
-			pubKey, ok := publicKeysByID[functionary.PublicKeyID]
-			if ok {
-				allowedPubKeys = append(allowedPubKeys, pubKey)
+			if functionary.PublicKeyID != "" {
+				pubKey, ok := publicKeysByID[functionary.PublicKeyID]
+				if ok {
+					functionaries = append(functionaries, pubKey)
+					continue
+				}
+			}
+
+			for _, root := range functionary.CertConstraint.Roots {
+				bundle, ok := trustBundles[root]
+				if !ok {
+					continue
+				}
+
+				for _, sig := range env.Signatures {
+					if len(sig.Certificate) == 0 {
+						continue
+					}
+
+					cert, err := parseCertificate(sig.Certificate)
+					if err != nil {
+						continue
+					}
+
+					intermediates := make([]*x509.Certificate, 0, len(bundle.intermediates))
+					copy(intermediates, bundle.intermediates)
+					for _, intBytes := range sig.Intermediates {
+						intermediate, err := parseCertificate(intBytes)
+						if err != nil {
+							continue
+						}
+
+						intermediates = append(intermediates, intermediate)
+					}
+
+					verifier, err := crypto.NewX509Verifier(cert, intermediates, []*x509.Certificate{bundle.root})
+					functionaries = append(functionaries, verifier)
+				}
 			}
 		}
 
-		if err := env.Verify(allowedPubKeys...); err != nil {
+		if err := env.Verify(functionaries...); err != nil {
+			fmt.Printf("didn't verify %v\n", err)
 			continue
 		}
 
