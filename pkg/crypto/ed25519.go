@@ -65,5 +65,5 @@ func (v *ED25519Verifier) Verify(r io.Reader, sig []byte) error {
 }
 
 func (v *ED25519Verifier) Bytes() ([]byte, error) {
-	return GetPublicPemBytes(v.pub)
+	return PublicPemBytes(v.pub)
 }

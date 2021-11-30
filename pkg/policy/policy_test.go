@@ -18,6 +18,7 @@ import (
 	"gitlab.com/testifysec/witness-cli/pkg/attestation/commandrun"
 	witcrypt "gitlab.com/testifysec/witness-cli/pkg/crypto"
 	"gitlab.com/testifysec/witness-cli/pkg/dsse"
+	"gitlab.com/testifysec/witness-cli/pkg/intoto"
 )
 
 func createTestKey() (witcrypt.Signer, witcrypt.Verifier, []byte, error) {
@@ -74,8 +75,11 @@ func TestVerify(t *testing.T) {
 
 	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandrun.New()})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
-	step1CollReader := bytes.NewReader(step1CollectionJson)
-	env, err := dsse.Sign(attestation.CollectionType, step1CollReader, signer)
+	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]witcrypt.DigestSet{})
+	require.NoError(t, err)
+	statementJson, err := json.Marshal(&intotoStatement)
+	require.NoError(t, err)
+	env, err := dsse.Sign(intoto.PayloadType, bytes.NewReader(statementJson), signer)
 	require.NoError(t, err)
 	encodedEnv, err := json.Marshal(&env)
 	require.NoError(t, err)

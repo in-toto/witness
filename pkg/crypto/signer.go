@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
+	"crypto/x509"
 	"fmt"
 	"io"
 )
@@ -25,6 +26,12 @@ type Signer interface {
 
 type KeyIdentifier interface {
 	KeyID() (string, error)
+}
+
+type TrustBundler interface {
+	Certificate() *x509.Certificate
+	Intermediates() []*x509.Certificate
+	Roots() []*x509.Certificate
 }
 
 func NewSigner(priv interface{}) (Signer, error) {

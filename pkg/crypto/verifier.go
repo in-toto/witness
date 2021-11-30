@@ -26,7 +26,7 @@ func NewVerifier(pub interface{}) (Verifier, error) {
 	case ed25519.PublicKey:
 		return NewED25519Verifier(key), nil
 	case *x509.Certificate:
-		return NewX509Verifier(key, x509.NewCertPool(), x509.NewCertPool())
+		return NewX509Verifier(key, nil, nil)
 	default:
 		return nil, ErrUnsupportedKeyType{
 			t: fmt.Sprintf("%T", pub),

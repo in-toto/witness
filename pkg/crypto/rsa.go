@@ -66,5 +66,5 @@ func (v *RSAVerifier) Verify(data io.Reader, sig []byte) error {
 }
 
 func (v *RSAVerifier) Bytes() ([]byte, error) {
-	return GetPublicPemBytes(v.pub)
+	return PublicPemBytes(v.pub)
 }

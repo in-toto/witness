@@ -48,7 +48,7 @@ func (c *CollectionAttestation) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	factory, ok := GetFactoryByType(proposed.Type)
+	factory, ok := FactoryByType(proposed.Type)
 	if !ok {
 		return ErrAttestationNotFound(proposed.Type)
 	}

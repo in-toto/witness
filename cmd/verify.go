@@ -28,7 +28,9 @@ var verifyCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(verifyCmd)
-	verifyCmd.Flags().StringArrayVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
+	verifyCmd.Flags().StringVarP(&keyPath, "layout-key", "k", "", "Path to the layout signer's public key")
+	verifyCmd.MarkFlagRequired("layout-key")
+	verifyCmd.Flags().StringSliceVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
 	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	verifyCmd.Flags().StringVar(&artifactHash, "artifacthash", "", "Hash of the artifact to verify")

@@ -77,7 +77,8 @@ func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, 
 		}
 
 		if trustBundler, ok := signer.(crypto.TrustBundler); ok {
-			leaf, intermediates := trustBundler.TrustBundle()
+			leaf := trustBundler.Certificate()
+			intermediates := trustBundler.Intermediates()
 			if leaf != nil {
 				dsseSig.Certificate = pem.EncodeToMemory(&pem.Block{Type: PemTypeCertificate, Bytes: leaf.Raw})
 			}

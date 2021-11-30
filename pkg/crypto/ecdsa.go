@@ -67,5 +67,5 @@ func (v *ECDSAVerifier) Verify(data io.Reader, sig []byte) error {
 }
 
 func (v *ECDSAVerifier) Bytes() ([]byte, error) {
-	return GetPublicPemBytes(v.pub)
+	return PublicPemBytes(v.pub)
 }

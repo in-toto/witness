@@ -31,8 +31,9 @@ var runCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+	addKeyFlags(runCmd)
 	runCmd.Flags().StringVarP(&workingDir, "workingdir", "d", "", "Directory that commands will be run from")
-	runCmd.Flags().StringArrayVarP(&attestations, "attestations", "a", []string{"Environment", "Artifact", "Git"}, "Attestations to record")
+	runCmd.Flags().StringSliceVarP(&attestations, "attestations", "a", []string{"Environment", "Artifact", "Git"}, "Attestations to record")
 	runCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data.  Defaults to stdout")
 	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
 	runCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
@@ -51,7 +52,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	defer out.Close()
-	attestors, err := attestation.GetAttestors(attestations)
+	attestors, err := attestation.Attestors(attestations)
 	if err != nil {
 		return fmt.Errorf("failed to get attestors: %w", err)
 	}

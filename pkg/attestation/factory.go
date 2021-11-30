@@ -34,26 +34,26 @@ func RegisterAttestation(name, uri string, factoryFunc AttestorFactory) {
 	attestationsByType[uri] = factoryFunc
 }
 
-func GetFactoryByType(uri string) (AttestorFactory, bool) {
+func FactoryByType(uri string) (AttestorFactory, bool) {
 	factory, ok := attestationsByType[uri]
 	return factory, ok
 }
 
-func GetFactoryByName(name string) (AttestorFactory, bool) {
+func FactoryByName(name string) (AttestorFactory, bool) {
 	factory, ok := attestationsByName[name]
 	return factory, ok
 }
 
-func GetAttestors(nameOrTypes []string) ([]Attestor, error) {
+func Attestors(nameOrTypes []string) ([]Attestor, error) {
 	attestors := make([]Attestor, 0)
 	for _, nameOrType := range nameOrTypes {
-		factory, ok := GetFactoryByName(nameOrType)
+		factory, ok := FactoryByName(nameOrType)
 		if ok {
 			attestors = append(attestors, factory())
 			continue
 		}
 
-		factory, ok = GetFactoryByType(nameOrType)
+		factory, ok = FactoryByType(nameOrType)
 		if ok {
 			attestors = append(attestors, factory())
 			continue

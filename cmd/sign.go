@@ -22,6 +22,7 @@ var signCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(signCmd)
+	addKeyFlags(signCmd)
 	signCmd.Flags().StringVarP(&dataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")
 	signCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data. Defaults to stdout")
 }
