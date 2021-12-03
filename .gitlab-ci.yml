@@ -1,0 +1,22 @@
+image: golang:1.17
+
+stages:
+  - build checks
+
+build:
+  stage: build checks
+  artifacts:
+    paths:
+      - ./bin/witness
+  script:
+    - make clean build
+
+test:
+  stage: build checks
+  script:
+    - make test
+
+vet:
+  stage: build checks
+  script:
+    - make vet
