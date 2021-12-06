@@ -52,7 +52,6 @@ type Attestor struct {
 	InstanceCreationTimestamp string        `json:"instance_creation_timestamp"`
 	InstanceConfidentiality   string        `json:"instance_confidentiality"`
 	LicenceID                 []string      `json:"licence_id"`
-	TokenEmail                string        `json:"email"`
 	isWorkloadIdentity        bool          `json:"-"`
 	ClusterName               string        `json:"cluster_name"`
 	ClusterUID                string        `json:"cluster_uid"`
@@ -90,8 +89,6 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	if err := a.JWT.Attest(ctx); err != nil {
 		return err
 	}
-
-	a.TokenEmail = a.JWT.Claims["email"].(string)
 
 	if a.JWT.Claims["google"] == nil {
 		a.isWorkloadIdentity = true
