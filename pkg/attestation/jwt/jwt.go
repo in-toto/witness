@@ -29,15 +29,21 @@ func (e ErrInvalidToken) Error() string {
 
 type Option func(a *Attestor)
 
+type VerificationInfo struct {
+	JWKSUrl string          `json:"jwksUrl"`
+	JWK     jose.JSONWebKey `json:"jwk"`
+}
+
 type Attestor struct {
-	Token   string                 `json:"token"`
-	Claims  map[string]interface{} `json:"claims"`
-	jwksUrl string
+	Claims     map[string]interface{} `json:"claims"`
+	VerifiedBy VerificationInfo       `json:"verifiedBy,omitempty"`
+	jwksUrl    string
+	token      string
 }
 
 func WithToken(token string) Option {
 	return func(a *Attestor) {
-		a.Token = token
+		a.token = token
 	}
 }
 
@@ -60,11 +66,11 @@ func New(opts ...Option) *Attestor {
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
-	if a.Token == "" {
-		return ErrInvalidToken(a.Token)
+	if a.token == "" {
+		return ErrInvalidToken(a.token)
 	}
 
-	parsed, err := jwt.ParseSigned(a.Token)
+	parsed, err := jwt.ParseSigned(a.token)
 	if err != nil {
 		return err
 	}
@@ -83,6 +89,24 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 
 	if err := parsed.Claims(jwks, &a.Claims); err != nil {
 		return err
+	}
+
+	keyID := ""
+	for _, header := range parsed.Headers {
+		if header.KeyID != "" {
+			keyID = header.KeyID
+			break
+		}
+	}
+
+	possibleJwk := jwks.Key(keyID)
+	if len(possibleJwk) <= 0 {
+		return nil
+	}
+
+	a.VerifiedBy = VerificationInfo{
+		JWKSUrl: a.jwksUrl,
+		JWK:     possibleJwk[0],
 	}
 
 	return nil
