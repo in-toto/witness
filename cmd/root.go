@@ -25,10 +25,15 @@ var keyPath string
 var certPath string
 var intermediatePaths []string
 var spiffePath string
+var config string
 
 var rootCmd = &cobra.Command{
 	Use:   "witness",
 	Short: "Collect and verify attestations about your build environments",
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&config, "config", "c", ".witness.yaml", "Path to the witness config file")
 }
 
 func Execute() {
@@ -44,7 +49,7 @@ func GetCommand() *cobra.Command {
 
 func addKeyFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
-	cmd.Flags().StringVarP(&certPath, "certificate", "c", "", "Path to the signing key's certificate")
+	cmd.Flags().StringVar(&certPath, "certificate", "", "Path to the signing key's certificate")
 	cmd.Flags().StringSliceVarP(&intermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root in the policy")
 	cmd.Flags().StringVar(&spiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
 }

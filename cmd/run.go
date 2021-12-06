@@ -39,10 +39,15 @@ func init() {
 	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
 	runCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
 	runCmd.Flags().BoolVar(&tracing, "trace", false, "enable tracing for the command")
-	runCmd.MarkFlagRequired("step")
+	cobra.OnInitialize(initConfig)
+
 }
 
 func runRun(cmd *cobra.Command, args []string) error {
+	if stepName == "" {
+		return fmt.Errorf("step name is required")
+	}
+
 	signer, err := loadSigner()
 	if err != nil {
 		return fmt.Errorf("failed to load signer: %w", err)
