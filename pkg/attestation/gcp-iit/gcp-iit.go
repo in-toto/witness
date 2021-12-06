@@ -43,7 +43,7 @@ func (e ErrNotGCPIIT) Error() string {
 }
 
 type Attestor struct {
-	JWT                       *jwt.Attestor `json:"-"`
+	JWT                       *jwt.Attestor `json:"jwt"`
 	ProjectID                 string        `json:"project_id"`
 	ProjectNumber             string        `json:"project_number"`
 	InstanceZone              string        `json:"zone"`
