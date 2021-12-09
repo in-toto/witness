@@ -9,6 +9,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.10
 	github.com/stretchr/testify v1.7.0
+	golang.org/x/sys v0.0.0-20210909193231-528a39cd75f3
 	google.golang.org/grpc v1.42.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
@@ -86,7 +87,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
-	golang.org/x/sys v0.0.0-20210909193231-528a39cd75f3 // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20210831024726-fe130286e0e2 // indirect

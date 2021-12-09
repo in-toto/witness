@@ -19,6 +19,7 @@ var attestations []string
 var outFilePath string
 var stepName string
 var rekorServer string
+var tracing bool
 
 var runCmd = &cobra.Command{
 	Use:           "run [cmd]",
@@ -37,6 +38,7 @@ func init() {
 	runCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data.  Defaults to stdout")
 	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
 	runCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
+	runCmd.Flags().BoolVar(&tracing, "trace", false, "enable tracing for the command")
 	runCmd.MarkFlagRequired("step")
 }
 
@@ -58,7 +60,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) > 0 {
-		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args)))
+		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(tracing)))
 	}
 
 	runCtx, err := attestation.NewContext(

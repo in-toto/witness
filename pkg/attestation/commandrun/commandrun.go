@@ -34,6 +34,12 @@ func WithMaterials(materials map[string]crypto.DigestSet) Option {
 	}
 }
 
+func WithTracing(enabled bool) Option {
+	return func(cr *CommandRun) {
+		cr.enableTracing = enabled
+	}
+}
+
 func New(opts ...Option) *CommandRun {
 	cr := &CommandRun{}
 	for _, opt := range opts {
@@ -43,14 +49,22 @@ func New(opts ...Option) *CommandRun {
 	return cr
 }
 
-type CommandRun struct {
-	Cmd      []string           `json:"cmd"`
-	Stdout   string             `json:"stdout,omitempty"`
-	Stderr   string             `json:"stderr,omitempty"`
-	ExitCode int                `json:"exitcode"`
-	Products *artifact.Attestor `json:"products"`
+type ProcessInfo struct {
+	ProcessID   int            `json:"processid"`
+	Program     string         `json:"program,omitempty"`
+	OpenedFiles map[string]int `json:"openedFiles,omitempty"`
+}
 
-	materials map[string]crypto.DigestSet
+type CommandRun struct {
+	Cmd       []string           `json:"cmd"`
+	Stdout    string             `json:"stdout,omitempty"`
+	Stderr    string             `json:"stderr,omitempty"`
+	ExitCode  int                `json:"exitcode"`
+	Products  *artifact.Attestor `json:"products"`
+	Processes []ProcessInfo      `json:"processes,omitempty"`
+
+	materials     map[string]crypto.DigestSet
+	enableTracing bool
 }
 
 func (rc *CommandRun) Attest(ctx *attestation.AttestationContext) error {
@@ -102,18 +116,26 @@ func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 		return err
 	}
 
+	if r.enableTracing {
+		enableTracing(c)
+	}
+
 	if err := c.Start(); err != nil {
 		return err
+	}
+
+	if r.enableTracing {
+		r.Processes, err = r.trace(c)
+	} else {
+		err = c.Wait()
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			r.ExitCode = exitErr.ExitCode()
+		}
 	}
 
 	stdout, _ := io.ReadAll(stdoutReader)
 	stderr, _ := io.ReadAll(stderrReader)
 	r.Stdout = string(stdout)
 	r.Stderr = string(stderr)
-	err = c.Wait()
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		r.ExitCode = exitErr.ExitCode()
-	}
-
 	return err
 }
