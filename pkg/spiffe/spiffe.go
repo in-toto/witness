@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
-	witcrypt "gitlab.com/testifysec/witness/pkg/crypto"
+	witcrypt "github.com/testifysec/witness/pkg/crypto"
 )
 
 type ErrInvalidSVID string

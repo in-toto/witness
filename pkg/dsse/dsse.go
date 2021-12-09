@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"gitlab.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/crypto"
 )
 
 type ErrNoSignatures struct{}

@@ -8,17 +8,17 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
-	"gitlab.com/testifysec/witness/pkg/crypto"
-	"gitlab.com/testifysec/witness/pkg/spiffe"
+	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/spiffe"
 
 	// imported so their init functions run
-	_ "gitlab.com/testifysec/witness/pkg/attestation/artifact"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/commandrun"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/environment"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/gcp-iit"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/git"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/gitlab"
-	_ "gitlab.com/testifysec/witness/pkg/attestation/jwt"
+	_ "github.com/testifysec/witness/pkg/attestation/artifact"
+	_ "github.com/testifysec/witness/pkg/attestation/commandrun"
+	_ "github.com/testifysec/witness/pkg/attestation/environment"
+	_ "github.com/testifysec/witness/pkg/attestation/gcp-iit"
+	_ "github.com/testifysec/witness/pkg/attestation/git"
+	_ "github.com/testifysec/witness/pkg/attestation/gitlab"
+	_ "github.com/testifysec/witness/pkg/attestation/jwt"
 )
 
 var keyPath string

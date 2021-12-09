@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"gitlab.com/testifysec/witness/pkg/attestation"
-	witcrypt "gitlab.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/attestation"
+	witcrypt "github.com/testifysec/witness/pkg/crypto"
 )
 
 const (

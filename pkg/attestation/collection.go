@@ -3,7 +3,7 @@ package attestation
 import (
 	"encoding/json"
 
-	"gitlab.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/crypto"
 )
 
 const CollectionType = "https://witness.testifysec.com/AttestationCollection/v0.1"

@@ -14,11 +14,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/testifysec/witness/pkg/attestation"
-	"gitlab.com/testifysec/witness/pkg/attestation/commandrun"
-	witcrypt "gitlab.com/testifysec/witness/pkg/crypto"
-	"gitlab.com/testifysec/witness/pkg/dsse"
-	"gitlab.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation/commandrun"
+	witcrypt "github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/intoto"
 )
 
 func createTestKey() (witcrypt.Signer, witcrypt.Verifier, []byte, error) {

@@ -7,11 +7,11 @@ import (
 	"io"
 
 	"github.com/spf13/cobra"
-	witness "gitlab.com/testifysec/witness/pkg"
-	"gitlab.com/testifysec/witness/pkg/attestation"
-	"gitlab.com/testifysec/witness/pkg/attestation/commandrun"
-	"gitlab.com/testifysec/witness/pkg/intoto"
-	"gitlab.com/testifysec/witness/pkg/rekor"
+	witness "github.com/testifysec/witness/pkg"
+	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation/commandrun"
+	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/rekor"
 )
 
 var workingDir string

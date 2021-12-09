@@ -7,12 +7,12 @@ import (
 	"net/url"
 	"strings"
 
-	"gitlab.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/crypto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"gitlab.com/testifysec/witness/pkg/attestation"
-	"gitlab.com/testifysec/witness/pkg/attestation/jwt"
+	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation/jwt"
 )
 
 const (

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"gitlab.com/testifysec/witness/pkg/crypto"
-	"gitlab.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/dsse"
 )
 
 func VerifySignature(r io.Reader, verifiers ...crypto.Verifier) (dsse.Envelope, error) {

@@ -3,7 +3,7 @@ package attestation
 import (
 	"fmt"
 
-	"gitlab.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/crypto"
 )
 
 var (

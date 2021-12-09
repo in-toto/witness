@@ -8,10 +8,10 @@ import (
 	"io"
 	"time"
 
-	"gitlab.com/testifysec/witness/pkg/attestation"
-	"gitlab.com/testifysec/witness/pkg/crypto"
-	"gitlab.com/testifysec/witness/pkg/dsse"
-	"gitlab.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/intoto"
 )
 
 const PolicyPredicate = "https://witness.testifysec.com/policy/v0.1"

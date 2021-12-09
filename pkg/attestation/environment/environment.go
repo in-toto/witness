@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	"gitlab.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation"
 )
 
 const (
