@@ -1,4 +1,4 @@
-//go:build darwin
+//go:build !(linux && amd64)
 
 package commandrun
 
@@ -11,5 +11,5 @@ func enableTracing(c *exec.Cmd) {
 }
 
 func (rc *CommandRun) trace(c *exec.Cmd) ([]ProcessInfo, error) {
-	return nil, errors.New("tracing not supported on windows")
+	return nil, errors.New("tracing not supported on this platform")
 }
