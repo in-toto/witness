@@ -4,9 +4,9 @@ import (
 	"io"
 	"os/exec"
 
-	"gitlab.com/testifysec/witness-cli/pkg/attestation"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation/artifact"
-	"gitlab.com/testifysec/witness-cli/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/attestation"
+	"gitlab.com/testifysec/witness/pkg/attestation/artifact"
+	"gitlab.com/testifysec/witness/pkg/crypto"
 )
 
 const (

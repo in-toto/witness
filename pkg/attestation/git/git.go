@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/go-git/go-git/v5"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation"
-	witcrypt "gitlab.com/testifysec/witness-cli/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/attestation"
+	witcrypt "gitlab.com/testifysec/witness/pkg/crypto"
 )
 
 const (

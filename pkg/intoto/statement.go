@@ -3,7 +3,7 @@ package intoto
 import (
 	"encoding/json"
 
-	"gitlab.com/testifysec/witness-cli/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/crypto"
 )
 
 const StatementType = "https://in-toto.io/Statement/v0.1"

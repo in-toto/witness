@@ -3,8 +3,8 @@ package pkg
 import (
 	"io"
 
-	"gitlab.com/testifysec/witness-cli/pkg/crypto"
-	"gitlab.com/testifysec/witness-cli/pkg/dsse"
+	"gitlab.com/testifysec/witness/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/dsse"
 )
 
 func Sign(r io.Reader, dataType string, w io.Writer, signers ...crypto.Signer) error {

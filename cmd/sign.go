@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	witness "gitlab.com/testifysec/witness-cli/pkg"
+	witness "gitlab.com/testifysec/witness/pkg"
 )
 
 var dataType string

@@ -3,9 +3,9 @@ package gitlab
 import (
 	"os"
 
-	"gitlab.com/testifysec/witness-cli/pkg/attestation"
-	"gitlab.com/testifysec/witness-cli/pkg/attestation/jwt"
-	"gitlab.com/testifysec/witness-cli/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/attestation"
+	"gitlab.com/testifysec/witness/pkg/attestation/jwt"
+	"gitlab.com/testifysec/witness/pkg/crypto"
 )
 
 const (

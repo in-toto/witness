@@ -1,4 +1,4 @@
-module gitlab.com/testifysec/witness-cli
+module gitlab.com/testifysec/witness
 
 go 1.17
 

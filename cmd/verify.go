@@ -7,9 +7,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	witness "gitlab.com/testifysec/witness-cli/pkg"
-	"gitlab.com/testifysec/witness-cli/pkg/crypto"
-	"gitlab.com/testifysec/witness-cli/pkg/policy"
+	witness "gitlab.com/testifysec/witness/pkg"
+	"gitlab.com/testifysec/witness/pkg/crypto"
+	"gitlab.com/testifysec/witness/pkg/policy"
 )
 
 var attestationFilePaths []string
