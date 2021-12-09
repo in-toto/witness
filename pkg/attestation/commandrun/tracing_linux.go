@@ -1,4 +1,4 @@
-//go:build linux && amd64
+//go:build linux
 
 package commandrun
 
@@ -105,9 +105,12 @@ func (ctx *ptraceContext) nextSyscall(pid int) error {
 }
 
 func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
-	switch regs.Orig_rax {
+	argArray := getSyscallArgs(regs)
+	syscallId := getSyscallId(regs)
+
+	switch syscallId {
 	case unix.SYS_EXECVE:
-		program, err := ctx.readSyscallReg(pid, uintptr(regs.Rdi), MAX_PATH_LEN)
+		program, err := ctx.readSyscallReg(pid, argArray[0], MAX_PATH_LEN)
 		if err != nil {
 			return err
 		}
@@ -116,7 +119,7 @@ func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 		procInfo.Program = program
 
 	case unix.SYS_OPENAT:
-		file, err := ctx.readSyscallReg(pid, uintptr(regs.Rsi), MAX_PATH_LEN)
+		file, err := ctx.readSyscallReg(pid, argArray[1], MAX_PATH_LEN)
 		if err != nil {
 			return err
 		}
@@ -155,7 +158,7 @@ func (ctx *ptraceContext) readSyscallReg(pid int, addr uintptr, n int) (string, 
 	data := make([]byte, n)
 	localIov := unix.Iovec{
 		Base: &data[0],
-		Len:  uint64(n),
+		Len:  getNativeUint(n),
 	}
 
 	removeIov := unix.RemoteIovec{
