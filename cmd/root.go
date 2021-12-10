@@ -38,6 +38,10 @@ func Execute() {
 	}
 }
 
+func GetCommand() *cobra.Command {
+	return rootCmd
+}
+
 func addKeyFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
 	cmd.Flags().StringVarP(&certPath, "certificate", "c", "", "Path to the signing key's certificate")
