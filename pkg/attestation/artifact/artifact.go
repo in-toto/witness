@@ -116,6 +116,7 @@ func recordArtifact(path string, hashes []crypto.Hash) (witcrypt.DigestSet, erro
 		return artifact, err
 	}
 
+	defer f.Close()
 	for _, h := range hashes {
 		digest, err := witcrypt.Digest(f, h)
 		if err != nil {
