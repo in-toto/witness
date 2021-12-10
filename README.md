@@ -1,73 +1,46 @@
-# witness-cli
+![witness](/docs/assets/logo.png)
 
-## witness
+## Witness is a pluggable framework for supply chain security
 
-Collect and verify attestations about your build environments
+Witness prevents tampering of build materials and verifies the integrity of the build process from source to target.  It works by wrapping commands executed in a continuous integration process.  Its attestation system is pluggable and offers support out of the box for most major CI and infrastructure providers.  Verification of Witness metadata and a secure PKI distribution system will mitigate against many supply chain attack vectors.
 
-### Options
+- Records secure hashes of materials, artifacts, and events occurring during the CI process
+- Integrations with cloud identity services
+- Keyless signing with SPIFFE/SPIRE
+- Support for uploading attestation evidence to rekor server (sigstore)
+- Build policy enforcement with Open Policy Agent.
 
-```
-  -h, --help   help for witness
-```
-
-## run
-
-Runs the provided command and records attestations about the execution
+## Getting Started
 
 ```
-run [cmd] [flags]
-```
+curl -LO https://github.com/testifysec/witness/releases/download/${VERSION}/witness_${VERSION}_${ARCH}.tar.gz
+tar -xzf witness_${VERSION}_${ARCH}.tar.gz
 
-### Options
+./witness run -s build -k testkey.pem -o attestation.json -- \
+  go build .
 
-```
-  -h, --help   help for run
-```
-
-## witness sign
-
-Signs a file
-
-### Synopsis
-
-Signs a file with the provided key source and outputs the signed file to the specified destination
+cat attestation.json | jq -r .payload | base64 -d | jq
 
 ```
-witness sign [file] [flags]
-```
 
-### Options
+## Usage
 
-```
-  -c, --certificate string      Path to the signing key's certificate
-  -t, --datatype string         The URI reference to the type of data being signed. Defaults to the Witness policy type (default "https://witness.testifysec.com/policy/v0.1")
-  -h, --help                    help for sign
-  -i, --intermediates strings   Intermediates that link trust back to a root in the policy
-  -k, --key string              Path to the signing key
-  -o, --outfile string          File to write signed data. Defaults to stdout
-      --spiffe-socket string    Path to the SPIFFE Workload API socket
-```
+- [Run](docs/witness_run.md) - Runs the provided command and records attestations about the execution.
+- [Sign](docs/witness_sign.md) - Signs the provided file with the provided key.
+- [Verify](docs/witness_verify.md) - Verifies a witness policy.
 
-## witness verify
+## Attestors
 
-Verifies a witness layout
+- [AWS](docs/attestor#aws.md) - Attestor for AWS Instance Metadata
+- [GCP](docs/attestor#gcp.md) - Attestor for GCP Instance Idenity Service
+- [GitLab](docs/attestor#gitlab.md) - Attestor for GitLab Pipelines
+- [GitHub](docs/attestor#github.md) - Attestor for GitHub Actions
+- [CommandRun](docs/attestor#commandrun.md) - Attestor for running a command
+- [Artifact](docs/attestor#artifact.md) - Attestor for uploading artifacts
+- [Environment](docs/attestor#environment.md) - Attestor for environment variables
+- [Git](docs/attestor#git.md) - Attestor for Git Repository
 
-### Synopsis
+## Support
 
-Verifies a layout provided key source and exits with code 0 if verification succeeds
-
-```
-witness verify [flags]
-```
-
-### Options
-
-```
-  -f, --artifactfile string    Path to the artifact to verify
-      --artifacthash string    Hash of the artifact to verify
-  -a, --attestations strings   Attestation files to test against the policy
-  -h, --help                   help for verify
-  -k, --layout-key string      Path to the layout signer's public key
-  -p, --policy string          Path to the policy to verify
-```
-
+[TestifySec](https://testifysec.com) Provides support for witness and other CI security tools.
+[Contact Us](info@testifysec.com) 
