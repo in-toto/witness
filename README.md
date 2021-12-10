@@ -16,6 +16,8 @@ Witness prevents tampering of build materials and verifies the integrity of the 
 curl -LO https://github.com/testifysec/witness/releases/download/${VERSION}/witness_${VERSION}_${ARCH}.tar.gz
 tar -xzf witness_${VERSION}_${ARCH}.tar.gz
 
+openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
+
 ./witness run -s build -k testkey.pem -o attestation.json -- \
   go build .
 
@@ -43,4 +45,4 @@ cat attestation.json | jq -r .payload | base64 -d | jq
 ## Support
 
 [TestifySec](https://testifysec.com) Provides support for witness and other CI security tools.
-[Contact Us](info@testifysec.com) 
+[Contact Us](info@testifysec.com)
