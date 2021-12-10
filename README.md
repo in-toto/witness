@@ -33,14 +33,14 @@ cat attestation.json | jq -r .payload | base64 -d | jq
 
 ## Attestors
 
-- [AWS](docs/attestor#aws.md) - Attestor for AWS Instance Metadata
-- [GCP](docs/attestor#gcp.md) - Attestor for GCP Instance Idenity Service
-- [GitLab](docs/attestor#gitlab.md) - Attestor for GitLab Pipelines
-- [GitHub](docs/attestor#github.md) - Attestor for GitHub Actions
-- [CommandRun](docs/attestor#commandrun.md) - Attestor for running a command
-- [Artifact](docs/attestor#artifact.md) - Attestor for uploading artifacts
-- [Environment](docs/attestor#environment.md) - Attestor for environment variables
-- [Git](docs/attestor#git.md) - Attestor for Git Repository
+- [AWS](docs/attestor.md#aws) - Attestor for AWS Instance Metadata
+- [GCP](docs/attestor.md#gcp) - Attestor for GCP Instance Idenity Service
+- [GitLab](docs/attestor.md#gitlab) - Attestor for GitLab Pipelines
+- [GitHub](docs/attestor.md#github) - Attestor for GitHub Actions
+- [CommandRun](docs/attestor.md#commandrun) - Attestor for running a command
+- [Artifact](docs/attestor.md#artifact) - Attestor for uploading artifacts
+- [Environment](docs/attestor.md#environment) - Attestor for environment variables
+- [Git](docs/attestor.md#git) - Attestor for Git Repository
 
 ## Support
 
