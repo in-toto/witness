@@ -52,7 +52,11 @@ func New(opts ...Option) *CommandRun {
 type ProcessInfo struct {
 	ProcessID   int            `json:"processid"`
 	Program     string         `json:"program,omitempty"`
+	SHA256      string         `json:"sha256,omitempty"`
 	OpenedFiles map[string]int `json:"openedFiles,omitempty"`
+	ParentPid   int            `json:"parentPid,omitempty"`
+	Comm        string         `json:"comm,omitempty"`
+	Environ     string         `json:"environ,omitempty"`
 }
 
 type CommandRun struct {

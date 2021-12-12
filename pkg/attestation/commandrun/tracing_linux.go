@@ -4,7 +4,11 @@ package commandrun
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"os/exec"
 	"runtime"
 
@@ -117,15 +121,30 @@ func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 
 		procInfo := ctx.getProcInfo(pid)
 		procInfo.Program = program
+		return nil
 
 	case unix.SYS_OPENAT:
-		file, err := ctx.readSyscallReg(pid, argArray[1], MAX_PATH_LEN)
+		fd, err := ctx.readSyscallReg(pid, argArray[1], MAX_PATH_LEN)
 		if err != nil {
 			return err
 		}
 
 		procInfo := ctx.getProcInfo(pid)
-		procInfo.OpenedFiles[file] = procInfo.OpenedFiles[file] + 1
+
+		f, err := os.Open(fd)
+		if err != nil {
+			return nil
+		}
+		defer f.Close()
+
+		h := sha256.New()
+		if _, err := io.Copy(h, f); err != nil {
+			log.Fatal(err)
+		}
+
+		entry := fmt.Sprintf("sha256:%x:%s", h.Sum(nil), fd)
+
+		procInfo.OpenedFiles[entry] = procInfo.OpenedFiles[entry] + 1
 	}
 
 	return nil
@@ -134,12 +153,31 @@ func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 func (ctx *ptraceContext) getProcInfo(pid int) *ProcessInfo {
 	procInfo, ok := ctx.processes[pid]
 	if !ok {
+		f, err := os.Readlink(fmt.Sprintf("/proc/%d/exe", pid))
+		if err != nil {
+			f = fmt.Sprintf("/proc/%d/exe", pid)
+		}
+
+		exe, err := os.Open(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer exe.Close()
+
+		h := sha256.New()
+		if _, err := io.Copy(h, exe); err != nil {
+			log.Fatal(err)
+		}
+
 		procInfo = &ProcessInfo{
 			ProcessID:   pid,
 			OpenedFiles: make(map[string]int),
+			SHA256:      fmt.Sprintf("%x", h.Sum(nil)),
+			ParentPid:   ctx.parentPid,
 		}
 
 		ctx.processes[pid] = procInfo
+
 	}
 
 	return procInfo
