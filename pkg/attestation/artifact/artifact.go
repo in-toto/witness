@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"encoding/json"
 	"io/fs"
-	"os"
 	"path/filepath"
 
 	"github.com/testifysec/witness/pkg/attestation"
@@ -90,7 +89,7 @@ func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSe
 			return err
 		}
 
-		artifact, err := recordArtifact(path, hashes)
+		artifact, err := witcrypt.CalculateDigestSetFromFile(path, hashes)
 		if err != nil {
 			return err
 		}
@@ -107,24 +106,4 @@ func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSe
 	})
 
 	return artifacts, err
-}
-
-func recordArtifact(path string, hashes []crypto.Hash) (witcrypt.DigestSet, error) {
-	artifact := make(witcrypt.DigestSet)
-	f, err := os.Open(path)
-	if err != nil {
-		return artifact, err
-	}
-
-	defer f.Close()
-	for _, h := range hashes {
-		digest, err := witcrypt.Digest(f, h)
-		if err != nil {
-			return artifact, err
-		}
-
-		artifact[h] = string(witcrypt.HexEncode(digest))
-	}
-
-	return artifact, nil
 }

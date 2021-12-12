@@ -84,13 +84,13 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	a.RunnerID = os.Getenv("CI_RUNNER_ID")
 	a.CIHost = os.Getenv("CI_SERVER_HOST")
 
-	pipelineSubj, err := crypto.CalculateDigestSet([]byte(a.PipelineUrl), ctx.Hashes())
+	pipelineSubj, err := crypto.CalculateDigestSetFromBytes([]byte(a.PipelineUrl), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 
 	a.subjects[a.PipelineUrl] = pipelineSubj
-	jobSubj, err := crypto.CalculateDigestSet([]byte(a.JobUrl), ctx.Hashes())
+	jobSubj, err := crypto.CalculateDigestSetFromBytes([]byte(a.JobUrl), ctx.Hashes())
 	if err != nil {
 		return err
 	}
