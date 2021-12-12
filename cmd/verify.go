@@ -1,15 +1,16 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"os"
-
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/crypto"
 	"github.com/testifysec/witness/pkg/policy"
+	"github.com/testifysec/witness/pkg/rekor"
+	"io"
+	"os"
 )
 
 var attestationFilePaths []string
@@ -30,6 +31,7 @@ func init() {
 	rootCmd.AddCommand(verifyCmd)
 	verifyCmd.Flags().StringVarP(&keyPath, "layout-key", "k", "", "Path to the layout signer's public key")
 	verifyCmd.MarkFlagRequired("layout-key")
+	verifyCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
 	verifyCmd.Flags().StringSliceVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
 	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
@@ -76,6 +78,34 @@ func runVerify(cmd *cobra.Command, args []string) error {
 
 		defer file.Close()
 		attestationFiles = append(attestationFiles, file)
+	}
+
+	artifactFile, err := os.Open(artifactFilePath)
+	if err != nil {
+		return err
+	}
+
+	artifactFileBytes, err := io.ReadAll(artifactFile)
+	if err != nil {
+		return err
+	}
+
+	if rekorServer != "" {
+		rc, err := rekor.New(rekorServer)
+		if err != nil {
+			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
+		}
+
+		logEntry, err := rc.FindTLogEntriesByPayload(artifactFileBytes)
+		if err != nil {
+			return fmt.Errorf("could not found any logEntries in rekor: %w", err)
+		}
+
+		att, err := logEntry.Attestation.Data.MarshalJSON()
+		if err != nil {
+			return err
+		}
+		attestationFiles = append(attestationFiles, bytes.NewBuffer(att))
 	}
 
 	return policy.Verify(attestationFiles)
