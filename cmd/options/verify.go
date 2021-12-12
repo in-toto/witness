@@ -21,7 +21,7 @@ type VerifyOptions struct {
 	AttestationFilePaths []string
 	PolicyFilePath       string
 	ArtifactFilePath     string
-	ArtifactHash         string
+	RekorServer          string
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
@@ -29,5 +29,5 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&vo.AttestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
-	cmd.Flags().StringVar(&vo.ArtifactHash, "artifacthash", "", "Hash of the artifact to verify")
+	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server to fetch attestations from")
 }
