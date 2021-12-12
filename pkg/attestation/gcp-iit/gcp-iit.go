@@ -108,32 +108,32 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 		a.getInstanceData()
 	}
 
-	instanceIDSubject, err := crypto.CalculateDigestSet([]byte(a.InstanceID), ctx.Hashes())
+	instanceIDSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.InstanceID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.InstanceID] = instanceIDSubject
 
-	instanceHostnameSubject, err := crypto.CalculateDigestSet([]byte(a.InstanceHostname), ctx.Hashes())
+	instanceHostnameSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.InstanceHostname), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.InstanceHostname] = instanceHostnameSubject
 
-	projectIDSubject, err := crypto.CalculateDigestSet([]byte(a.ProjectID), ctx.Hashes())
+	projectIDSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.ProjectID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.ProjectID] = projectIDSubject
 
-	projectNumberSubject, err := crypto.CalculateDigestSet([]byte(a.ProjectNumber), ctx.Hashes())
+	projectNumberSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.ProjectNumber), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 
 	a.subjects[a.ProjectNumber] = projectNumberSubject
 
-	clusterUIDSubejct, err := crypto.CalculateDigestSet([]byte(a.ClusterUID), ctx.Hashes())
+	clusterUIDSubejct, err := crypto.CalculateDigestSetFromBytes([]byte(a.ClusterUID), ctx.Hashes())
 	if err != nil {
 		return err
 	}

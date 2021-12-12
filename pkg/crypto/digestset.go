@@ -5,6 +5,9 @@ import (
 	"crypto"
 	"encoding/json"
 	"fmt"
+	"hash"
+	"io"
+	"os"
 )
 
 var (
@@ -92,18 +95,39 @@ func NewDigestSet(digestsByName map[string]string) (DigestSet, error) {
 	return ds, nil
 }
 
-func CalculateDigestSet(data []byte, hashes []crypto.Hash) (DigestSet, error) {
+func CalculateDigestSet(r io.Reader, hashes []crypto.Hash) (DigestSet, error) {
 	digestSet := make(DigestSet)
+	writers := []io.Writer{}
+	hashfuncs := map[crypto.Hash]hash.Hash{}
 	for _, hash := range hashes {
-		digest, err := Digest(bytes.NewReader(data), hash)
-		if err != nil {
-			return digestSet, err
-		}
-
-		digestSet[hash] = string(HexEncode(digest))
+		hashfunc := hash.New()
+		hashfuncs[hash] = hashfunc
+		writers = append(writers, hashfunc)
 	}
 
+	multiwriter := io.MultiWriter(writers...)
+	if _, err := io.Copy(multiwriter, r); err != nil {
+		return digestSet, err
+	}
+
+	for hash, hashfunc := range hashfuncs {
+		digestSet[hash] = string(HexEncode(hashfunc.Sum(nil)))
+	}
 	return digestSet, nil
+}
+
+func CalculateDigestSetFromBytes(data []byte, hashes []crypto.Hash) (DigestSet, error) {
+	return CalculateDigestSet(bytes.NewReader(data), hashes)
+}
+
+func CalculateDigestSetFromFile(path string, hashes []crypto.Hash) (DigestSet, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return DigestSet{}, err
+	}
+
+	defer file.Close()
+	return CalculateDigestSet(file, hashes)
 }
 
 func (ds DigestSet) MarshalJSON() ([]byte, error) {
