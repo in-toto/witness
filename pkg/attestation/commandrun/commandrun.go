@@ -55,8 +55,6 @@ type ProcessInfo struct {
 	SHA256      string         `json:"sha256,omitempty"`
 	OpenedFiles map[string]int `json:"openedFiles,omitempty"`
 	ParentPid   int            `json:"parentPid,omitempty"`
-	Comm        string         `json:"comm,omitempty"`
-	Environ     string         `json:"environ,omitempty"`
 }
 
 type CommandRun struct {
