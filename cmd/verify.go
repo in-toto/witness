@@ -15,17 +15,18 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 
-	"github.com/testifysec/witness/cmd/options"
-
 	"github.com/spf13/cobra"
+	"github.com/testifysec/witness/cmd/options"
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/policy"
+	"github.com/testifysec/witness/pkg/rekor"
 )
 
 func VerifyCmd() *cobra.Command {
@@ -86,5 +87,34 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		defer file.Close()
 		attestationFiles = append(attestationFiles, file)
 	}
+
+	artifactFile, err := os.Open(vo.ArtifactFilePath)
+	if err != nil {
+		return err
+	}
+
+	artifactFileBytes, err := io.ReadAll(artifactFile)
+	if err != nil {
+		return err
+	}
+
+	if vo.RekorServer != "" {
+		rc, err := rekor.New(vo.RekorServer)
+		if err != nil {
+			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
+		}
+
+		logEntry, err := rc.FindTLogEntriesByPayload(artifactFileBytes)
+		if err != nil {
+			return fmt.Errorf("could not found any logEntries in rekor: %w", err)
+		}
+
+		att, err := logEntry.Attestation.Data.MarshalJSON()
+		if err != nil {
+			return err
+		}
+		attestationFiles = append(attestationFiles, bytes.NewBuffer(att))
+	}
+
 	return policy.Verify(attestationFiles)
 }
