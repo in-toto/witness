@@ -45,4 +45,4 @@ cat attestation.json | jq -r .payload | base64 -d | jq
 ## Support
 
 [TestifySec](https://testifysec.com) Provides support for witness and other CI security tools.
-[Contact Us](info@testifysec.com)
+[Contact Us](mailto:info@testifysec.com)
