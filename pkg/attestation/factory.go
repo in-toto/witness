@@ -3,7 +3,7 @@ package attestation
 import (
 	"fmt"
 
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 var (
@@ -18,7 +18,7 @@ type Attestor interface {
 }
 
 type Subjecter interface {
-	Subjects() map[string]crypto.DigestSet
+	Subjects() map[string]cryptoutil.DigestSet
 }
 
 type AttestorFactory func() Attestor

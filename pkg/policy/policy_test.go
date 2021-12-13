@@ -16,19 +16,19 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/commandrun"
-	witcrypt "github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/intoto"
 )
 
-func createTestKey() (witcrypt.Signer, witcrypt.Verifier, []byte, error) {
+func createTestKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, error) {
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	signer := witcrypt.NewRSASigner(privKey, crypto.SHA256)
-	verifier := witcrypt.NewRSAVerifier(&privKey.PublicKey, crypto.SHA256)
+	signer := cryptoutil.NewRSASigner(privKey, crypto.SHA256)
+	verifier := cryptoutil.NewRSAVerifier(&privKey.PublicKey, crypto.SHA256)
 	keyBytes, err := x509.MarshalPKIXPublicKey(&privKey.PublicKey)
 	if err != nil {
 		return nil, nil, nil, err
@@ -75,7 +75,7 @@ func TestVerify(t *testing.T) {
 
 	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandrun.New()})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
-	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]witcrypt.DigestSet{})
+	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]cryptoutil.DigestSet{})
 	require.NoError(t, err)
 	statementJson, err := json.Marshal(&intotoStatement)
 	require.NoError(t, err)

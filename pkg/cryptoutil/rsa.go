@@ -1,4 +1,4 @@
-package crypto
+package cryptoutil
 
 import (
 	"crypto"

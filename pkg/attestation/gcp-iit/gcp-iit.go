@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -57,12 +57,12 @@ type Attestor struct {
 	ClusterUID                string        `json:"cluster_uid"`
 	ClusterLocation           string        `json:"cluster_location"`
 
-	subjects map[string]crypto.DigestSet
+	subjects map[string]cryptoutil.DigestSet
 }
 
 func New() *Attestor {
 	return &Attestor{
-		subjects: make(map[string]crypto.DigestSet),
+		subjects: make(map[string]cryptoutil.DigestSet),
 	}
 }
 
@@ -108,32 +108,32 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 		a.getInstanceData()
 	}
 
-	instanceIDSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.InstanceID), ctx.Hashes())
+	instanceIDSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.InstanceID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.InstanceID] = instanceIDSubject
 
-	instanceHostnameSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.InstanceHostname), ctx.Hashes())
+	instanceHostnameSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.InstanceHostname), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.InstanceHostname] = instanceHostnameSubject
 
-	projectIDSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.ProjectID), ctx.Hashes())
+	projectIDSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ProjectID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 	a.subjects[a.ProjectID] = projectIDSubject
 
-	projectNumberSubject, err := crypto.CalculateDigestSetFromBytes([]byte(a.ProjectNumber), ctx.Hashes())
+	projectNumberSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ProjectNumber), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 
 	a.subjects[a.ProjectNumber] = projectNumberSubject
 
-	clusterUIDSubejct, err := crypto.CalculateDigestSetFromBytes([]byte(a.ClusterUID), ctx.Hashes())
+	clusterUIDSubejct, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ClusterUID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func (a *Attestor) getInstanceData() {
 
 }
 
-func (a *Attestor) Subjects() map[string]crypto.DigestSet {
+func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	return a.subjects
 }
 

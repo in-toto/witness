@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 type ErrNoSignatures struct{}
@@ -46,7 +46,7 @@ func preauthEncode(bodyType string, body []byte) []byte {
 }
 
 // TODO: it'd be nice to break some of this logic out of what should be a presentation layer only
-func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, error) {
+func Sign(bodyType string, body io.Reader, signers ...cryptoutil.Signer) (Envelope, error) {
 	env := Envelope{}
 	// TODO: refactor this so we don't read the entire reader into memory.
 	// the PAE has the length of the body as part of it, so path of least
@@ -76,7 +76,7 @@ func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, 
 			Signature: sig,
 		}
 
-		if trustBundler, ok := signer.(crypto.TrustBundler); ok {
+		if trustBundler, ok := signer.(cryptoutil.TrustBundler); ok {
 			leaf := trustBundler.Certificate()
 			intermediates := trustBundler.Intermediates()
 			if leaf != nil {
@@ -94,7 +94,7 @@ func Sign(bodyType string, body io.Reader, signers ...crypto.Signer) (Envelope, 
 	return env, nil
 }
 
-func (e Envelope) Verify(verifiers ...crypto.Verifier) error {
+func (e Envelope) Verify(verifiers ...cryptoutil.Verifier) error {
 	pae := preauthEncode(e.PayloadType, e.Payload)
 	if len(e.Signatures) == 0 {
 		return ErrNoSignatures{}

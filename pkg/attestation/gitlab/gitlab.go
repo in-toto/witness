@@ -5,7 +5,7 @@ import (
 
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/jwt"
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const (
@@ -41,12 +41,12 @@ type Attestor struct {
 	RunnerID     string        `json:"runnerid"`
 	CIHost       string        `json:"cihost"`
 
-	subjects map[string]crypto.DigestSet
+	subjects map[string]cryptoutil.DigestSet
 }
 
 func New() *Attestor {
 	return &Attestor{
-		subjects: make(map[string]crypto.DigestSet),
+		subjects: make(map[string]cryptoutil.DigestSet),
 	}
 }
 
@@ -84,13 +84,13 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	a.RunnerID = os.Getenv("CI_RUNNER_ID")
 	a.CIHost = os.Getenv("CI_SERVER_HOST")
 
-	pipelineSubj, err := crypto.CalculateDigestSetFromBytes([]byte(a.PipelineUrl), ctx.Hashes())
+	pipelineSubj, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.PipelineUrl), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 
 	a.subjects[a.PipelineUrl] = pipelineSubj
-	jobSubj, err := crypto.CalculateDigestSetFromBytes([]byte(a.JobUrl), ctx.Hashes())
+	jobSubj, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.JobUrl), ctx.Hashes())
 	if err != nil {
 		return err
 	}
@@ -99,6 +99,6 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	return nil
 }
 
-func (a *Attestor) Subjects() map[string]crypto.DigestSet {
+func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	return a.subjects
 }

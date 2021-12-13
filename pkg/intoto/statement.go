@@ -3,7 +3,7 @@ package intoto
 import (
 	"encoding/json"
 
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const StatementType = "https://in-toto.io/Statement/v0.1"
@@ -21,7 +21,7 @@ type Statement struct {
 	Predicate     json.RawMessage `json:"predicate"`
 }
 
-func NewStatement(predicateType string, predicate []byte, subjects map[string]crypto.DigestSet) (Statement, error) {
+func NewStatement(predicateType string, predicate []byte, subjects map[string]cryptoutil.DigestSet) (Statement, error) {
 	statement := Statement{
 		Type:          StatementType,
 		PredicateType: predicateType,
@@ -41,7 +41,7 @@ func NewStatement(predicateType string, predicate []byte, subjects map[string]cr
 	return statement, nil
 }
 
-func DigestSetToSubject(name string, ds crypto.DigestSet) (Subject, error) {
+func DigestSetToSubject(name string, ds cryptoutil.DigestSet) (Subject, error) {
 	subj := Subject{
 		Name: name,
 	}
