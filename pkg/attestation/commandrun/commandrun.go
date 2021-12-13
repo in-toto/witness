@@ -6,7 +6,7 @@ import (
 
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/artifact"
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const (
@@ -28,7 +28,7 @@ func WithCommand(cmd []string) Option {
 	}
 }
 
-func WithMaterials(materials map[string]crypto.DigestSet) Option {
+func WithMaterials(materials map[string]cryptoutil.DigestSet) Option {
 	return func(cr *CommandRun) {
 		cr.materials = materials
 	}
@@ -63,7 +63,7 @@ type CommandRun struct {
 	Products  *artifact.Attestor `json:"products"`
 	Processes []ProcessInfo      `json:"processes,omitempty"`
 
-	materials     map[string]crypto.DigestSet
+	materials     map[string]cryptoutil.DigestSet
 	enableTracing bool
 }
 
@@ -99,7 +99,7 @@ func (rc *CommandRun) Type() string {
 	return Type
 }
 
-func (rc *CommandRun) Subjects() map[string]crypto.DigestSet {
+func (rc *CommandRun) Subjects() map[string]cryptoutil.DigestSet {
 	return rc.Products.Artifacts
 }
 

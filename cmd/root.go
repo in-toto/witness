@@ -8,7 +8,7 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/spiffe"
 
 	// imported so their init functions run
@@ -49,7 +49,7 @@ func addKeyFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&spiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
 }
 
-func loadSigner() (crypto.Signer, error) {
+func loadSigner() (cryptoutil.Signer, error) {
 	if spiffePath == "" && keyPath == "" {
 		return nil, fmt.Errorf("one of key or spiffe-socket flags must be provided")
 	} else if spiffePath != "" && keyPath != "" {
@@ -66,13 +66,13 @@ func loadSigner() (crypto.Signer, error) {
 	}
 
 	defer keyFile.Close()
-	key, err := crypto.TryParseKeyFromReader(keyFile)
+	key, err := cryptoutil.TryParseKeyFromReader(keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load key: %v", err)
 	}
 
 	if certPath == "" {
-		return crypto.NewSigner(key)
+		return cryptoutil.NewSigner(key)
 	}
 
 	leaf, err := loadCert(certPath)
@@ -90,7 +90,7 @@ func loadSigner() (crypto.Signer, error) {
 		intermediates = append(intermediates, cert)
 	}
 
-	return crypto.NewX509Signer(key, leaf, intermediates, nil)
+	return cryptoutil.NewX509Signer(key, leaf, intermediates, nil)
 }
 
 func loadCert(path string) (*x509.Certificate, error) {
@@ -100,7 +100,7 @@ func loadCert(path string) (*x509.Certificate, error) {
 	}
 
 	defer certFile.Close()
-	possibleCert, err := crypto.TryParseKeyFromReader(certFile)
+	possibleCert, err := cryptoutil.TryParseKeyFromReader(certFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse certificate")
 	}

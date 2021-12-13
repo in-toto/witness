@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
-	witcrypt "github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 type ErrInvalidSVID string
@@ -14,7 +14,7 @@ func (e ErrInvalidSVID) Error() string {
 	return fmt.Sprintf("invalid svid: %v", string(e))
 }
 
-func Signer(ctx context.Context, socketPath string) (*witcrypt.X509Signer, error) {
+func Signer(ctx context.Context, socketPath string) (*cryptoutil.X509Signer, error) {
 	svidCtx, err := workloadapi.FetchX509Context(ctx, workloadapi.WithAddr(socketPath))
 	if err != nil {
 		return nil, err
@@ -29,5 +29,5 @@ func Signer(ctx context.Context, socketPath string) (*witcrypt.X509Signer, error
 		return nil, ErrInvalidSVID("no private key")
 	}
 
-	return witcrypt.NewX509Signer(svid.PrivateKey, svid.Certificates[0], svid.Certificates[1:], nil)
+	return cryptoutil.NewX509Signer(svid.PrivateKey, svid.Certificates[0], svid.Certificates[1:], nil)
 }

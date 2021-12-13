@@ -3,7 +3,7 @@ package attestation
 import (
 	"encoding/json"
 
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const CollectionType = "https://witness.testifysec.com/AttestationCollection/v0.1"
@@ -63,8 +63,8 @@ func (c *CollectionAttestation) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *Collection) Subjects() map[string]crypto.DigestSet {
-	allSubjects := make(map[string]crypto.DigestSet)
+func (c *Collection) Subjects() map[string]cryptoutil.DigestSet {
+	allSubjects := make(map[string]cryptoutil.DigestSet)
 	for _, collectionAttestation := range c.Attestations {
 		if subjecter, ok := collectionAttestation.Attestation.(Subjecter); ok {
 			subjects := subjecter.Subjects()

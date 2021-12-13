@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/testifysec/witness/pkg/attestation"
-	witcrypt "github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const (
@@ -23,15 +23,15 @@ func init() {
 
 type Option func(*Attestor)
 
-func WithBaseArtifacts(baseArtifacts map[string]witcrypt.DigestSet) Option {
+func WithBaseArtifacts(baseArtifacts map[string]cryptoutil.DigestSet) Option {
 	return func(attestor *Attestor) {
 		attestor.baseArtifacts = baseArtifacts
 	}
 }
 
 type Attestor struct {
-	Artifacts     map[string]witcrypt.DigestSet `json:"artifacts"`
-	baseArtifacts map[string]witcrypt.DigestSet
+	Artifacts     map[string]cryptoutil.DigestSet `json:"artifacts"`
+	baseArtifacts map[string]cryptoutil.DigestSet
 }
 
 func (a Attestor) Name() string {
@@ -66,15 +66,15 @@ func (a *Attestor) MarshalJSON() ([]byte, error) {
 }
 
 func (a *Attestor) UnmarshalJSON(data []byte) error {
-	attestations := make(map[string]witcrypt.DigestSet)
+	attestations := make(map[string]cryptoutil.DigestSet)
 	return json.Unmarshal(data, &attestations)
 }
 
 // recordArtifacts will walk basePath and record the digests of each file with each of the functions in hashes.
 // If file already exists in baseArtifacts and the two artifacts are equal the artifact will not be in the
 // returned map of artifacts.
-func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSet, hashes []crypto.Hash) (map[string]witcrypt.DigestSet, error) {
-	artifacts := make(map[string]witcrypt.DigestSet)
+func recordArtifacts(basePath string, baseArtifacts map[string]cryptoutil.DigestSet, hashes []crypto.Hash) (map[string]cryptoutil.DigestSet, error) {
+	artifacts := make(map[string]cryptoutil.DigestSet)
 	err := filepath.Walk(basePath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -89,7 +89,7 @@ func recordArtifacts(basePath string, baseArtifacts map[string]witcrypt.DigestSe
 			return err
 		}
 
-		artifact, err := witcrypt.CalculateDigestSetFromFile(path, hashes)
+		artifact, err := cryptoutil.CalculateDigestSetFromFile(path, hashes)
 		if err != nil {
 			return err
 		}

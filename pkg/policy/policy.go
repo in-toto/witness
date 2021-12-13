@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/testifysec/witness/pkg/attestation"
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/intoto"
 )
@@ -84,10 +84,10 @@ type PublicKey struct {
 	Key   []byte `json:"key"`
 }
 
-func (p Policy) loadPublicKeys() (map[string]crypto.Verifier, error) {
-	verifiers := make(map[string]crypto.Verifier, 0)
+func (p Policy) loadPublicKeys() (map[string]cryptoutil.Verifier, error) {
+	verifiers := make(map[string]cryptoutil.Verifier, 0)
 	for _, key := range p.PublicKeys {
-		verifier, err := crypto.NewVerifierFromReader(bytes.NewReader(key.Key))
+		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(key.Key))
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +141,7 @@ func (p Policy) loadRoots() (map[string]trustBundle, error) {
 }
 
 func parseCertificate(data []byte) (*x509.Certificate, error) {
-	possibleCert, err := crypto.TryParseKeyFromReader(bytes.NewReader(data))
+	possibleCert, err := cryptoutil.TryParseKeyFromReader(bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 			continue
 		}
 
-		functionaries := make([]crypto.Verifier, 0)
+		functionaries := make([]cryptoutil.Verifier, 0)
 		for _, functionary := range step.Functionaries {
 			if functionary.PublicKeyID != "" {
 				pubKey, ok := publicKeysByID[functionary.PublicKeyID]
@@ -276,7 +276,7 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 						intermediates = append(intermediates, intermediate)
 					}
 
-					verifier, err := crypto.NewX509Verifier(cert, intermediates, []*x509.Certificate{bundle.root})
+					verifier, err := cryptoutil.NewX509Verifier(cert, intermediates, []*x509.Certificate{bundle.root})
 					functionaries = append(functionaries, verifier)
 				}
 			}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/testifysec/witness/pkg/attestation"
-	witcrypt "github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const (
@@ -81,9 +81,9 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	return nil
 }
 
-func (a *Attestor) Subjects() map[string]witcrypt.DigestSet {
+func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	subjectName := fmt.Sprintf("git:%v", a.CommitHash)
-	return map[string]witcrypt.DigestSet{
+	return map[string]cryptoutil.DigestSet{
 		subjectName: {
 			crypto.SHA1: a.CommitHash,
 		},

@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
-	"github.com/testifysec/witness/pkg/crypto"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/policy"
 )
 
@@ -45,7 +45,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	}
 
 	defer keyFile.Close()
-	verifier, err := crypto.NewVerifierFromReader(keyFile)
+	verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
 	if err != nil {
 		return fmt.Errorf("failed to load key: %v", err)
 	}
