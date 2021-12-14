@@ -1,0 +1,26 @@
+project_name: witness
+builds:
+  - ldflags:
+      - "-s -w"
+      - "-extldflags=-zrelro"
+      - "-extldflags=-znow"
+    env:
+      - "CGO_ENABLED=0"
+      - "GO111MODULE=on"
+      - "GOFLAGS=-mod=readonly -trimpath"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: .
+source:
+  enabled: true
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args: ["sign-blob", "--oidc-issuer=https://token.actions.githubusercontent.com", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
+    artifacts: all
