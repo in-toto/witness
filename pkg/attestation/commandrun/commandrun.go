@@ -1,7 +1,9 @@
 package commandrun
 
 import (
+	"bytes"
 	"io"
+	"os"
 	"os/exec"
 
 	"github.com/testifysec/witness/pkg/attestation"
@@ -40,6 +42,12 @@ func WithTracing(enabled bool) Option {
 	}
 }
 
+func WithSilent(silent bool) Option {
+	return func(cr *CommandRun) {
+		cr.silent = silent
+	}
+}
+
 func New(opts ...Option) *CommandRun {
 	cr := &CommandRun{}
 	for _, opt := range opts {
@@ -63,6 +71,7 @@ type CommandRun struct {
 	Products  *artifact.Attestor `json:"products"`
 	Processes []ProcessInfo      `json:"processes,omitempty"`
 
+	silent        bool
 	materials     map[string]cryptoutil.DigestSet
 	enableTracing bool
 }
@@ -106,16 +115,19 @@ func (rc *CommandRun) Subjects() map[string]cryptoutil.DigestSet {
 func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 	c := exec.Command(r.Cmd[0], r.Cmd[1:]...)
 	c.Dir = ctx.WorkingDir()
-	stdoutReader, err := c.StdoutPipe()
-	if err != nil {
-		return err
+	stdoutBuffer := bytes.Buffer{}
+	stderrBuffer := bytes.Buffer{}
+	stdoutWriters := []io.Writer{&stdoutBuffer}
+	stderrWriters := []io.Writer{&stderrBuffer}
+	if !r.silent {
+		stdoutWriters = append(stdoutWriters, os.Stdout)
+		stderrWriters = append(stderrWriters, os.Stderr)
 	}
 
-	stderrReader, err := c.StderrPipe()
-	if err != nil {
-		return err
-	}
-
+	stdoutWriter := io.MultiWriter(stdoutWriters...)
+	stderrWriter := io.MultiWriter(stderrWriters...)
+	c.Stdout = stdoutWriter
+	c.Stderr = stderrWriter
 	if r.enableTracing {
 		enableTracing(c)
 	}
@@ -124,6 +136,7 @@ func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 		return err
 	}
 
+	var err error
 	if r.enableTracing {
 		r.Processes, err = r.trace(c)
 	} else {
@@ -133,9 +146,7 @@ func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 		}
 	}
 
-	stdout, _ := io.ReadAll(stdoutReader)
-	stderr, _ := io.ReadAll(stderrReader)
-	r.Stdout = string(stdout)
-	r.Stderr = string(stderr)
+	r.Stdout = stdoutBuffer.String()
+	r.Stderr = stderrBuffer.String()
 	return err
 }
