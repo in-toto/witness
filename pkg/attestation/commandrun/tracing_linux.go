@@ -68,7 +68,7 @@ func (ctx *ptraceContext) runTrace() error {
 	}
 
 	for {
-		pid, err := unix.Wait4(-1, &status, 0, nil)
+		pid, err := unix.Wait4(-1, &status, unix.WALL, nil)
 		if err != nil {
 			return err
 		}
@@ -78,9 +78,18 @@ func (ctx *ptraceContext) runTrace() error {
 			return nil
 		}
 
-		if status.Stopped() {
+		sig := status.StopSignal()
+		// since we set PTRACE_O_TRACESYSGOOD any traps triggered by ptrace will have its signal set to SIGTRAP|0x80.
+		// If we catch a signal that isn't a ptrace'd signal we want to let the process continue to handle that signal, so we inject the thrown signal back to the process.
+		// If it was a ptrace SIGTRAP we suppress the signal and send 0
+		injectedSig := int(sig)
+		isPtraceTrap := (unix.SIGTRAP | unix.PTRACE_EVENT_STOP) == sig
+		if status.Stopped() && isPtraceTrap {
+			injectedSig = 0
 			ctx.nextSyscall(pid)
 		}
+
+		unix.PtraceSyscall(pid, injectedSig)
 	}
 }
 
@@ -101,7 +110,7 @@ func (ctx *ptraceContext) nextSyscall(pid int) error {
 		}
 	}
 
-	return unix.PtraceSyscall(pid, 0)
+	return nil
 }
 
 func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
