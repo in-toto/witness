@@ -52,7 +52,7 @@ func New(opts ...Option) *Attestor {
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
-	artifacts, err := recordArtifacts(ctx.WorkingDir(), a.baseArtifacts, ctx.Hashes())
+	artifacts, err := recordArtifacts(ctx.WorkingDir(), a.baseArtifacts, ctx.Hashes(), map[string]struct{}{})
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (a *Attestor) UnmarshalJSON(data []byte) error {
 // recordArtifacts will walk basePath and record the digests of each file with each of the functions in hashes.
 // If file already exists in baseArtifacts and the two artifacts are equal the artifact will not be in the
 // returned map of artifacts.
-func recordArtifacts(basePath string, baseArtifacts map[string]cryptoutil.DigestSet, hashes []crypto.Hash) (map[string]cryptoutil.DigestSet, error) {
+func recordArtifacts(basePath string, baseArtifacts map[string]cryptoutil.DigestSet, hashes []crypto.Hash, visitedSymlinks map[string]struct{}) (map[string]cryptoutil.DigestSet, error) {
 	artifacts := make(map[string]cryptoutil.DigestSet)
 	err := filepath.Walk(basePath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -89,21 +89,56 @@ func recordArtifacts(basePath string, baseArtifacts map[string]cryptoutil.Digest
 			return err
 		}
 
+		if info.Mode()&fs.ModeSymlink != 0 {
+			// if this is a symlink, eval the true path and eval any artifacts in the symlink. we record every symlink we've visited to prevent infinite loops
+			linkedPath, err := filepath.EvalSymlinks(path)
+			if err != nil {
+				return err
+			}
+
+			if _, ok := visitedSymlinks[linkedPath]; ok {
+				return nil
+			}
+
+			visitedSymlinks[linkedPath] = struct{}{}
+			symlinkedArtifacts, err := recordArtifacts(linkedPath, baseArtifacts, hashes, visitedSymlinks)
+			if err != nil {
+				return err
+			}
+
+			for artifactPath, artifact := range symlinkedArtifacts {
+				// all artifacts in the symlink should be recorded relative to our basepath
+				joinedPath := filepath.Join(relPath, artifactPath)
+				if shouldRecord(joinedPath, artifact, baseArtifacts) {
+					artifacts[filepath.Join(relPath, artifactPath)] = artifact
+				}
+			}
+
+			return nil
+		}
+
 		artifact, err := cryptoutil.CalculateDigestSetFromFile(path, hashes)
 		if err != nil {
 			return err
 		}
 
-		// if the artifact is already in baseArtifacts, check if it's changed
-		// if it is not equal to the existing artifact, record it, otherwise skip it
-		previous, ok := baseArtifacts[relPath]
-		if ok && artifact.Equal(previous) {
-			return nil
+		if shouldRecord(relPath, artifact, baseArtifacts) {
+			artifacts[relPath] = artifact
 		}
 
-		artifacts[relPath] = artifact
 		return nil
 	})
 
 	return artifacts, err
+}
+
+// shouldRecord determines whether artifact should be recorded.
+// if the artifact is already in baseArtifacts, check if it's changed
+// if it is not equal to the existing artifact, return true, otherwise return false
+func shouldRecord(path string, artifact cryptoutil.DigestSet, baseArtifacts map[string]cryptoutil.DigestSet) bool {
+	if previous, ok := baseArtifacts[path]; ok && artifact.Equal(previous) {
+		return false
+	}
+
+	return true
 }
