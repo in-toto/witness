@@ -35,14 +35,28 @@ func initConfig() {
 	//Currently we do not accept configuration for root commands
 	commands := rootCmd.Commands()
 
-	for _, cmd := range commands {
-		flags := cmd.Flags()
+	for _, cm := range commands {
+		//Check which command we are running.  We have
+		if !contains(os.Args, cm.Name()) {
+			continue
+		}
+		flags := cm.Flags()
 		flags.VisitAll(func(f *pflag.Flag) {
-			configKey := fmt.Sprintf("%s.%s", cmd.Name(), f.Name)
+			configKey := fmt.Sprintf("%s.%s", cm.Name(), f.Name)
 			configValue := v.GetString(configKey)
 			if configValue != "" && !f.Changed {
 				f.Value.Set(v.GetString(configKey))
 			}
 		})
 	}
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
