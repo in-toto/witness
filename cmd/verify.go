@@ -16,6 +16,7 @@ var attestationFilePaths []string
 var policyFilePath string
 var artifactFilePath string
 var artifactHash string
+var policyPubKeyPath string
 
 var verifyCmd = &cobra.Command{
 	Use:           "verify",
@@ -28,8 +29,7 @@ var verifyCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(verifyCmd)
-	verifyCmd.Flags().StringVarP(&keyPath, "layout-key", "k", "", "Path to the layout signer's public key")
-	verifyCmd.MarkFlagRequired("layout-key")
+	verifyCmd.Flags().StringVarP(&policyPubKeyPath, "publickey", "k", "", "Path to the policy signer's public key")
 	verifyCmd.Flags().StringSliceVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
 	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
@@ -39,7 +39,11 @@ func init() {
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
 func runVerify(cmd *cobra.Command, args []string) error {
-	keyFile, err := os.Open(keyPath)
+	if policyPubKeyPath == "" {
+		return fmt.Errorf("layout key must be provided")
+	}
+
+	keyFile, err := os.Open(policyPubKeyPath)
 	if err != nil {
 		return fmt.Errorf("could not open key file: %v", err)
 	}

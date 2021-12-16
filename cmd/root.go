@@ -37,7 +37,8 @@ func init() {
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	ctx := context.Background()
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", color.Red.Sprint(err.Error()))
 		os.Exit(1)
 	}
@@ -51,7 +52,7 @@ func addKeyFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
 	cmd.Flags().StringVar(&certPath, "certificate", "", "Path to the signing key's certificate")
 	cmd.Flags().StringSliceVarP(&intermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root in the policy")
-	cmd.Flags().StringVar(&spiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
+	cmd.Flags().StringVar(&spiffePath, "spiffesocket", "", "Path to the SPIFFE Workload API socket")
 }
 
 func loadSigner() (cryptoutil.Signer, error) {

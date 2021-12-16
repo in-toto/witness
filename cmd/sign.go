@@ -10,6 +10,7 @@ import (
 
 var dataType string
 
+
 var signCmd = &cobra.Command{
 	Use:           "sign [file]",
 	Short:         "Signs a file",
