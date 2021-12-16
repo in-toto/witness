@@ -36,19 +36,32 @@ func initConfig() {
 	commands := rootCmd.Commands()
 
 	for _, cm := range commands {
-		//Check which command we are running.  We have
+		//Check which command we are running
 		if !contains(os.Args, cm.Name()) {
 			continue
 		}
 		flags := cm.Flags()
 		flags.VisitAll(func(f *pflag.Flag) {
 			configKey := fmt.Sprintf("%s.%s", cm.Name(), f.Name)
-			configValue := v.GetString(configKey)
-			if configValue != "" && !f.Changed {
-				f.Value.Set(v.GetString(configKey))
+
+			if !f.Changed {
+				if f.Value.Type() == "stringSlice" {
+					configValue := v.GetStringSlice(configKey)
+					if len(configValue) > 0 {
+						for _, v := range configValue {
+							f.Value.Set(v)
+						}
+					}
+				} else {
+					configValue := v.GetString(configKey)
+					if configValue != "" {
+						f.Value.Set(configValue)
+					}
+				}
 			}
 		})
 	}
+
 }
 
 func contains(s []string, str string) bool {
