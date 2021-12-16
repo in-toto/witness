@@ -27,6 +27,6 @@ verify:
     artifactfile: string
     artifacthash: string
     attestations: stringSlice
-    layout-key: string
+    publickey: string
     policy: string
 ```

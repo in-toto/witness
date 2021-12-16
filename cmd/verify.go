@@ -19,8 +19,8 @@ var artifactHash string
 
 var verifyCmd = &cobra.Command{
 	Use:           "verify",
-	Short:         "Verifies a witness layout",
-	Long:          "Verifies a layout provided key source and exits with code 0 if verification succeeds",
+	Short:         "Verifies a witness policy",
+	Long:          "Verifies a policy provided key source and exits with code 0 if verification succeeds",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE:          runVerify,
@@ -28,7 +28,7 @@ var verifyCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(verifyCmd)
-	verifyCmd.Flags().StringVarP(&keyPath, "publickey", "k", "", "Path to the layout signer's public key")
+	verifyCmd.Flags().StringVarP(&keyPath, "publickey", "k", "", "Path to the policy signer's public key")
 	verifyCmd.Flags().StringSliceVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
 	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
