@@ -81,7 +81,7 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	tarSHA256 := a.TarDigest[crypto.SHA256]
 
-	imageDigestName := fmt.Sprintf("img:digest:%s", a.ImageDigest)
+	imageDigestName := fmt.Sprintf("img:mainifest:digest:%s", a.ImageDigest)
 	tarDigestName := fmt.Sprintf("tar:digest:%s", tarSHA256)
 
 	return map[string]cryptoutil.DigestSet{
