@@ -4,10 +4,16 @@ package commandrun
 
 import (
 	"bytes"
+	"crypto"
 	"fmt"
+	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
+	"strings"
 
+	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"golang.org/x/sys/unix"
 )
 
@@ -20,6 +26,8 @@ type ptraceContext struct {
 	mainProgram string
 	processes   map[int]*ProcessInfo
 	exitCode    int
+	hash        []crypto.Hash
+	envMap      map[string]map[string]string
 }
 
 func enableTracing(c *exec.Cmd) {
@@ -28,42 +36,43 @@ func enableTracing(c *exec.Cmd) {
 	}
 }
 
-func (r *CommandRun) trace(c *exec.Cmd) ([]ProcessInfo, error) {
-	ctx := &ptraceContext{
+func (r *CommandRun) trace(c *exec.Cmd, actx *attestation.AttestationContext) ([]ProcessInfo, error) {
+	pctx := &ptraceContext{
 		parentPid:   c.Process.Pid,
 		mainProgram: c.Path,
 		processes:   make(map[int]*ProcessInfo),
+		hash:        actx.Hashes(),
 	}
 
-	if err := ctx.runTrace(); err != nil {
+	if err := pctx.runTrace(); err != nil {
 		return nil, err
 	}
 
-	r.ExitCode = ctx.exitCode
+	r.ExitCode = pctx.exitCode
 
-	if ctx.exitCode != 0 {
-		return ctx.procInfoArray(), fmt.Errorf("exit status %v", ctx.exitCode)
+	if pctx.exitCode != 0 {
+		return pctx.procInfoArray(), fmt.Errorf("exit status %v", pctx.exitCode)
 	}
 
-	return ctx.procInfoArray(), nil
+	return pctx.procInfoArray(), nil
 }
 
-func (ctx *ptraceContext) runTrace() error {
+func (p *ptraceContext) runTrace() error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 	status := unix.WaitStatus(0)
-	_, err := unix.Wait4(ctx.parentPid, &status, 0, nil)
+	_, err := unix.Wait4(p.parentPid, &status, 0, nil)
 	if err != nil {
 		return err
 	}
 
-	if err := unix.PtraceSetOptions(ctx.parentPid, unix.PTRACE_O_TRACESYSGOOD|unix.PTRACE_O_TRACEEXEC|unix.PTRACE_O_TRACEEXIT|unix.PTRACE_O_TRACEVFORK|unix.PTRACE_O_TRACEFORK|unix.PTRACE_O_TRACECLONE); err != nil {
+	if err := unix.PtraceSetOptions(p.parentPid, unix.PTRACE_O_TRACESYSGOOD|unix.PTRACE_O_TRACEEXEC|unix.PTRACE_O_TRACEEXIT|unix.PTRACE_O_TRACEVFORK|unix.PTRACE_O_TRACEFORK|unix.PTRACE_O_TRACECLONE); err != nil {
 		return err
 	}
 
-	procInfo := ctx.getProcInfo(ctx.parentPid)
-	procInfo.Program = ctx.mainProgram
-	if err := unix.PtraceSyscall(ctx.parentPid, 0); err != nil {
+	procInfo := p.getProcInfo(p.parentPid)
+	procInfo.Program = p.mainProgram
+	if err := unix.PtraceSyscall(p.parentPid, 0); err != nil {
 		return err
 	}
 
@@ -72,9 +81,8 @@ func (ctx *ptraceContext) runTrace() error {
 		if err != nil {
 			return err
 		}
-
-		if pid == ctx.parentPid && status.Exited() {
-			ctx.exitCode = status.ExitStatus()
+		if pid == p.parentPid && status.Exited() {
+			p.exitCode = status.ExitStatus()
 			return nil
 		}
 
@@ -86,14 +94,13 @@ func (ctx *ptraceContext) runTrace() error {
 		isPtraceTrap := (unix.SIGTRAP | unix.PTRACE_EVENT_STOP) == sig
 		if status.Stopped() && isPtraceTrap {
 			injectedSig = 0
-			ctx.nextSyscall(pid)
+			p.nextSyscall(pid)
 		}
-
 		unix.PtraceSyscall(pid, injectedSig)
 	}
 }
 
-func (ctx *ptraceContext) nextSyscall(pid int) error {
+func (p *ptraceContext) nextSyscall(pid int) error {
 	regs := unix.PtraceRegs{}
 	if err := unix.PtraceGetRegs(pid, &regs); err != nil {
 		return err
@@ -105,7 +112,7 @@ func (ctx *ptraceContext) nextSyscall(pid int) error {
 	}
 
 	if msg == unix.PTRACE_EVENTMSG_SYSCALL_ENTRY {
-		if err := ctx.handleSyscall(pid, regs); err != nil {
+		if err := p.handleSyscall(pid, regs); err != nil {
 			return err
 		}
 	}
@@ -113,28 +120,76 @@ func (ctx *ptraceContext) nextSyscall(pid int) error {
 	return nil
 }
 
-func (ctx *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
+func (p *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 	argArray := getSyscallArgs(regs)
 	syscallId := getSyscallId(regs)
 
 	switch syscallId {
 	case unix.SYS_EXECVE:
-		program, err := ctx.readSyscallReg(pid, argArray[0], MAX_PATH_LEN)
-		if err != nil {
-			return err
+		procInfo := p.getProcInfo(pid)
+
+		program, err := p.readSyscallReg(pid, argArray[0], MAX_PATH_LEN)
+		if err == nil {
+			procInfo.Program = program
 		}
 
-		procInfo := ctx.getProcInfo(pid)
-		procInfo.Program = program
+		exeLocation := fmt.Sprintf("/proc/%d/exe", procInfo.ProcessID)
+		commLocation := fmt.Sprintf("/proc/%d/comm", procInfo.ProcessID)
+		envinLocation := fmt.Sprintf("/proc/%d/environ", procInfo.ProcessID)
+		cmdlineLocation := fmt.Sprintf("/proc/%d/cmdline", procInfo.ProcessID)
+		status := fmt.Sprintf("/proc/%d/status", procInfo.ProcessID)
+
+		// read status file and set attributes on success
+		statusFile, err := os.ReadFile(status)
+		if err == nil {
+			procInfo.SpecBypassIsVuln = getSpecBypassIsVulnFromStatus(statusFile)
+			ppid, err := getPPIDFromStatus(statusFile)
+			if err == nil {
+				procInfo.ParentPID = ppid
+			}
+		}
+
+		comm, err := os.ReadFile(commLocation)
+		if err == nil {
+			procInfo.Comm = cleanString(string(comm))
+		}
+
+		environ, err := os.ReadFile(envinLocation)
+		if err == nil {
+			procInfo.Environ = cleanString(string(environ))
+		}
+
+		cmdline, err := os.ReadFile(cmdlineLocation)
+		if err == nil {
+			procInfo.Cmdline = cleanString(string(cmdline))
+		}
+
+		exeDigest, err := cryptoutil.CalculateDigestSetFromFile(exeLocation, p.hash)
+		if err == nil {
+			procInfo.ExeDigest = exeDigest
+		}
+
+		if program != "" {
+			programDigest, err := cryptoutil.CalculateDigestSetFromFile(program, p.hash)
+			if err == nil {
+				procInfo.ProgramDigest = programDigest
+			}
+
+		}
 
 	case unix.SYS_OPENAT:
-		file, err := ctx.readSyscallReg(pid, argArray[1], MAX_PATH_LEN)
+		file, err := p.readSyscallReg(pid, argArray[1], MAX_PATH_LEN)
+		if err != nil {
+			return err
+		}
+		procInfo := p.getProcInfo(pid)
+
+		digestSet, err := cryptoutil.CalculateDigestSetFromFile(file, p.hash)
 		if err != nil {
 			return err
 		}
 
-		procInfo := ctx.getProcInfo(pid)
-		procInfo.OpenedFiles[file] = procInfo.OpenedFiles[file] + 1
+		procInfo.OpenedFiles[file] = digestSet
 	}
 
 	return nil
@@ -145,7 +200,7 @@ func (ctx *ptraceContext) getProcInfo(pid int) *ProcessInfo {
 	if !ok {
 		procInfo = &ProcessInfo{
 			ProcessID:   pid,
-			OpenedFiles: make(map[string]int),
+			OpenedFiles: make(map[string]cryptoutil.DigestSet),
 		}
 
 		ctx.processes[pid] = procInfo
@@ -189,4 +244,41 @@ func (ctx *ptraceContext) readSyscallReg(pid int, addr uintptr, n int) (string, 
 	// don't want to use cgo... look for the first 0 byte for the end of the c string
 	size := bytes.IndexByte(data, 0)
 	return string(data[:size]), nil
+}
+
+func cleanString(s string) string {
+	return strings.TrimSpace(strings.Replace(s, "\x00", " ", -1))
+}
+
+func getPPIDFromStatus(status []byte) (int, error) {
+	statusStr := string(status)
+
+	lines := strings.Split(statusStr, "\n")
+
+	for _, line := range lines {
+		if strings.Contains(line, "PPid:") {
+			parts := strings.Split(line, ":")
+			ppid := strings.TrimSpace(parts[1])
+			return strconv.Atoi(ppid)
+		}
+	}
+	return 0, nil
+}
+
+func getSpecBypassIsVulnFromStatus(status []byte) bool {
+	statusStr := string(status)
+
+	lines := strings.Split(statusStr, "\n")
+
+	for _, line := range lines {
+		if strings.Contains(line, "Speculation_Store_Bypass:") {
+			parts := strings.Split(line, ":")
+			isVuln := strings.TrimSpace(parts[1])
+			if strings.Contains(isVuln, "vulnerable") {
+				return true
+			}
+
+		}
+	}
+	return false
 }

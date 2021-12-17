@@ -126,6 +126,15 @@ func CalculateDigestSetFromFile(path string, hashes []crypto.Hash) (DigestSet, e
 		return DigestSet{}, err
 	}
 
+	fType, err := isFileType(file)
+	if err != nil {
+		return DigestSet{}, err
+	}
+
+	if !fType {
+		return DigestSet{}, fmt.Errorf("%s is not a file", path)
+	}
+
 	defer file.Close()
 	return CalculateDigestSet(file, hashes)
 }
@@ -153,4 +162,33 @@ func (ds *DigestSet) UnmarshalJSON(data []byte) error {
 
 	*ds = newDs
 	return nil
+}
+
+func isFileType(f *os.File) (bool, error) {
+	stat, err := f.Stat()
+	if err != nil {
+		return false, err
+	}
+
+	mode := stat.Mode()
+
+	isSpecial := stat.Mode()&os.ModeCharDevice != 0
+
+	if isSpecial {
+		return false, nil
+	}
+
+	if mode.IsRegular() {
+		return true, nil
+	}
+
+	if mode.Perm().IsDir() {
+		return true, nil
+	}
+
+	if mode&os.ModeSymlink == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }
