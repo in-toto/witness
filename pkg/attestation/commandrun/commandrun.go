@@ -58,9 +58,16 @@ func New(opts ...Option) *CommandRun {
 }
 
 type ProcessInfo struct {
-	ProcessID   int            `json:"processid"`
-	Program     string         `json:"program,omitempty"`
-	OpenedFiles map[string]int `json:"openedFiles,omitempty"`
+	Program          string                          `json:"program,omitempty"`
+	ProcessID        int                             `json:"processid"`
+	ParentPID        int                             `json:"parentpid"`
+	ProgramDigest    cryptoutil.DigestSet            `json:"programdigest,omitempty"`
+	Comm             string                          `json:"comm,omitempty"`
+	Cmdline          string                          `json:"cmdline,omitempty"`
+	ExeDigest        cryptoutil.DigestSet            `json:"exedigest,omitempty"`
+	OpenedFiles      map[string]cryptoutil.DigestSet `json:"openedfiles,omitempty"`
+	Environ          string                          `json:"environ,omitempty"`
+	SpecBypassIsVuln bool                            `json:"specbypassisvuln,omitempty"`
 }
 
 type CommandRun struct {
@@ -138,7 +145,7 @@ func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
 
 	var err error
 	if r.enableTracing {
-		r.Processes, err = r.trace(c)
+		r.Processes, err = r.trace(c, ctx)
 	} else {
 		err = c.Wait()
 		if exitErr, ok := err.(*exec.ExitError); ok {
