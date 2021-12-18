@@ -24,3 +24,5 @@ signs:
     certificate: "${artifact}.pem"
     args: ["sign-blob", "--oidc-issuer=https://token.actions.githubusercontent.com", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
     artifacts: all
+release:
+  prerelease: auto
