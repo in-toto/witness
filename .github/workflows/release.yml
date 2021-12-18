@@ -53,9 +53,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
-      - uses: imjasonh/setup-ko@v0.4
-      - name: build and release image
-        run: cosign sign --oidc-issuer=https://token.actions.githubusercontent.com $(ko publish ./ --tags  ${{github.ref_name}})
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COSIGN_EXPERIMENTAL: 1
+#      - uses: imjasonh/setup-ko@v0.4
+#      - name: build and release image
+#        run: cosign sign --oidc-issuer=https://token.actions.githubusercontent.com $(ko publish ./ --tags  ${{github.ref_name}})
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          COSIGN_EXPERIMENTAL: 1
