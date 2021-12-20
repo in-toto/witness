@@ -31,6 +31,17 @@ func (e ErrMissingAttestation) Error() string {
 	return fmt.Sprintf("missing attestation in collection for step %v: %v", e.Step, e.Attestation)
 }
 
+type ErrFailedConstraint struct {
+	Step        string
+	Attestation string
+	Constraint  string
+	Err         error
+}
+
+func (e ErrFailedConstraint) Error() string {
+	return fmt.Sprintf("attestation %v for step %v failed constraint %v: %s", e.Attestation, e.Step, e.Constraint, e.Err)
+}
+
 type ErrPolicyExpired time.Time
 
 func (e ErrPolicyExpired) Error() string {
@@ -71,8 +82,13 @@ type Functionary struct {
 }
 
 type Attestation struct {
-	Type     string   `json:"type"`
-	Policies []string `json:"policies"`
+	Type         string       `json:"type"`
+	RegoPolicies []RegoPolicy `json:"regopolicies"`
+}
+
+type RegoPolicy struct {
+	Module []byte `json:"module"`
+	Name   string `json:"name"`
 }
 
 type CertConstraint struct {
@@ -179,17 +195,25 @@ func (s Step) Verify(attestCollections []attestation.Collection) error {
 	}
 
 	for _, collection := range attestCollections {
-		found := make(map[string]struct{})
+		found := make(map[string]attestation.Attestor)
 		for _, attestation := range collection.Attestations {
-			found[attestation.Type] = struct{}{}
+			found[attestation.Type] = attestation.Attestation
 		}
 
 		for _, expected := range s.Attestations {
-			_, ok := found[expected.Type]
+			attestor, ok := found[expected.Type]
 			if !ok {
 				return ErrMissingAttestation{
 					Step:        s.Name,
 					Attestation: expected.Type,
+				}
+			}
+
+			if err := EvaluateRegoPolicy(attestor, expected.RegoPolicies); err != nil {
+				return ErrFailedConstraint{
+					Step:        s.Name,
+					Attestation: expected.Type,
+					Err:         err,
 				}
 			}
 		}
