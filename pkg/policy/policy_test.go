@@ -47,6 +47,17 @@ func TestVerify(t *testing.T) {
 	require.NoError(t, err)
 	keyID, err := verifier.KeyID()
 	require.NoError(t, err)
+	commandPolicy := []byte(`package test
+deny[msg] {
+	input.cmd != ["go", "build", "./"]
+	msg := "unexpected cmd"
+}`)
+	exitPolicy := []byte(`package commandrun.exitcode
+deny[msg] {
+	input.exitcode != 0
+	msg := "exitcode not 0"
+}`)
+
 	policy := Policy{
 		Expires: time.Now().Add(1 * time.Hour),
 		PublicKeys: map[string]PublicKey{
@@ -67,13 +78,26 @@ func TestVerify(t *testing.T) {
 				Attestations: []Attestation{
 					{
 						Type: commandrun.Type,
+						RegoPolicies: []RegoPolicy{
+							{
+								Module: commandPolicy,
+								Name:   "expected command",
+							},
+							{
+								Name:   "exited successfully",
+								Module: exitPolicy,
+							},
+						},
 					},
 				},
 			},
 		},
 	}
 
-	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandrun.New()})
+	commandRun := commandrun.New()
+	commandRun.Cmd = []string{"go", "build", "./"}
+	commandRun.ExitCode = 0
+	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandRun})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
 	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]cryptoutil.DigestSet{})
 	require.NoError(t, err)
