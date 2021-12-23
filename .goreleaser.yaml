@@ -16,8 +16,14 @@ builds:
       - amd64
       - arm64
     main: .
+gomod:
+  proxy: true
 source:
   enabled: true
+sboms:
+  - artifacts: archive
+  - id: source
+    artifacts: source
 signs:
   - cmd: cosign
     signature: "${artifact}.sig"
