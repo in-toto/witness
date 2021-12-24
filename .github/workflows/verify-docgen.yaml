@@ -1,0 +1,17 @@
+name: Docgen
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main', 'release-*']
+  pull_request:
+jobs:
+  docgen:
+    name: Verify Docgen
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.17.x'
+      - run: ./cmd/help/verify.sh
