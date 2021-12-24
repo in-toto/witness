@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
+	"runtime/pprof"
 
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
@@ -26,14 +27,19 @@ var certPath string
 var intermediatePaths []string
 var spiffePath string
 var config string
+var cpuprofile string
+var cpuprofilefile *os.File
 
 var rootCmd = &cobra.Command{
-	Use:   "witness",
-	Short: "Collect and verify attestations about your build environments",
+	Use:                "witness",
+	Short:              "Collect and verify attestations about your build environments",
+	PersistentPreRunE:  rootPreRun,
+	PersistentPostRunE: rootPostRun,
 }
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&config, "config", "c", ".witness.yaml", "Path to the witness config file")
+	rootCmd.PersistentFlags().StringVar(&cpuprofile, "cpuprofile", "", "Path to store the cpu profile information")
 }
 
 func Execute() {
@@ -41,6 +47,37 @@ func Execute() {
 		fmt.Fprintf(os.Stderr, "%v\n", color.Red.Sprint(err.Error()))
 		os.Exit(1)
 	}
+}
+
+func rootPreRun(cmd *cobra.Command, args []string) error {
+	if cpuprofile == "" {
+		return nil
+	}
+
+	var err error
+	cpuprofilefile, err = os.Create(cpuprofile)
+	if err != nil {
+		return err
+	}
+
+	if err := pprof.StartCPUProfile(cpuprofilefile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func rootPostRun(cmd *cobra.Command, args []string) error {
+	if cpuprofile == "" {
+		return nil
+	}
+
+	pprof.StopCPUProfile()
+	if err := cpuprofilefile.Close(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetCommand() *cobra.Command {
