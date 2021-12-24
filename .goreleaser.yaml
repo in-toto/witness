@@ -26,9 +26,11 @@ sboms:
     artifacts: source
 signs:
   - cmd: cosign
+    env:
+      - COSIGN_EXPERIMENTAL=1
     signature: "${artifact}.sig"
     certificate: "${artifact}.pem"
-    args: ["sign-blob", "--oidc-issuer=https://token.actions.githubusercontent.com", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
+    args: ["sign-blob", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
     artifacts: all
 changelog:
   use: github
@@ -46,3 +48,5 @@ changelog:
       order: 999
 release:
   prerelease: auto
+  github:
+    owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
