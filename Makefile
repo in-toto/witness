@@ -1,4 +1,4 @@
-.PHONY: all build clean vet test
+.PHONY: all build clean vet test docgen
 
 all: clean test build
 
@@ -18,6 +18,5 @@ vet:
 test:
 	go test ./...
 
-.PHONY: docgen
 docgen:
-	go run -tags pivkey,pkcs11key,cgo ./cmd/help
+	go run ./cmd/help
