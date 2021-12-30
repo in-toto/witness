@@ -36,12 +36,13 @@ var rekorServer string
 var tracing bool
 
 var runCmd = &cobra.Command{
-	Use:           "run [cmd]",
-	Short:         "Runs the provided command and records attestations about the execution",
-	SilenceErrors: true,
-	SilenceUsage:  true,
-	RunE:          runRun,
-	Args:          cobra.ArbitraryArgs,
+	Use:               "run [cmd]",
+	Short:             "Runs the provided command and records attestations about the execution",
+	SilenceErrors:     true,
+	SilenceUsage:      true,
+	DisableAutoGenTag: true,
+	RunE:              runRun,
+	Args:              cobra.ArbitraryArgs,
 }
 
 func init() {

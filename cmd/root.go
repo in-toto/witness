@@ -42,8 +42,9 @@ var spiffePath string
 var config string
 
 var rootCmd = &cobra.Command{
-	Use:   "witness",
-	Short: "Collect and verify attestations about your build environments",
+	Use:               "witness",
+	Short:             "Collect and verify attestations about your build environments",
+	DisableAutoGenTag: true,
 }
 
 func init() {

@@ -19,4 +19,4 @@ test:
 	go test ./...
 
 docgen:
-	go run ./cmd/help
+	go run ./cmd/docgen

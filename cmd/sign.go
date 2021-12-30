@@ -25,13 +25,14 @@ import (
 var dataType string
 
 var signCmd = &cobra.Command{
-	Use:           "sign [file]",
-	Short:         "Signs a file",
-	Long:          "Signs a file with the provided key source and outputs the signed file to the specified destination",
-	SilenceErrors: true,
-	SilenceUsage:  true,
-	RunE:          runSign,
-	Args:          cobra.ExactArgs(1),
+	Use:               "sign [file]",
+	Short:             "Signs a file",
+	Long:              "Signs a file with the provided key source and outputs the signed file to the specified destination",
+	SilenceErrors:     true,
+	SilenceUsage:      true,
+	DisableAutoGenTag: true,
+	RunE:              runSign,
+	Args:              cobra.ExactArgs(1),
 }
 
 func init() {
