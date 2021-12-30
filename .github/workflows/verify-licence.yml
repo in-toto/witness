@@ -18,4 +18,4 @@ jobs:
         - name: Check license headers
           run: |
             set -e
-            addlicense --check -l apache -c 'The TestifySec Authors' -v *
+            addlicense --check -l apache -c 'The Witness Contributors' -v *
