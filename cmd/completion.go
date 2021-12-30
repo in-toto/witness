@@ -48,6 +48,7 @@ PowerShell:
   # and source this file from your PowerShell profile.
 `,
 	DisableFlagsInUseLine: true,
+	DisableAutoGenTag:     true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 	Args:                  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

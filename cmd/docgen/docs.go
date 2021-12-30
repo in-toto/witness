@@ -15,11 +15,20 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/spf13/cobra/doc"
 	"github.com/testifysec/witness/cmd"
 )
 
+var directory string
+
+func init() {
+	flag.StringVar(&directory, "dir", "docs", "Directory to store the generated docs")
+	flag.Parse()
+}
+
 func main() {
 	// Generate CLI docs
-	doc.GenMarkdownTree(cmd.GetCommand(), "docs")
+	doc.GenMarkdownTree(cmd.GetCommand(), directory)
 }

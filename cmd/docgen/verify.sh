@@ -16,8 +16,11 @@ set -e
 
 # Verify that generated Markdown docs are up-to-date.
 tmpdir=$(mktemp -d)
-go run -tags pivkey,pkcs11key,cgo ./cmd/help --dir "$tmpdir"
+tmpdir2=$(mktemp -d)
+cp docs/witness*.md "$tmpdir2/"
+go run ./cmd/docgen --dir "$tmpdir"
 echo "###########################################"
 echo "If diffs are found, run: make docgen"
 echo "###########################################"
-diff -Naur "$tmpdir" docs/
+diff -Nau "$tmpdir" "$tmpdir2"
+rm -rf "$tmpdir" "$tmpdir2"

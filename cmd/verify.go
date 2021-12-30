@@ -32,12 +32,13 @@ var artifactFilePath string
 var artifactHash string
 
 var verifyCmd = &cobra.Command{
-	Use:           "verify",
-	Short:         "Verifies a witness policy",
-	Long:          "Verifies a policy provided key source and exits with code 0 if verification succeeds",
-	SilenceErrors: true,
-	SilenceUsage:  true,
-	RunE:          runVerify,
+	Use:               "verify",
+	Short:             "Verifies a witness policy",
+	Long:              "Verifies a policy provided key source and exits with code 0 if verification succeeds",
+	SilenceErrors:     true,
+	SilenceUsage:      true,
+	DisableAutoGenTag: true,
+	RunE:              runVerify,
 }
 
 func init() {
