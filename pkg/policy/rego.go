@@ -45,6 +45,10 @@ func (e ErrPolicyDenied) Error() string {
 }
 
 func EvaluateRegoPolicy(attestor attestation.Attestor, policies []RegoPolicy) error {
+	if len(policies) == 0 {
+		return nil
+	}
+
 	attestorJson, err := json.Marshal(attestor)
 	if err != nil {
 		return err
