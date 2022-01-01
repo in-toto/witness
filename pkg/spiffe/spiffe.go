@@ -28,7 +28,7 @@ func (e ErrInvalidSVID) Error() string {
 	return fmt.Sprintf("invalid svid: %v", string(e))
 }
 
-func Signer(ctx context.Context, socketPath string) (*cryptoutil.X509Signer, error) {
+func Signer(ctx context.Context, socketPath string) (cryptoutil.Signer, error) {
 	svidCtx, err := workloadapi.FetchX509Context(ctx, workloadapi.WithAddr(socketPath))
 	if err != nil {
 		return nil, err
@@ -43,5 +43,5 @@ func Signer(ctx context.Context, socketPath string) (*cryptoutil.X509Signer, err
 		return nil, ErrInvalidSVID("no private key")
 	}
 
-	return cryptoutil.NewX509Signer(svid.PrivateKey, svid.Certificates[0], svid.Certificates[1:], nil)
+	return cryptoutil.NewSigner(svid.PrivateKey, cryptoutil.SignWithIntermediates(svid.Certificates[1:]), cryptoutil.SignWithCertificate(svid.Certificates[0]))
 }

@@ -15,35 +15,39 @@
 package rekor
 
 import (
+	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
+	"crypto"
+	"encoding/base64"
 	"errors"
 	"fmt"
+
+	"github.com/go-openapi/runtime"
 	"github.com/sigstore/rekor/pkg/client"
 	generatedClient "github.com/sigstore/rekor/pkg/generated/client"
 	"github.com/sigstore/rekor/pkg/generated/client/entries"
 	"github.com/sigstore/rekor/pkg/generated/client/index"
 	"github.com/sigstore/rekor/pkg/generated/models"
 	"github.com/sigstore/rekor/pkg/types"
-	"strings"
+	rekordsse "github.com/sigstore/rekor/pkg/types/dsse/v0.0.1"
+	"github.com/testifysec/witness/pkg/cryptoutil"
+	"github.com/testifysec/witness/pkg/dsse"
+)
 
-	// imported so the init function runs
-	_ "github.com/sigstore/rekor/pkg/types/intoto/v0.0.1"
+var (
+	rekorSupportedHashes = map[crypto.Hash]string{crypto.SHA256: "sha256", crypto.SHA1: "sha1"}
 )
 
 type wrappedRekorClient struct {
 	*generatedClient.Rekor
 }
 
-type IRekorOperations interface {
+type RekorClient interface {
 	StoreArtifact(artifactBytes, pubkeyBytes []byte) (*entries.CreateLogEntryCreated, error)
-	FindTLogEntriesByPayload(payload []byte) (*models.LogEntryAnon, error)
+	FindEntriesBySubject(cryptoutil.DigestSet) ([]*models.LogEntryAnon, error)
 }
 
-var _ IRekorOperations = (*wrappedRekorClient)(nil)
-
-func New(rekorServer string) (IRekorOperations, error) {
+func New(rekorServer string) (RekorClient, error) {
 	client, err := client.GetRekorClient(rekorServer)
 	if err != nil {
 		return nil, err
@@ -55,7 +59,7 @@ func New(rekorServer string) (IRekorOperations, error) {
 }
 
 func (r *wrappedRekorClient) StoreArtifact(artifactBytes, pubkeyBytes []byte) (*entries.CreateLogEntryCreated, error) {
-	entry, err := types.NewProposedEntry(context.Background(), "intoto", "0.0.1", types.ArtifactProperties{
+	entry, err := types.NewProposedEntry(context.Background(), "dsse", "0.0.1", types.ArtifactProperties{
 		ArtifactBytes:  artifactBytes,
 		PublicKeyBytes: pubkeyBytes,
 	})
@@ -82,13 +86,16 @@ func (r *wrappedRekorClient) getTlogEntry(uuid string) (*models.LogEntryAnon, er
 	return nil, errors.New("empty response")
 }
 
-func (r *wrappedRekorClient) FindTLogEntriesByPayload(payload []byte) (*models.LogEntryAnon, error) {
+func (r *wrappedRekorClient) FindEntriesBySubject(subjectDigestSet cryptoutil.DigestSet) ([]*models.LogEntryAnon, error) {
 	params := index.NewSearchIndexParams()
 	params.Query = &models.SearchIndex{}
 
-	h := sha256.New()
-	h.Write(payload)
-	params.Query.Hash = fmt.Sprintf("sha256:%s", strings.ToLower(hex.EncodeToString(h.Sum(nil))))
+	for hash, digest := range subjectDigestSet {
+		if rekorHash, ok := rekorSupportedHashes[hash]; ok {
+			params.Query.Hash = fmt.Sprintf("%v:%v", rekorHash, digest)
+			break
+		}
+	}
 
 	searchIndex, err := r.Index.SearchIndex(params)
 	if err != nil {
@@ -96,15 +103,85 @@ func (r *wrappedRekorClient) FindTLogEntriesByPayload(payload []byte) (*models.L
 	}
 
 	uuids := searchIndex.GetPayload()
+	entries := make([]*models.LogEntryAnon, 0)
+	for _, uuid := range uuids {
+		entry, err := r.getTlogEntry(uuid)
+		if err != nil {
+			continue
+		}
 
-	if len(uuids) == 0 {
-		return nil, nil
+		entries = append(entries, entry)
 	}
 
-	logEntry, err := r.getTlogEntry(uuids[0])
+	return entries, nil
+}
+
+func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
+	env := dsse.Envelope{}
+	if entry.Attestation == nil {
+		return env, errors.New("empty or invalid attestation")
+	}
+
+	bodyStr, ok := entry.Body.(string)
+	if !ok {
+		return env, errors.New("invalid body")
+	}
+
+	decodedBody, err := base64.StdEncoding.DecodeString(bodyStr)
 	if err != nil {
-		return nil, err
+		return env, fmt.Errorf("could not decode body: %w", err)
 	}
 
-	return logEntry, nil
+	pe, err := models.UnmarshalProposedEntry(bytes.NewReader(decodedBody), runtime.JSONConsumer())
+	if err != nil {
+		return env, fmt.Errorf("couldn't parse rekor entry: %w", err)
+	}
+
+	baseModel := models.Dsse{}
+	if err := baseModel.UnmarshalJSON(decodedBody); err != nil {
+		return env, fmt.Errorf("could not parse rekor entry: %w", err)
+	}
+
+	eimpl, err := types.NewEntry(pe)
+	if err != nil {
+		return env, fmt.Errorf("could not get entry from rekor: %w", err)
+	}
+
+	dsseEntry, ok := eimpl.(*rekordsse.V001Entry)
+	if !ok {
+		return env, errors.New("rekor entry isn't a dsse entry")
+	}
+
+	env.Payload = entry.Attestation.Data
+	env.PayloadType = *dsseEntry.DsseObj.PayloadType
+	for _, sig := range dsseEntry.DsseObj.Signatures {
+		decodedSig, err := base64.StdEncoding.DecodeString(string(sig.Sig))
+		if err != nil {
+			return env, fmt.Errorf("could not decode signature: %w", err)
+		}
+
+		decodedPubKey, err := base64.RawStdEncoding.DecodeString(string(sig.PublicKey))
+		if err != nil {
+			return env, fmt.Errorf("could not parse public key from dsse entry: %w", err)
+		}
+
+		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(decodedPubKey))
+		if err != nil {
+			return env, fmt.Errorf("could not create verifier from public key on rekor entry: %w", err)
+		}
+
+		envSig := dsse.Signature{
+			Signature: decodedSig,
+			KeyID:     sig.Keyid,
+		}
+
+		_, ok := verifier.(*cryptoutil.X509Verifier)
+		if ok {
+			envSig.Certificate = decodedPubKey
+		}
+
+		env.Signatures = append(env.Signatures, envSig)
+	}
+
+	return env, nil
 }

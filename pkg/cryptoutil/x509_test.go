@@ -133,7 +133,10 @@ func TestX509(t *testing.T) {
 	leaf, priv, err := createLeaf(intermediate, intPriv)
 	require.NoError(t, err)
 
-	signer, err := NewX509Signer(priv, leaf, []*x509.Certificate{intermediate}, []*x509.Certificate{root})
+	baseSigner, err := NewSigner(priv)
+	require.NoError(t, err)
+
+	signer, err := NewX509Signer(baseSigner, leaf, []*x509.Certificate{intermediate}, []*x509.Certificate{root})
 	require.NoError(t, err)
 
 	data := []byte("this is some test data")

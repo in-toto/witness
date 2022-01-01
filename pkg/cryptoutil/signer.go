@@ -48,27 +48,74 @@ type TrustBundler interface {
 	Roots() []*x509.Certificate
 }
 
-func NewSigner(priv interface{}) (Signer, error) {
+type SignerOption func(*signerOptions)
+
+type signerOptions struct {
+	cert          *x509.Certificate
+	intermediates []*x509.Certificate
+	roots         []*x509.Certificate
+	hash          crypto.Hash
+}
+
+func SignWithCertificate(cert *x509.Certificate) SignerOption {
+	return func(so *signerOptions) {
+		so.cert = cert
+	}
+}
+
+func SignWithIntermediates(intermediates []*x509.Certificate) SignerOption {
+	return func(so *signerOptions) {
+		so.intermediates = intermediates
+	}
+}
+
+func SignWithRoots(roots []*x509.Certificate) SignerOption {
+	return func(so *signerOptions) {
+		so.roots = roots
+	}
+}
+
+func SignWithHash(h crypto.Hash) SignerOption {
+	return func(so *signerOptions) {
+		so.hash = h
+	}
+}
+
+func NewSigner(priv interface{}, opts ...SignerOption) (Signer, error) {
+	options := &signerOptions{
+		hash: crypto.SHA256,
+	}
+
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	var signer Signer
 	switch key := priv.(type) {
 	case *rsa.PrivateKey:
-		// todo: make the hash and other options configurable
-		return NewRSASigner(key, crypto.SHA256), nil
+		signer = NewRSASigner(key, options.hash)
 	case *ecdsa.PrivateKey:
-		return NewECDSASigner(key, crypto.SHA256), nil
+		signer = NewECDSASigner(key, options.hash)
 	case ed25519.PrivateKey:
-		return NewED25519Signer(key), nil
+		signer = NewED25519Signer(key)
 	default:
 		return nil, ErrUnsupportedKeyType{
 			t: fmt.Sprintf("%T", priv),
 		}
 	}
+
+	if options.cert != nil {
+		return NewX509Signer(signer, options.cert, options.intermediates, options.roots)
+	}
+
+	return signer, nil
 }
 
-func NewSignerFromReader(r io.Reader) (Signer, error) {
+func NewSignerFromReader(r io.Reader, opts ...SignerOption) (Signer, error) {
 	key, err := TryParseKeyFromReader(r)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewSigner(key)
+	return NewSigner(key, opts...)
 }
