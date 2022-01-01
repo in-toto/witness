@@ -58,6 +58,17 @@ func (v *X509Verifier) Verify(body io.Reader, sig []byte) error {
 	return v.verifier.Verify(body, sig)
 }
 
+func (v *X509Verifier) BelongsToRoot(root *x509.Certificate) error {
+	rootPool := certificatesToPool([]*x509.Certificate{root})
+	intermediatePool := certificatesToPool(v.intermediates)
+	_, err := v.cert.Verify(x509.VerifyOptions{
+		Roots:         rootPool,
+		Intermediates: intermediatePool,
+	})
+
+	return err
+}
+
 func (v *X509Verifier) Bytes() ([]byte, error) {
 	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: v.cert.Raw})
 	return pemBytes, nil
@@ -82,10 +93,25 @@ type X509Signer struct {
 	signer        Signer
 }
 
-func NewX509Signer(priv interface{}, cert *x509.Certificate, intermediates, roots []*x509.Certificate) (*X509Signer, error) {
-	signer, err := NewSigner(priv)
-	if err != nil {
-		return nil, err
+type ErrInvalidSigner struct{}
+
+func (e ErrInvalidSigner) Error() string {
+	return "signer must not be nil"
+}
+
+type ErrInvalidCertificate struct{}
+
+func (e ErrInvalidCertificate) Error() string {
+	return "certificate must not be nil"
+}
+
+func NewX509Signer(signer Signer, cert *x509.Certificate, intermediates, roots []*x509.Certificate) (*X509Signer, error) {
+	if signer == nil {
+		return nil, ErrInvalidSigner{}
+	}
+
+	if cert == nil {
+		return nil, ErrInvalidCertificate{}
 	}
 
 	return &X509Signer{

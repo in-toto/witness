@@ -30,17 +30,50 @@ type Verifier interface {
 	Bytes() ([]byte, error)
 }
 
-func NewVerifier(pub interface{}) (Verifier, error) {
+type VerifierOption func(*verifierOptions)
+
+type verifierOptions struct {
+	roots         []*x509.Certificate
+	intermediates []*x509.Certificate
+	hash          crypto.Hash
+}
+
+func VerifyWithRoots(roots []*x509.Certificate) VerifierOption {
+	return func(vo *verifierOptions) {
+		vo.roots = roots
+	}
+}
+
+func VerifyWithIntermediates(intermediates []*x509.Certificate) VerifierOption {
+	return func(vo *verifierOptions) {
+		vo.intermediates = intermediates
+	}
+}
+
+func VerifyWithHash(h crypto.Hash) VerifierOption {
+	return func(vo *verifierOptions) {
+		vo.hash = h
+	}
+}
+
+func NewVerifier(pub interface{}, opts ...VerifierOption) (Verifier, error) {
+	options := &verifierOptions{
+		hash: crypto.SHA256,
+	}
+
+	for _, opt := range opts {
+		opt(options)
+	}
+
 	switch key := pub.(type) {
 	case *rsa.PublicKey:
-		// todo: make the hash and other options configurable
-		return NewRSAVerifier(key, crypto.SHA256), nil
+		return NewRSAVerifier(key, options.hash), nil
 	case *ecdsa.PublicKey:
-		return NewECDSAVerifier(key, crypto.SHA256), nil
+		return NewECDSAVerifier(key, options.hash), nil
 	case ed25519.PublicKey:
 		return NewED25519Verifier(key), nil
 	case *x509.Certificate:
-		return NewX509Verifier(key, nil, nil)
+		return NewX509Verifier(key, options.intermediates, options.roots)
 	default:
 		return nil, ErrUnsupportedKeyType{
 			t: fmt.Sprintf("%T", pub),
@@ -48,11 +81,11 @@ func NewVerifier(pub interface{}) (Verifier, error) {
 	}
 }
 
-func NewVerifierFromReader(r io.Reader) (Verifier, error) {
+func NewVerifierFromReader(r io.Reader, opts ...VerifierOption) (Verifier, error) {
 	key, err := TryParseKeyFromReader(r)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewVerifier(key)
+	return NewVerifier(key, opts...)
 }

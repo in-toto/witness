@@ -52,7 +52,7 @@ func runSign(so options.SignOptions) error {
 
 	inFile, err := os.Open(so.InFilePath)
 	if err != nil {
-		return fmt.Errorf("could not open file to sign: %v", err)
+		return fmt.Errorf("failed to open file to sign: %v", err)
 	}
 
 	outFile, err := loadOutfile(so.OutFilePath)

@@ -15,6 +15,7 @@
 package pkg
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -23,10 +24,12 @@ import (
 )
 
 func VerifySignature(r io.Reader, verifiers ...cryptoutil.Verifier) (dsse.Envelope, error) {
-	envelope, err := dsse.Decode(r)
-	if err != nil {
-		return envelope, fmt.Errorf("could not parse dsse envelope: %v", err)
+	decoder := json.NewDecoder(r)
+	envelope := dsse.Envelope{}
+	if err := decoder.Decode(&envelope); err != nil {
+		return envelope, fmt.Errorf("failed to parse dsse envelope: %v", err)
 	}
 
-	return envelope, envelope.Verify(verifiers...)
+	_, err := envelope.Verify(dsse.WithVerifiers(verifiers))
+	return envelope, err
 }

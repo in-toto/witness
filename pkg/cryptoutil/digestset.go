@@ -140,13 +140,13 @@ func CalculateDigestSetFromFile(path string, hashes []crypto.Hash) (DigestSet, e
 		return DigestSet{}, err
 	}
 
-	fType, err := isFileType(file)
+	hashable, err := isHashableFile(file)
 	if err != nil {
 		return DigestSet{}, err
 	}
 
-	if !fType {
-		return DigestSet{}, fmt.Errorf("%s is not a file", path)
+	if !hashable {
+		return DigestSet{}, fmt.Errorf("%s is not a hashable file", path)
 	}
 
 	defer file.Close()
@@ -178,7 +178,7 @@ func (ds *DigestSet) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func isFileType(f *os.File) (bool, error) {
+func isHashableFile(f *os.File) (bool, error) {
 	stat, err := f.Stat()
 	if err != nil {
 		return false, err
