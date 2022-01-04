@@ -33,6 +33,7 @@ import (
 	_ "github.com/testifysec/witness/pkg/attestation/git"
 	_ "github.com/testifysec/witness/pkg/attestation/gitlab"
 	_ "github.com/testifysec/witness/pkg/attestation/jwt"
+	_ "github.com/testifysec/witness/pkg/attestation/maven"
 )
 
 var keyPath string
