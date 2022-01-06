@@ -17,6 +17,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/testifysec/witness/cmd/options"
 	"io"
 	"os"
 
@@ -26,34 +27,27 @@ import (
 	"github.com/testifysec/witness/pkg/policy"
 )
 
-var attestationFilePaths []string
-var policyFilePath string
-var artifactFilePath string
-var artifactHash string
-
-var verifyCmd = &cobra.Command{
-	Use:               "verify",
-	Short:             "Verifies a witness policy",
-	Long:              "Verifies a policy provided key source and exits with code 0 if verification succeeds",
-	SilenceErrors:     true,
-	SilenceUsage:      true,
-	DisableAutoGenTag: true,
-	RunE:              runVerify,
-}
-
-func init() {
-	rootCmd.AddCommand(verifyCmd)
-	verifyCmd.Flags().StringVarP(&keyPath, "publickey", "k", "", "Path to the policy signer's public key")
-	verifyCmd.Flags().StringSliceVarP(&attestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
-	verifyCmd.Flags().StringVarP(&policyFilePath, "policy", "p", "", "Path to the policy to verify")
-	verifyCmd.Flags().StringVarP(&artifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
-	verifyCmd.Flags().StringVar(&artifactHash, "artifacthash", "", "Hash of the artifact to verify")
+func VerifyCmd() *cobra.Command {
+	vo := options.VerifyOptions{}
+	cmd := &cobra.Command{
+		Use:               "verify",
+		Short:             "Verifies a witness policy",
+		Long:              "Verifies a policy provided key source and exits with code 0 if verification succeeds",
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runVerify(vo, args)
+		},
+	}
+	vo.AddFlags(cmd)
+	return cmd
 }
 
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
-func runVerify(cmd *cobra.Command, args []string) error {
-	keyFile, err := os.Open(keyPath)
+func runVerify(vo options.VerifyOptions, args []string) error {
+	keyFile, err := os.Open(vo.KeyPath)
 	if err != nil {
 		return fmt.Errorf("could not open key file: %v", err)
 	}
@@ -64,7 +58,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load key: %v", err)
 	}
 
-	inFile, err := os.Open(policyFilePath)
+	inFile, err := os.Open(vo.PolicyFilePath)
 	if err != nil {
 		return fmt.Errorf("could not open file to sign: %v", err)
 	}
@@ -82,7 +76,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	}
 
 	attestationFiles := []io.Reader{}
-	for _, path := range attestationFilePaths {
+	for _, path := range vo.AttestationFilePaths {
 		file, err := os.Open(path)
 		if err != nil {
 			return err

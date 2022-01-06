@@ -16,36 +16,36 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/testifysec/witness/cmd/options"
 	"os"
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
 )
 
-var dataType string
+func SignCmd() *cobra.Command {
+	so := options.SignOptions{}
+	cmd := &cobra.Command{
+		Use:               "sign [file]",
+		Short:             "Signs a file",
+		Long:              "Signs a file with the provided key source and outputs the signed file to the specified destination",
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSign(so, args)
+		},
+		Args: cobra.ExactArgs(1),
+	}
 
-var signCmd = &cobra.Command{
-	Use:               "sign [file]",
-	Short:             "Signs a file",
-	Long:              "Signs a file with the provided key source and outputs the signed file to the specified destination",
-	SilenceErrors:     true,
-	SilenceUsage:      true,
-	DisableAutoGenTag: true,
-	RunE:              runSign,
-	Args:              cobra.ExactArgs(1),
-}
-
-func init() {
-	rootCmd.AddCommand(signCmd)
-	addKeyFlags(signCmd)
-	signCmd.Flags().StringVarP(&dataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")
-	signCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data. Defaults to stdout")
+	so.AddFlags(cmd)
+	return cmd
 }
 
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
-func runSign(cmd *cobra.Command, args []string) error {
-	signer, err := loadSigner()
+func runSign(so options.SignOptions, args []string) error {
+	signer, err := loadSigner(so.KeyOptions.SpiffePath, so.KeyOptions.KeyPath, so.KeyOptions.CertPath, so.KeyOptions.IntermediatePaths)
 	if err != nil {
 		return err
 	}
@@ -56,11 +56,11 @@ func runSign(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("could not open file to sign: %v", err)
 	}
 
-	outFile, err := loadOutfile()
+	outFile, err := loadOutfile(so.OutFilePath)
 	if err != nil {
 		return err
 	}
 
 	defer outFile.Close()
-	return witness.Sign(inFile, dataType, outFile, signer)
+	return witness.Sign(inFile, so.DataType, outFile, signer)
 }

@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/testifysec/witness/cmd/options"
 	"io"
 
 	"github.com/spf13/cobra"
@@ -28,64 +29,48 @@ import (
 	"github.com/testifysec/witness/pkg/rekor"
 )
 
-var workingDir string
-var attestations []string
-var outFilePath string
-var stepName string
-var rekorServer string
-var tracing bool
-
-var runCmd = &cobra.Command{
-	Use:               "run [cmd]",
-	Short:             "Runs the provided command and records attestations about the execution",
-	SilenceErrors:     true,
-	SilenceUsage:      true,
-	DisableAutoGenTag: true,
-	RunE:              runRun,
-	Args:              cobra.ArbitraryArgs,
-}
-
-func init() {
-	rootCmd.AddCommand(runCmd)
-	addKeyFlags(runCmd)
-	runCmd.Flags().StringVarP(&workingDir, "workingdir", "d", "", "Directory that commands will be run from")
-	runCmd.Flags().StringSliceVarP(&attestations, "attestations", "a", []string{"Environment", "Artifact", "Git"}, "Attestations to record")
-	runCmd.Flags().StringVarP(&outFilePath, "outfile", "o", "", "File to write signed data.  Defaults to stdout")
-	runCmd.Flags().StringVarP(&stepName, "step", "s", "", "Name of the step being run")
-	runCmd.Flags().StringVarP(&rekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
-	runCmd.Flags().BoolVar(&tracing, "trace", false, "enable tracing for the command")
-	cobra.OnInitialize(initConfig)
-
-}
-
-func runRun(cmd *cobra.Command, args []string) error {
-	if stepName == "" {
-		return fmt.Errorf("step name is required")
+func RunCmd() *cobra.Command {
+	o := options.RunOptions{}
+	cmd := &cobra.Command{
+		Use:           "run [cmd]",
+		Short:         "Runs the provided command and records attestations about the execution",
+		SilenceErrors: true,
+		SilenceUsage:  true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runRun(o, args)
+		},
+		Args: cobra.ArbitraryArgs,
 	}
+	cobra.OnInitialize(initConfig)
+	o.AddFlags(cmd)
+	cmd.MarkFlagRequired("step")
+	return cmd
+}
 
-	signer, err := loadSigner()
+func runRun(ro options.RunOptions, args []string) error {
+	signer, err := loadSigner(ro.KeyOptions.SpiffePath, ro.KeyOptions.KeyPath, ro.KeyOptions.CertPath, ro.KeyOptions.IntermediatePaths)
 	if err != nil {
 		return fmt.Errorf("failed to load signer: %w", err)
 	}
 
-	out, err := loadOutfile()
+	out, err := loadOutfile(ro.OutFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to open out file: %w", err)
 	}
 
 	defer out.Close()
-	attestors, err := attestation.Attestors(attestations)
+	attestors, err := attestation.Attestors(ro.Attestations)
 	if err != nil {
 		return fmt.Errorf("failed to get attestors: %w", err)
 	}
 
 	if len(args) > 0 {
-		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(tracing)))
+		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
 
 	runCtx, err := attestation.NewContext(
 		attestors,
-		attestation.WithWorkingDir(workingDir),
+		attestation.WithWorkingDir(ro.WorkingDir),
 	)
 
 	if err != nil {
@@ -97,7 +82,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	}
 
 	completed := runCtx.CompletedAttestors()
-	collection := attestation.NewCollection(stepName, completed)
+	collection := attestation.NewCollection(ro.StepName, completed)
 	data, err := json.Marshal(&collection)
 	if err != nil {
 		return fmt.Errorf("failed to marshal attestation collection: %w", err)
@@ -120,6 +105,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to sign data: %w", err)
 	}
 
+	rekorServer := ro.RekorServer
 	if rekorServer != "" {
 		verifier, err := signer.Verifier()
 		if err != nil {

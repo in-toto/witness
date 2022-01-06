@@ -18,6 +18,7 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
+	"github.com/testifysec/witness/cmd/options"
 	"os"
 
 	"github.com/gookit/color"
@@ -36,41 +37,32 @@ import (
 	_ "github.com/testifysec/witness/pkg/attestation/maven"
 )
 
-var keyPath string
-var certPath string
-var intermediatePaths []string
-var spiffePath string
-var config string
+var (
+	ro = &options.RootOptions{}
+)
 
-var rootCmd = &cobra.Command{
-	Use:               "witness",
-	Short:             "Collect and verify attestations about your build environments",
-	DisableAutoGenTag: true,
-}
-
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&config, "config", "c", ".witness.yaml", "Path to the witness config file")
+func New() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "witness",
+		Short:             "Collect and verify attestations about your build environments",
+		DisableAutoGenTag: true,
+	}
+	ro.AddFlags(cmd)
+	cmd.AddCommand(SignCmd())
+	cmd.AddCommand(VerifyCmd())
+	cmd.AddCommand(RunCmd())
+	cmd.AddCommand(CompletionCmd())
+	return cmd
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := New().Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", color.Red.Sprint(err.Error()))
 		os.Exit(1)
 	}
 }
 
-func GetCommand() *cobra.Command {
-	return rootCmd
-}
-
-func addKeyFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to the signing key")
-	cmd.Flags().StringVar(&certPath, "certificate", "", "Path to the signing key's certificate")
-	cmd.Flags().StringSliceVarP(&intermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root in the policy")
-	cmd.Flags().StringVar(&spiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
-}
-
-func loadSigner() (cryptoutil.Signer, error) {
+func loadSigner(spiffePath, keyPath, certPath string, intermediatePaths []string) (cryptoutil.Signer, error) {
 	if spiffePath == "" && keyPath == "" {
 		return nil, fmt.Errorf("one of key or spiffe-socket flags must be provided")
 	} else if spiffePath != "" && keyPath != "" {
@@ -134,7 +126,7 @@ func loadCert(path string) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func loadOutfile() (*os.File, error) {
+func loadOutfile(outFilePath string) (*os.File, error) {
 	var err error
 	out := os.Stdout
 	if outFilePath != "" {
