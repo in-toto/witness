@@ -26,7 +26,8 @@ import (
 
 func initConfig() {
 	v := viper.New()
-
+	rootCmd := New()
+	config := ro.Config
 	if _, err := os.Stat(config); errors.Is(err, os.ErrNotExist) {
 		if rootCmd.Flags().Lookup("config").Changed {
 			log.Fatalf("config file %s does not exist", config)

@@ -30,5 +30,5 @@ func init() {
 
 func main() {
 	// Generate CLI docs
-	doc.GenMarkdownTree(cmd.GetCommand(), directory)
+	doc.GenMarkdownTree(cmd.New(), directory)
 }
