@@ -20,7 +20,7 @@ import (
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
-const CollectionType = "https://witness.testifysec.com/AttestationCollection/v0.1"
+const CollectionType = "https://witness.testifysec.com/attestation-collection/v0.1"
 
 type Collection struct {
 	Name         string                  `json:"name"`

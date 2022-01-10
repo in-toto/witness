@@ -16,7 +16,7 @@ run:
     key: testkey.pem
     outfile: test-attestation.json
     step: build
-    trace: true
+    trace: false
 sign:
     key: testkey.pem
     outfile: policy-signed.json

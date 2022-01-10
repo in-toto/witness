@@ -27,7 +27,6 @@ import (
 	"github.com/testifysec/witness/pkg/spiffe"
 
 	// imported so their init functions run
-	_ "github.com/testifysec/witness/pkg/attestation/artifact"
 	_ "github.com/testifysec/witness/pkg/attestation/commandrun"
 	_ "github.com/testifysec/witness/pkg/attestation/environment"
 	_ "github.com/testifysec/witness/pkg/attestation/gcp-iit"

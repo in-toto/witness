@@ -25,12 +25,13 @@ import (
 )
 
 const (
-	Name = "JWT"
-	Type = "https://witness.testifysec.com/attestations/JWT/v0.1"
+	Name    = "jwt"
+	Type    = "https://witness.testifysec.com/attestations/jwt/v0.1"
+	RunType = attestation.PreRunType
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, RunType, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -132,4 +133,8 @@ func (a *Attestor) Name() string {
 
 func (a *Attestor) Type() string {
 	return Type
+}
+
+func (a *Attestor) RunType() attestation.RunType {
+	return RunType
 }

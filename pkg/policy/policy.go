@@ -300,6 +300,10 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 					}
 
 					verifier, err := cryptoutil.NewX509Verifier(cert, intermediates, []*x509.Certificate{bundle.root})
+					if err != nil {
+						continue
+					}
+
 					functionaries = append(functionaries, verifier)
 				}
 			}

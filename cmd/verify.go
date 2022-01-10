@@ -17,9 +17,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/testifysec/witness/cmd/options"
 	"io"
 	"os"
+
+	"github.com/testifysec/witness/cmd/options"
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
@@ -85,6 +86,5 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		defer file.Close()
 		attestationFiles = append(attestationFiles, file)
 	}
-
 	return policy.Verify(attestationFiles)
 }

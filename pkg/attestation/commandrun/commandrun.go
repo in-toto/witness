@@ -21,17 +21,17 @@ import (
 	"os/exec"
 
 	"github.com/testifysec/witness/pkg/attestation"
-	"github.com/testifysec/witness/pkg/attestation/artifact"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 const (
-	Name = "CommandRun"
-	Type = "https://witness.testifysec.com/attestations/CommandRun/v0.1"
+	Name    = "command-run"
+	Type    = "https://witness.testifysec.com/attestations/command-run/v0.1"
+	RunType = attestation.CmdRunType
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, RunType, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -85,12 +85,11 @@ type ProcessInfo struct {
 }
 
 type CommandRun struct {
-	Cmd       []string           `json:"cmd"`
-	Stdout    string             `json:"stdout,omitempty"`
-	Stderr    string             `json:"stderr,omitempty"`
-	ExitCode  int                `json:"exitcode"`
-	Products  *artifact.Attestor `json:"products"`
-	Processes []ProcessInfo      `json:"processes,omitempty"`
+	Cmd       []string      `json:"cmd"`
+	Stdout    string        `json:"stdout,omitempty"`
+	Stderr    string        `json:"stderr,omitempty"`
+	ExitCode  int           `json:"exitcode"`
+	Processes []ProcessInfo `json:"processes,omitempty"`
 
 	silent        bool
 	materials     map[string]cryptoutil.DigestSet
@@ -105,20 +104,11 @@ func (rc *CommandRun) Attest(ctx *attestation.AttestationContext) error {
 		}
 	}
 
-	if len(rc.materials) <= 0 {
-		for _, attestor := range ctx.CompletedAttestors() {
-			if artifactAttestor, ok := attestor.(*artifact.Attestor); ok {
-				rc.materials = artifactAttestor.Artifacts
-			}
-		}
-	}
-
 	if err := rc.runCmd(ctx); err != nil {
 		return err
 	}
 
-	rc.Products = artifact.New(artifact.WithBaseArtifacts(rc.materials))
-	return rc.Products.Attest(ctx)
+	return nil
 }
 
 func (rc *CommandRun) Name() string {
@@ -129,8 +119,11 @@ func (rc *CommandRun) Type() string {
 	return Type
 }
 
+func (rc *CommandRun) RunType() attestation.RunType {
+	return RunType
+}
 func (rc *CommandRun) Subjects() map[string]cryptoutil.DigestSet {
-	return rc.Products.Artifacts
+	return map[string]cryptoutil.DigestSet{}
 }
 
 func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {
