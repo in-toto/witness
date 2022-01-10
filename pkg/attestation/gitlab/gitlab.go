@@ -23,13 +23,15 @@ import (
 )
 
 const (
-	Name    = "Gitlab"
-	Type    = "https://witness.testifysec.com/attestations/Gitlab/v0.1"
+	Name    = "gitlab"
+	Type    = "https://witness.testifysec.com/attestations/gitlab/v0.1"
+	RunType = attestation.PreRunType
+
 	jwksUrl = "https://gitlab.com/-/jwks"
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, RunType, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -70,6 +72,10 @@ func (a *Attestor) Name() string {
 
 func (a *Attestor) Type() string {
 	return Type
+}
+
+func (a *Attestor) RunType() attestation.RunType {
+	return RunType
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {

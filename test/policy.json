@@ -6,11 +6,15 @@
         "name": "build",
         "attestations": [
           {
-            "type": "https://witness.testifysec.com/attestations/Artifact/v0.1",
+            "type": "https://witness.testifysec.com/attestations/material/v0.1",
             "policies": []
           },
           {
-            "type": "https://witness.testifysec.com/attestations/CommandRun/v0.1",
+            "type": "https://witness.testifysec.com/attestations/command-run/v0.1",
+            "policies": []
+          },
+          {
+            "type": "https://witness.testifysec.com/attestations/product/v0.1",
             "policies": []
           }
         ],

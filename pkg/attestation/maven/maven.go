@@ -25,12 +25,13 @@ import (
 )
 
 const (
-	Name = "Maven"
-	Type = "https://witness.testifysec.com/attestations/Maven/v0.1"
+	Name    = "maven"
+	Type    = "https://witness.testifysec.com/attestations/maven/v0.1"
+	RunType = attestation.PreRunType
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, RunType, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -81,6 +82,10 @@ func (a *Attestor) Name() string {
 
 func (a *Attestor) Type() string {
 	return Type
+}
+
+func (a *Attestor) RunType() attestation.RunType {
+	return RunType
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
