@@ -31,7 +31,9 @@ import (
 
 const (
 	Name    = "gcp-iit"
-	Type    = "https://witness.testifysec.com/attestation/gcp-iit/v0.0.1"
+	Type    = "https://witness.testifysec.com/attestation/gcp-iit/v0.1"
+	RunType = attestation.PreRunType
+
 	jwksUrl = "https://www.googleapis.com/oauth2/v3/certs"
 
 	defaultIdentityTokenHost     = "metadata.google.internal"
@@ -45,7 +47,7 @@ const (
 )
 
 func init() {
-	attestation.RegisterAttestation(Name, Type, func() attestation.Attestor {
+	attestation.RegisterAttestation(Name, Type, RunType, func() attestation.Attestor {
 		return New()
 	})
 }
@@ -86,6 +88,10 @@ func (a *Attestor) Name() string {
 
 func (a *Attestor) Type() string {
 	return Type
+}
+
+func (a *Attestor) RunType() attestation.RunType {
+	return RunType
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {

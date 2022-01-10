@@ -18,13 +18,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/testifysec/witness/cmd/options"
 	"io"
+
+	"github.com/testifysec/witness/cmd/options"
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/commandrun"
+	"github.com/testifysec/witness/pkg/attestation/material"
+	"github.com/testifysec/witness/pkg/attestation/product"
 	"github.com/testifysec/witness/pkg/intoto"
 	"github.com/testifysec/witness/pkg/rekor"
 )
@@ -58,16 +61,27 @@ func runRun(ro options.RunOptions, args []string) error {
 	}
 
 	defer out.Close()
+
+	//set up attestors
 	attestors, err := attestation.Attestors(ro.Attestations)
 	if err != nil {
 		return fmt.Errorf("failed to get attestors: %w", err)
 	}
 
+	//these are internal attestors and should always run in the order material -> commandrun -> product
+	//the attestor order is important because the product attestor will use the material attestor's data
+	//post attestors expect data produced by the product attestor
+	productAttestor := product.New()
+	materialAttestor := material.New()
+	commandRunAttestor := commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing))
+
 	if len(args) > 0 {
-		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
+		attestors = append(attestors, productAttestor, materialAttestor, commandRunAttestor)
 	}
 
+	//load attestors into context
 	runCtx, err := attestation.NewContext(
+		ro.StepName,
 		attestors,
 		attestation.WithWorkingDir(ro.WorkingDir),
 	)
@@ -76,6 +90,7 @@ func runRun(ro options.RunOptions, args []string) error {
 		return fmt.Errorf("failed to create attestation context: %w", err)
 	}
 
+	//run attestor lifecycle
 	if err := runCtx.RunAttestors(); err != nil {
 		return fmt.Errorf("failed to run attestors: %w", err)
 	}
