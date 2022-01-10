@@ -44,9 +44,9 @@ func TestMaven(t *testing.T) {
 	pomPath, err := writeTempPomXml(t)
 	require.NoError(t, err)
 	attestor := New(WithPom(pomPath))
-	ctx, err := attestation.NewContext([]attestation.Attestor{attestor})
+	ctx, err := attestation.NewContext("test", []attestation.Attestor{attestor})
 	require.NoError(t, err)
-	err = ctx.RunAttestors()
+	err = attestor.Attest(ctx)
 	assert.NoError(t, err)
 }
 

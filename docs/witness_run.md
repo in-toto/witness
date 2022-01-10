@@ -9,7 +9,7 @@ witness run [cmd] [flags]
 ### Options
 
 ```
-  -a, --attestations strings    Attestations to record (default [Environment,Artifact,Git])
+  -a, --attestations strings    Attestations to record (default [environment,git])
       --certificate string      Path to the signing key's certificate
   -h, --help                    help for run
   -i, --intermediates strings   Intermediates that link trust back to a root in the policy

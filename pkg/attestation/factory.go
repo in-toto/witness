@@ -23,16 +23,26 @@ import (
 var (
 	attestationsByName = map[string]AttestorFactory{}
 	attestationsByType = map[string]AttestorFactory{}
+	attestationsByRun  = map[string]AttestorFactory{}
 )
 
 type Attestor interface {
 	Name() string
 	Type() string
+	RunType() RunType
 	Attest(ctx *AttestationContext) error
 }
 
 type Subjecter interface {
 	Subjects() map[string]cryptoutil.DigestSet
+}
+
+type Materialer interface {
+	GetMaterials() map[string]cryptoutil.DigestSet
+}
+
+type Producter interface {
+	GetProducts() map[string]Product
 }
 
 type AttestorFactory func() Attestor
@@ -43,9 +53,10 @@ func (e ErrAttestationNotFound) Error() string {
 	return fmt.Sprintf("attestation not found: %v", string(e))
 }
 
-func RegisterAttestation(name, uri string, factoryFunc AttestorFactory) {
+func RegisterAttestation(name, uri string, run RunType, factoryFunc AttestorFactory) {
 	attestationsByName[name] = factoryFunc
 	attestationsByType[uri] = factoryFunc
+	attestationsByRun[run.String()] = factoryFunc
 }
 
 func FactoryByType(uri string) (AttestorFactory, bool) {
