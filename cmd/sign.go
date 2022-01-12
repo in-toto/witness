@@ -16,8 +16,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/testifysec/witness/cmd/options"
 	"os"
+
+	"github.com/testifysec/witness/cmd/options"
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/witness/pkg"
@@ -33,9 +34,8 @@ func SignCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runSign(so, args)
+			return runSign(so)
 		},
-		Args: cobra.ExactArgs(1),
 	}
 
 	so.AddFlags(cmd)
@@ -44,14 +44,13 @@ func SignCmd() *cobra.Command {
 
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
-func runSign(so options.SignOptions, args []string) error {
+func runSign(so options.SignOptions) error {
 	signer, err := loadSigner(so.KeyOptions.SpiffePath, so.KeyOptions.KeyPath, so.KeyOptions.CertPath, so.KeyOptions.IntermediatePaths)
 	if err != nil {
 		return err
 	}
 
-	inFilePath := args[0]
-	inFile, err := os.Open(inFilePath)
+	inFile, err := os.Open(so.InFilePath)
 	if err != nil {
 		return fmt.Errorf("could not open file to sign: %v", err)
 	}
