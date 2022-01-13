@@ -41,9 +41,8 @@ func RunCmd() *cobra.Command {
 		},
 		Args: cobra.ArbitraryArgs,
 	}
-	cobra.OnInitialize(initConfig)
+
 	o.AddFlags(cmd)
-	cmd.MarkFlagRequired("step")
 	return cmd
 }
 
