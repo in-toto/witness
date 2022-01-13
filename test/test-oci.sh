@@ -12,17 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-run:
-    key: testkey.pem
-    outfile: test-attestation.json
-    step: build
-    trace: true
-sign:
-    key: testkey.pem
-    outfile: policy-signed.json
-verify:
-    attestations: 
-        - "test-attestation.json"
-    policy: policy-signed.json
-    publickey: testpub.pem
-    artifactfile: testapp
+#!/bin/sh
+
+
+rm out.tar || true && KO_DOCKER_REPO=null witness run -c test.yaml -a oci --trace=false -- ko publish --push=false --tarball out.tar .
