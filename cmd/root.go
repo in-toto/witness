@@ -1,4 +1,4 @@
-// Copyright 2021 The Witness Contributors
+// Copyright 2022 The Witness Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import (
 	_ "github.com/testifysec/witness/pkg/attestation/gitlab"
 	_ "github.com/testifysec/witness/pkg/attestation/jwt"
 	_ "github.com/testifysec/witness/pkg/attestation/maven"
+	_ "github.com/testifysec/witness/pkg/attestation/oci"
 )
 
 var (
