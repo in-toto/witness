@@ -1,4 +1,4 @@
-// Copyright 2021 The Witness Contributors
+// Copyright 2022 The Witness Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -205,4 +205,26 @@ func isHashableFile(f *os.File) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func (ds DigestSet) CheckIntegrity(filePath string) error {
+	for hash, digest := range ds {
+
+		reader, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+
+		newDS, err := CalculateDigestSet(reader, []crypto.Hash{hash})
+		if err != nil {
+			return err
+		}
+
+		if newDS[hash] != digest {
+			return fmt.Errorf("%s: digest mismatch for %s", filePath, hash.String())
+		}
+
+		reader.Close()
+	}
+	return nil
 }
