@@ -52,6 +52,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(VerifyCmd())
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
+	cobra.OnInitialize(func() { initConfig(cmd, ro) })
 	return cmd
 }
 
