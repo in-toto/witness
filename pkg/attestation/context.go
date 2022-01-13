@@ -1,4 +1,4 @@
-// Copyright 2021 The Witness Contributors
+// Copyright 2022 The Witness Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ type AttestationContext struct {
 	hashes             []crypto.Hash
 	completedAttestors []Attestor
 	stepName           string
-	Products           map[string]cryptoutil.DigestSet
+	Products           map[string]Product
 }
 
 type Product struct {
@@ -92,12 +92,6 @@ type Product struct {
 }
 
 func NewContext(stepName string, attestors []Attestor, opts ...AttestationContextOption) (*AttestationContext, error) {
-	if len(attestors) <= 0 {
-		return nil, ErrInvalidOption{
-			Option: "attestors",
-			Reason: "at least one attestor required",
-		}
-	}
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -228,7 +222,12 @@ func (ctx *AttestationContext) GetMaterials() (map[string]cryptoutil.DigestSet, 
 	return allMaterials, nil
 }
 
-func (ctx *AttestationContext) GetProducts() (map[string]Product, error) {
+func (ctx *AttestationContext) GetProducts() map[string]Product {
+	ctx.setProducts()
+	return ctx.Products
+}
+
+func (ctx *AttestationContext) setProducts() {
 	allProducts := make(map[string]Product)
 
 	for _, attestor := range ctx.attestors {
@@ -236,11 +235,20 @@ func (ctx *AttestationContext) GetProducts() (map[string]Product, error) {
 		if !ok {
 			continue
 		}
-
 		newProducts := producter.GetProducts()
 		for product, digests := range newProducts {
 			allProducts[product] = digests
 		}
 	}
-	return allProducts, nil
+	ctx.mergeProducts(allProducts)
+}
+
+func (ctx *AttestationContext) mergeProducts(products map[string]Product) {
+	if ctx.Products == nil {
+		ctx.Products = make(map[string]Product)
+	}
+	for path, product := range products {
+		ctx.Products[path] = product
+	}
+
 }
