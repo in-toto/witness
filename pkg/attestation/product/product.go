@@ -36,8 +36,6 @@ func init() {
 	})
 }
 
-type Option func(*Attestor)
-
 type Attestor struct {
 	Products      map[string]attestation.Product `json:"products"`
 	baseArtifacts map[string]cryptoutil.DigestSet
@@ -46,9 +44,7 @@ type Attestor struct {
 func fromDigestMap(digestMap map[string]cryptoutil.DigestSet) map[string]attestation.Product {
 	products := make(map[string]attestation.Product)
 	for fileName, digestSet := range digestMap {
-
 		mimeType := "unknown"
-
 		f, err := os.OpenFile(fileName, os.O_RDONLY, 0666)
 		if err == nil {
 			mimeType, err = getFileContentType(f)
@@ -57,13 +53,14 @@ func fromDigestMap(digestMap map[string]cryptoutil.DigestSet) map[string]attesta
 			}
 			f.Close()
 		}
-		defer f.Close()
 
+		defer f.Close()
 		products[fileName] = attestation.Product{
 			MimeType: mimeType,
 			Digest:   digestSet,
 		}
 	}
+
 	return products
 }
 
@@ -79,24 +76,17 @@ func (rc *Attestor) RunType() attestation.RunType {
 	return RunType
 }
 
-func New(opts ...Option) *Attestor {
-	attestor := &Attestor{}
-	for _, opt := range opts {
-		opt(attestor)
-	}
-
-	return attestor
+func New() *Attestor {
+	return &Attestor{}
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
-
 	baseArtifacts, err := ctx.GetMaterials()
 	if err != nil {
 		return err
 	}
 
 	a.baseArtifacts = baseArtifacts
-
 	products, err := file.RecordArtifacts(ctx.WorkingDir(), a.baseArtifacts, ctx.Hashes(), map[string]struct{}{})
 	if err != nil {
 		return err
@@ -114,11 +104,18 @@ func (a *Attestor) GetProducts() map[string]attestation.Product {
 	return a.Products
 }
 
-func getFileContentType(file *os.File) (string, error) {
+func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
+	subjects := make(map[string]cryptoutil.DigestSet)
+	for productName, product := range a.Products {
+		subjects[productName] = product.Digest
+	}
 
+	return subjects
+}
+
+func getFileContentType(file *os.File) (string, error) {
 	// Only the first 512 bytes are used to sniff the content type.
 	buffer := make([]byte, 512)
-
 	_, err := file.Read(buffer)
 	if err != nil {
 		return "", err
@@ -127,6 +124,5 @@ func getFileContentType(file *os.File) (string, error) {
 	// Use the net/http package's handy DectectContentType function. Always returns a valid
 	// content-type by returning "application/octet-stream" if no others seemed to match.
 	contentType := http.DetectContentType(buffer)
-
 	return contentType, nil
 }
