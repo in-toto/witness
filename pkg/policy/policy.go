@@ -104,7 +104,7 @@ type PublicKey struct {
 }
 
 func (p Policy) loadPublicKeys() (map[string]cryptoutil.Verifier, error) {
-	verifiers := make(map[string]cryptoutil.Verifier, 0)
+	verifiers := make(map[string]cryptoutil.Verifier)
 	for _, key := range p.PublicKeys {
 		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(key.Key))
 		if err != nil {

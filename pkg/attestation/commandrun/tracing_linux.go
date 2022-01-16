@@ -41,7 +41,6 @@ type ptraceContext struct {
 	processes   map[int]*ProcessInfo
 	exitCode    int
 	hash        []crypto.Hash
-	envMap      map[string]map[string]string
 }
 
 func enableTracing(c *exec.Cmd) {
@@ -108,9 +107,10 @@ func (p *ptraceContext) runTrace() error {
 		isPtraceTrap := (unix.SIGTRAP | unix.PTRACE_EVENT_STOP) == sig
 		if status.Stopped() && isPtraceTrap {
 			injectedSig = 0
-			p.nextSyscall(pid)
+			_ = p.nextSyscall(pid)
 		}
-		unix.PtraceSyscall(pid, injectedSig)
+
+		_ = unix.PtraceSyscall(pid, injectedSig)
 	}
 }
 

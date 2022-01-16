@@ -64,13 +64,17 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) {
 					configValue := v.GetStringSlice(configKey)
 					if len(configValue) > 0 {
 						for _, v := range configValue {
-							f.Value.Set(v)
+							if err := f.Value.Set(v); err != nil {
+								log.Fatalf("Error setting config value: %s", err)
+							}
 						}
 					}
 				} else {
 					configValue := v.GetString(configKey)
 					if configValue != "" {
-						f.Value.Set(configValue)
+						if err := f.Value.Set(configValue); err != nil {
+							log.Fatalf("Error setting config value: %s", err)
+						}
 					}
 				}
 			}

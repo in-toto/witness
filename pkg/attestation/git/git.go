@@ -84,6 +84,10 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	}
 
 	status, err := worktree.Status()
+	if err != nil {
+		return err
+	}
+
 	for file, status := range status {
 		if status.Worktree == git.Unmodified && status.Staging == git.Unmodified {
 			continue
