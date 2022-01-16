@@ -16,6 +16,7 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	"github.com/spf13/cobra/doc"
 	"github.com/testifysec/witness/cmd"
@@ -30,5 +31,7 @@ func init() {
 
 func main() {
 	// Generate CLI docs
-	doc.GenMarkdownTree(cmd.New(), directory)
+	if err := doc.GenMarkdownTree(cmd.New(), directory); err != nil {
+		log.Fatalf("Error generating docs: %s", err)
+	}
 }

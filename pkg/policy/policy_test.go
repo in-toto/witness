@@ -113,6 +113,7 @@ deny[msg] {
 	commandRun.ExitCode = 0
 	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandRun})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
+	require.NoError(t, err)
 	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]cryptoutil.DigestSet{})
 	require.NoError(t, err)
 	statementJson, err := json.Marshal(&intotoStatement)
