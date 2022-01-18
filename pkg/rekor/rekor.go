@@ -129,7 +129,7 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 
 	decodedBody, err := base64.StdEncoding.DecodeString(bodyStr)
 	if err != nil {
-		return env, fmt.Errorf("could not decode body: %w", err)
+		return env, fmt.Errorf("failed to decode body: %w", err)
 	}
 
 	pe, err := models.UnmarshalProposedEntry(bytes.NewReader(decodedBody), runtime.JSONConsumer())
@@ -139,12 +139,12 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 
 	baseModel := models.Dsse{}
 	if err := baseModel.UnmarshalJSON(decodedBody); err != nil {
-		return env, fmt.Errorf("could not parse rekor entry: %w", err)
+		return env, fmt.Errorf("failed to parse rekor entry: %w", err)
 	}
 
 	eimpl, err := types.NewEntry(pe)
 	if err != nil {
-		return env, fmt.Errorf("could not get entry from rekor: %w", err)
+		return env, fmt.Errorf("failed to get entry from rekor: %w", err)
 	}
 
 	dsseEntry, ok := eimpl.(*rekordsse.V001Entry)
@@ -157,17 +157,12 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 	for _, sig := range dsseEntry.DsseObj.Signatures {
 		decodedSig, err := base64.StdEncoding.DecodeString(string(sig.Sig))
 		if err != nil {
-			return env, fmt.Errorf("could not decode signature: %w", err)
+			return env, fmt.Errorf("failed to decode signature: %w", err)
 		}
 
-		decodedPubKey, err := base64.RawStdEncoding.DecodeString(string(sig.PublicKey))
+		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(sig.PublicKey))
 		if err != nil {
-			return env, fmt.Errorf("could not parse public key from dsse entry: %w", err)
-		}
-
-		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(decodedPubKey))
-		if err != nil {
-			return env, fmt.Errorf("could not create verifier from public key on rekor entry: %w", err)
+			return env, fmt.Errorf("failed to create verifier from public key on rekor entry: %w", err)
 		}
 
 		envSig := dsse.Signature{
@@ -177,7 +172,7 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 
 		_, ok := verifier.(*cryptoutil.X509Verifier)
 		if ok {
-			envSig.Certificate = decodedPubKey
+			envSig.Certificate = sig.PublicKey
 		}
 
 		env.Signatures = append(env.Signatures, envSig)
