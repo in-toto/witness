@@ -21,12 +21,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/testifysec/witness/pkg/cryptoutil"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/jwt"
+	"github.com/testifysec/witness/pkg/cryptoutil"
+	"github.com/testifysec/witness/pkg/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -180,7 +180,7 @@ func (a *Attestor) getInstanceData() {
 	for k, v := range endpoints {
 		data, err := getMetadata(v)
 		if err != nil {
-			fmt.Println(err)
+			log.Warnf("failed to retrieve gcp metadata from %v: %v", v, err)
 			continue
 		}
 		metadata[k] = string(data)
@@ -195,7 +195,7 @@ func (a *Attestor) getInstanceData() {
 
 	projID, projNum, err := parseJWTProjectInfo(a.JWT)
 	if err != nil {
-		fmt.Printf("unable to parse JWT project info: %v\n", err)
+		log.Warnf("unable to parse gcp project info from JWT: %v\n", err)
 	}
 
 	a.ProjectID = projID

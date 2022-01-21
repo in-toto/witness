@@ -29,6 +29,7 @@ import (
 	"github.com/testifysec/witness/pkg/attestation/material"
 	"github.com/testifysec/witness/pkg/attestation/product"
 	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
 )
 
@@ -139,7 +140,7 @@ func runRun(ro options.RunOptions, args []string) error {
 			return fmt.Errorf("failed to store artifact in rekor: %w", err)
 		}
 
-		fmt.Printf("Rekor entry added at %v%v\n", rekorServer, resp.Location)
+		log.Infof("Rekor entry added at %v%v\n", rekorServer, resp.Location)
 	}
 
 	return nil
