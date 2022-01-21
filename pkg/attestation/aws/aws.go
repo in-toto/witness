@@ -61,8 +61,8 @@ type Attestor struct {
 	hashes   []crypto.Hash
 	session  session.Session
 	conf     *aws.Config
-	rawIID   string
-	rawSig   string
+	RawIID   string `json:"raw_iid"`
+	RawSig   string `json:"raw_sig"`
 }
 
 func New() *Attestor {
@@ -136,10 +136,10 @@ func (a *Attestor) getIID() error {
 		return fmt.Errorf("failed to get signature: %v", err)
 	}
 
-	a.rawIID = iid
-	a.rawSig = sig
+	a.RawIID = iid
+	a.RawSig = sig
 
-	err = json.Unmarshal([]byte(a.rawIID), &a.EC2InstanceIdentityDocument)
+	err = json.Unmarshal([]byte(a.RawIID), &a.EC2InstanceIdentityDocument)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal iid: %v", err)
 	}
@@ -149,12 +149,12 @@ func (a *Attestor) getIID() error {
 
 func (a *Attestor) Verify() error {
 
-	if len(a.rawIID) == 0 || len(a.rawSig) == 0 {
+	if len(a.RawIID) == 0 || len(a.RawSig) == 0 {
 		return nil
 	}
 
-	docHash := sha256.Sum256([]byte(a.rawIID))
-	sigBytes, err := base64.StdEncoding.DecodeString(a.rawSig)
+	docHash := sha256.Sum256([]byte(a.RawIID))
+	sigBytes, err := base64.StdEncoding.DecodeString(a.RawSig)
 	if err != nil {
 		return fmt.Errorf("failed to decode signature: %v", err)
 	}
