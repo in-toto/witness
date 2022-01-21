@@ -75,9 +75,7 @@ func runRun(ro options.RunOptions, args []string) error {
 	materialAttestor := material.New()
 	commandRunAttestor := commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing))
 
-	if len(args) > 0 {
-		attestors = append(attestors, productAttestor, materialAttestor, commandRunAttestor)
-	}
+	attestors = append(attestors, productAttestor, materialAttestor, commandRunAttestor)
 
 	//load attestors into context
 	runCtx, err := attestation.NewContext(

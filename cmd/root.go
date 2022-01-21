@@ -18,8 +18,9 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"github.com/testifysec/witness/cmd/options"
 	"os"
+
+	"github.com/testifysec/witness/cmd/options"
 
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
@@ -27,6 +28,7 @@ import (
 	"github.com/testifysec/witness/pkg/spiffe"
 
 	// imported so their init functions run
+	_ "github.com/testifysec/witness/pkg/attestation/aws"
 	_ "github.com/testifysec/witness/pkg/attestation/commandrun"
 	_ "github.com/testifysec/witness/pkg/attestation/environment"
 	_ "github.com/testifysec/witness/pkg/attestation/gcp-iit"

@@ -190,3 +190,11 @@ func TestAttestor_Subjects(t *testing.T) {
 	}
 
 }
+
+func Test_getAWSPublicKey(t *testing.T) {
+	key, err := getAWSCAPublicKey()
+	require.NoError(t, err)
+	if key == nil {
+		t.Error("Expected key to not be nil")
+	}
+}
