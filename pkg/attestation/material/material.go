@@ -23,7 +23,7 @@ import (
 const (
 	Name    = "material"
 	Type    = "https://witness.testifysec.com/attestations/material/v0.1"
-	RunType = attestation.MaterialRunType
+	RunType = attestation.Internal
 )
 
 func init() {

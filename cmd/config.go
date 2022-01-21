@@ -20,24 +20,24 @@ import (
 	"log"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/testifysec/witness/cmd/options"
 )
 
-func initConfig() {
+func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) {
 	v := viper.New()
-	rootCmd := New()
-	config := ro.Config
-	if _, err := os.Stat(config); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(rootOptions.Config); errors.Is(err, os.ErrNotExist) {
 		if rootCmd.Flags().Lookup("config").Changed {
-			log.Fatalf("config file %s does not exist", config)
+			log.Fatalf("config file %s does not exist", rootOptions.Config)
 		} else {
-			log.Printf("%s does not exist, using command line arguments", config)
+			log.Printf("%s does not exist, using command line arguments", rootOptions.Config)
 			return
 		}
 	}
 
-	v.SetConfigFile(config)
+	v.SetConfigFile(rootOptions.Config)
 
 	if v.ConfigFileUsed() != "" {
 		log.Println("Using config file:", v.ConfigFileUsed())
@@ -64,13 +64,17 @@ func initConfig() {
 					configValue := v.GetStringSlice(configKey)
 					if len(configValue) > 0 {
 						for _, v := range configValue {
-							f.Value.Set(v)
+							if err := f.Value.Set(v); err != nil {
+								log.Fatalf("Error setting config value: %s", err)
+							}
 						}
 					}
 				} else {
 					configValue := v.GetString(configKey)
 					if configValue != "" {
-						f.Value.Set(configValue)
+						if err := f.Value.Set(configValue); err != nil {
+							log.Fatalf("Error setting config value: %s", err)
+						}
 					}
 				}
 			}

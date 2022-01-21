@@ -51,6 +51,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(VerifyCmd())
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
+	cobra.OnInitialize(func() { initConfig(cmd, ro) })
 	return cmd
 }
 
@@ -74,7 +75,7 @@ func loadSigner(spiffePath, keyPath, certPath string, intermediatePaths []string
 
 	keyFile, err := os.Open(keyPath)
 	if err != nil {
-		return nil, fmt.Errorf("could not open key file: %v", err)
+		return nil, fmt.Errorf("failed to open key file: %v", err)
 	}
 
 	defer keyFile.Close()
@@ -83,26 +84,32 @@ func loadSigner(spiffePath, keyPath, certPath string, intermediatePaths []string
 		return nil, fmt.Errorf("failed to load key: %v", err)
 	}
 
-	if certPath == "" {
-		return cryptoutil.NewSigner(key)
-	}
+	signerOpts := []cryptoutil.SignerOption{}
 
-	leaf, err := loadCert(certPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load certificate: %v", err)
-	}
-
-	intermediates := []*x509.Certificate{}
-	for _, path := range intermediatePaths {
-		cert, err := loadCert(path)
+	if certPath != "" {
+		leaf, err := loadCert(certPath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load intermediate: %v", err)
+			return nil, fmt.Errorf("failed to load certificate: %v", err)
 		}
 
-		intermediates = append(intermediates, cert)
+		signerOpts = append(signerOpts, cryptoutil.SignWithCertificate(leaf))
 	}
 
-	return cryptoutil.NewX509Signer(key, leaf, intermediates, nil)
+	if len(intermediatePaths) > 0 {
+		intermediates := []*x509.Certificate{}
+		for _, path := range intermediatePaths {
+			cert, err := loadCert(path)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load intermediate: %v", err)
+			}
+
+			intermediates = append(intermediates, cert)
+		}
+
+		signerOpts = append(signerOpts, cryptoutil.SignWithIntermediates(intermediates))
+	}
+
+	return cryptoutil.NewSigner(key, signerOpts...)
 }
 
 func loadCert(path string) (*x509.Certificate, error) {
@@ -131,7 +138,7 @@ func loadOutfile(outFilePath string) (*os.File, error) {
 	if outFilePath != "" {
 		out, err = os.Create(outFilePath)
 		if err != nil {
-			return nil, fmt.Errorf("could not create output file: %v", err)
+			return nil, fmt.Errorf("failed to create output file: %v", err)
 		}
 	}
 

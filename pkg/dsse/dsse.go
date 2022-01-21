@@ -16,7 +16,7 @@ package dsse
 
 import (
 	"bytes"
-	"encoding/json"
+	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"io"
@@ -62,9 +62,6 @@ func preauthEncode(bodyType string, body []byte) []byte {
 // TODO: it'd be nice to break some of this logic out of what should be a presentation layer only
 func Sign(bodyType string, body io.Reader, signers ...cryptoutil.Signer) (Envelope, error) {
 	env := Envelope{}
-	// TODO: refactor this so we don't read the entire reader into memory.
-	// the PAE has the length of the body as part of it, so path of least
-	// resistance is just read all the bytes for now
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
 		return env, err
@@ -108,37 +105,83 @@ func Sign(bodyType string, body io.Reader, signers ...cryptoutil.Signer) (Envelo
 	return env, nil
 }
 
-func (e Envelope) Verify(verifiers ...cryptoutil.Verifier) error {
+type VerificationOption func(*verificationOptions)
+
+type verificationOptions struct {
+	roots         []*x509.Certificate
+	intermediates []*x509.Certificate
+	verifiers     []cryptoutil.Verifier
+}
+
+func WithRoots(roots []*x509.Certificate) VerificationOption {
+	return func(vo *verificationOptions) {
+		vo.roots = roots
+	}
+}
+
+func WithIntermediates(intermediates []*x509.Certificate) VerificationOption {
+	return func(vo *verificationOptions) {
+		vo.intermediates = intermediates
+	}
+}
+
+func WithVerifiers(verifiers []cryptoutil.Verifier) VerificationOption {
+	return func(vo *verificationOptions) {
+		vo.verifiers = verifiers
+	}
+}
+
+func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, error) {
+	options := &verificationOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
 	pae := preauthEncode(e.PayloadType, e.Payload)
 	if len(e.Signatures) == 0 {
-		return ErrNoSignatures{}
+		return nil, ErrNoSignatures{}
 	}
 
 	matchingSigFound := false
+	passedVerifiers := make([]cryptoutil.Verifier, 0)
 	for _, sig := range e.Signatures {
-		for _, verifier := range verifiers {
+		if sig.Certificate != nil && len(sig.Certificate) > 0 {
+			possibleCert, err := cryptoutil.TryParseKeyFromReader(bytes.NewReader(sig.Certificate))
+			if err != nil {
+				continue
+			}
+
+			cert, ok := possibleCert.(*x509.Certificate)
+			if !ok {
+				continue
+			}
+
+			verifier, err := cryptoutil.NewX509Verifier(cert, options.intermediates, options.roots)
+			if err != nil {
+				return nil, err
+			}
+
 			if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
-				return err
+				return nil, err
 			} else {
+				passedVerifiers = append(passedVerifiers, verifier)
+				matchingSigFound = true
+			}
+		}
+
+		for _, verifier := range options.verifiers {
+			if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
+				return nil, err
+			} else {
+				passedVerifiers = append(passedVerifiers, verifier)
 				matchingSigFound = true
 			}
 		}
 	}
 
 	if !matchingSigFound {
-		return ErrNoMatchingSigs{}
+		return nil, ErrNoMatchingSigs{}
 	}
 
-	return nil
-}
-
-func (e Envelope) Encode(w io.Writer) error {
-	return json.NewEncoder(w).Encode(&e)
-}
-
-func Decode(r io.Reader) (Envelope, error) {
-	env := Envelope{}
-	decoder := json.NewDecoder(r)
-	err := decoder.Decode(&env)
-	return env, err
+	return passedVerifiers, nil
 }

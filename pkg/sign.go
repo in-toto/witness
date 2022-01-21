@@ -15,6 +15,7 @@
 package pkg
 
 import (
+	"encoding/json"
 	"io"
 
 	"github.com/testifysec/witness/pkg/cryptoutil"
@@ -27,5 +28,6 @@ func Sign(r io.Reader, dataType string, w io.Writer, signers ...cryptoutil.Signe
 		return err
 	}
 
-	return env.Encode(w)
+	encoder := json.NewEncoder(w)
+	return encoder.Encode(&env)
 }

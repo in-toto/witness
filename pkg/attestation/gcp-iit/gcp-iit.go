@@ -68,12 +68,12 @@ type Attestor struct {
 	InstanceCreationTimestamp string        `json:"instance_creation_timestamp"`
 	InstanceConfidentiality   string        `json:"instance_confidentiality"`
 	LicenceID                 []string      `json:"licence_id"`
-	isWorkloadIdentity        bool          `json:"-"`
 	ClusterName               string        `json:"cluster_name"`
 	ClusterUID                string        `json:"cluster_uid"`
 	ClusterLocation           string        `json:"cluster_location"`
 
-	subjects map[string]cryptoutil.DigestSet
+	isWorkloadIdentity bool
+	subjects           map[string]cryptoutil.DigestSet
 }
 
 func New() *Attestor {

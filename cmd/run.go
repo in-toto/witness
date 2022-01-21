@@ -44,9 +44,8 @@ func RunCmd() *cobra.Command {
 		},
 		Args: cobra.ArbitraryArgs,
 	}
-	cobra.OnInitialize(initConfig)
+
 	o.AddFlags(cmd)
-	cmd.MarkFlagRequired("step")
 	return cmd
 }
 
@@ -132,7 +131,12 @@ func runRun(ro options.RunOptions, args []string) error {
 			return fmt.Errorf("failed to get bytes from verifier: %w", err)
 		}
 
-		resp, err := rekor.StoreArtifact(rekorServer, signedBytes.Bytes(), pubKeyBytes)
+		rc, err := rekor.New(rekorServer)
+		if err != nil {
+			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
+		}
+
+		resp, err := rc.StoreArtifact(signedBytes.Bytes(), pubKeyBytes)
 		if err != nil {
 			return fmt.Errorf("failed to store artifact in rekor: %w", err)
 		}

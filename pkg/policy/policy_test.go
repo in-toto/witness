@@ -15,14 +15,12 @@
 package policy
 
 import (
-	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
-	"io"
 	"testing"
 	"time"
 
@@ -31,7 +29,6 @@ import (
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/commandrun"
 	"github.com/testifysec/witness/pkg/cryptoutil"
-	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/intoto"
 )
 
@@ -57,7 +54,7 @@ func createTestKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, error) {
 }
 
 func TestVerify(t *testing.T) {
-	signer, verifier, pubKeyPem, err := createTestKey()
+	_, verifier, pubKeyPem, err := createTestKey()
 	require.NoError(t, err)
 	keyID, err := verifier.KeyID()
 	require.NoError(t, err)
@@ -113,14 +110,18 @@ deny[msg] {
 	commandRun.ExitCode = 0
 	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{commandRun})
 	step1CollectionJson, err := json.Marshal(&step1Collection)
+	require.NoError(t, err)
 	intotoStatement, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]cryptoutil.DigestSet{})
 	require.NoError(t, err)
-	statementJson, err := json.Marshal(&intotoStatement)
-	require.NoError(t, err)
-	env, err := dsse.Sign(intoto.PayloadType, bytes.NewReader(statementJson), signer)
-	require.NoError(t, err)
-	encodedEnv, err := json.Marshal(&env)
-	require.NoError(t, err)
-	envReader := bytes.NewReader(encodedEnv)
-	assert.NoError(t, policy.Verify([]io.Reader{envReader}))
+	assert.NoError(t, policy.Verify([]VerifiedStatement{
+		{
+			Verifiers: []cryptoutil.Verifier{verifier},
+			Statement: intotoStatement,
+		},
+	}))
+	assert.Error(t, policy.Verify([]VerifiedStatement{
+		{
+			Statement: intotoStatement,
+		},
+	}))
 }

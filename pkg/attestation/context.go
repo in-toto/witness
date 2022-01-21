@@ -28,14 +28,16 @@ type ErrInvalidOption struct {
 	Reason string
 }
 
+type ErrInternal struct {
+	Reason string
+}
+
 type RunType string
 
 const (
-	PostRunType     RunType = "post"
-	CmdRunType      RunType = "cmd"
-	MaterialRunType RunType = "material"
-	ProductRunType  RunType = "product"
-	PreRunType      RunType = "pre"
+	Internal    RunType = "internal"
+	PreRunType  RunType = "pre"
+	PostRunType RunType = "post"
 )
 
 func (r RunType) String() string {
@@ -44,6 +46,10 @@ func (r RunType) String() string {
 
 func (e ErrInvalidOption) Error() string {
 	return fmt.Sprintf("invalid value for option %v: %v", e.Option, e.Reason)
+}
+
+func (e ErrInternal) Error() string {
+	return fmt.Sprintf("internal error: %v", e.Reason)
 }
 
 type AttestationContextOption func(ctx *AttestationContext)
@@ -126,14 +132,16 @@ func (ctx *AttestationContext) RunAttestors() error {
 		case PreRunType:
 			preAttestors = append(preAttestors, attestor)
 
-		case CmdRunType:
-			cmdAttestor = attestor
-
-		case MaterialRunType:
-			materialAttestor = attestor
-
-		case ProductRunType:
-			productAttestor = attestor
+		case Internal:
+			if attestor.Name() == "command-run" {
+				cmdAttestor = attestor
+			}
+			if attestor.Name() == "material" {
+				materialAttestor = attestor
+			}
+			if attestor.Name() == "product" {
+				productAttestor = attestor
+			}
 
 		case PostRunType:
 			postAttestors = append(postAttestors, attestor)
@@ -143,6 +151,12 @@ func (ctx *AttestationContext) RunAttestors() error {
 				Option: "attestor.RunType",
 				Reason: fmt.Sprintf("unknown run type %v", attestor.RunType()),
 			}
+		}
+	}
+
+	if materialAttestor == nil || productAttestor == nil || cmdAttestor == nil {
+		return ErrInternal{
+			Reason: "missing required attestors",
 		}
 	}
 

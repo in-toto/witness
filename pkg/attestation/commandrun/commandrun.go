@@ -27,7 +27,7 @@ import (
 const (
 	Name    = "command-run"
 	Type    = "https://witness.testifysec.com/attestations/command-run/v0.1"
-	RunType = attestation.CmdRunType
+	RunType = attestation.Internal
 )
 
 func init() {
@@ -121,9 +121,6 @@ func (rc *CommandRun) Type() string {
 
 func (rc *CommandRun) RunType() attestation.RunType {
 	return RunType
-}
-func (rc *CommandRun) Subjects() map[string]cryptoutil.DigestSet {
-	return map[string]cryptoutil.DigestSet{}
 }
 
 func (r *CommandRun) runCmd(ctx *attestation.AttestationContext) error {

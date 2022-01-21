@@ -19,12 +19,10 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/cryptoutil"
-	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/intoto"
 )
 
@@ -103,8 +101,13 @@ type PublicKey struct {
 	Key   []byte `json:"key"`
 }
 
-func (p Policy) loadPublicKeys() (map[string]cryptoutil.Verifier, error) {
-	verifiers := make(map[string]cryptoutil.Verifier, 0)
+type VerifiedStatement struct {
+	Verifiers []cryptoutil.Verifier
+	Statement intoto.Statement
+}
+
+func (p Policy) PublicKeyVerifiers() (map[string]cryptoutil.Verifier, error) {
+	verifiers := make(map[string]cryptoutil.Verifier)
 	for _, key := range p.PublicKeys {
 		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(key.Key))
 		if err != nil {
@@ -129,17 +132,17 @@ func (p Policy) loadPublicKeys() (map[string]cryptoutil.Verifier, error) {
 	return verifiers, nil
 }
 
-type trustBundle struct {
-	root          *x509.Certificate
-	intermediates []*x509.Certificate
+type TrustBundle struct {
+	Root          *x509.Certificate
+	Intermediates []*x509.Certificate
 }
 
-func (p Policy) loadRoots() (map[string]trustBundle, error) {
-	bundles := make(map[string]trustBundle)
+func (p Policy) TrustBundles() (map[string]TrustBundle, error) {
+	bundles := make(map[string]TrustBundle)
 	for id, root := range p.Roots {
-		bundle := trustBundle{}
+		bundle := TrustBundle{}
 		var err error
-		bundle.root, err = parseCertificate(root.Certificate)
+		bundle.Root, err = parseCertificate(root.Certificate)
 		if err != nil {
 			return bundles, err
 		}
@@ -150,7 +153,7 @@ func (p Policy) loadRoots() (map[string]trustBundle, error) {
 				return bundles, err
 			}
 
-			bundle.intermediates = append(bundle.intermediates, cert)
+			bundle.Intermediates = append(bundle.Intermediates, cert)
 		}
 
 		bundles[id] = bundle
@@ -173,18 +176,18 @@ func parseCertificate(data []byte) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func (p Policy) Verify(signedCollections []io.Reader) error {
+func (p Policy) Verify(verifiedStatements []VerifiedStatement) error {
 	if time.Now().After(p.Expires) {
 		return ErrPolicyExpired(p.Expires)
 	}
 
-	collectionsByStep, err := p.verifyCollections(signedCollections)
+	approvedCollectionsByStep, err := p.checkFunctionaries(verifiedStatements)
 	if err != nil {
 		return err
 	}
 
 	for _, step := range p.Steps {
-		if err := step.Verify(collectionsByStep[step.Name]); err != nil {
+		if err := step.Verify(approvedCollectionsByStep[step.Name]); err != nil {
 			return err
 		}
 	}
@@ -221,39 +224,20 @@ func (s Step) Verify(attestCollections []attestation.Collection) error {
 	return nil
 }
 
-func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]attestation.Collection, error) {
-	publicKeysByID, err := p.loadPublicKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	trustBundles, err := p.loadRoots()
+func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[string][]attestation.Collection, error) {
+	trustBundles, err := p.TrustBundles()
 	if err != nil {
 		return nil, err
 	}
 
 	collectionsByStep := make(map[string][]attestation.Collection)
-	for _, r := range signedCollections {
-		env, err := dsse.Decode(r)
-		if err != nil {
-			continue
-		}
-
-		if env.PayloadType != intoto.PayloadType {
-			continue
-		}
-
-		statement := intoto.Statement{}
-		if err := json.Unmarshal(env.Payload, &statement); err != nil {
-			continue
-		}
-
-		if statement.PredicateType != attestation.CollectionType {
+	for _, verifiedStatement := range verifiedStatements {
+		if verifiedStatement.Statement.PredicateType != attestation.CollectionType {
 			continue
 		}
 
 		collection := attestation.Collection{}
-		if err := json.Unmarshal(statement.Predicate, &collection); err != nil {
+		if err := json.Unmarshal(verifiedStatement.Statement.Predicate, &collection); err != nil {
 			continue
 		}
 
@@ -262,59 +246,42 @@ func (p Policy) verifyCollections(signedCollections []io.Reader) (map[string][]a
 			continue
 		}
 
-		functionaries := make([]cryptoutil.Verifier, 0)
-		for _, functionary := range step.Functionaries {
-			if functionary.PublicKeyID != "" {
-				pubKey, ok := publicKeysByID[functionary.PublicKeyID]
-				if ok {
-					functionaries = append(functionaries, pubKey)
-					continue
-				}
+		for _, verifier := range verifiedStatement.Verifiers {
+			verifierID, err := verifier.KeyID()
+			if err != nil {
+				continue
 			}
 
-			for _, root := range functionary.CertConstraint.Roots {
-				bundle, ok := trustBundles[root]
+		outerLoop:
+			for _, functionary := range step.Functionaries {
+				if functionary.PublicKeyID != "" && functionary.PublicKeyID == verifierID {
+					collectionsByStep[step.Name] = append(collectionsByStep[collection.Name], collection)
+					break
+				}
+
+				x509Verifier, ok := verifier.(*cryptoutil.X509Verifier)
 				if !ok {
 					continue
 				}
 
-				for _, sig := range env.Signatures {
-					if len(sig.Certificate) == 0 {
+				if len(functionary.CertConstraint.Roots) == 0 {
+					continue
+				}
+
+				for _, rootID := range functionary.CertConstraint.Roots {
+					bundle, ok := trustBundles[rootID]
+					if !ok {
 						continue
 					}
 
-					cert, err := parseCertificate(sig.Certificate)
-					if err != nil {
-						continue
+					if err := x509Verifier.BelongsToRoot(bundle.Root); err == nil {
+						collectionsByStep[step.Name] = append(collectionsByStep[step.Name], collection)
+						break outerLoop
 					}
-
-					intermediates := make([]*x509.Certificate, 0, len(bundle.intermediates))
-					copy(intermediates, bundle.intermediates)
-					for _, intBytes := range sig.Intermediates {
-						intermediate, err := parseCertificate(intBytes)
-						if err != nil {
-							continue
-						}
-
-						intermediates = append(intermediates, intermediate)
-					}
-
-					verifier, err := cryptoutil.NewX509Verifier(cert, intermediates, []*x509.Certificate{bundle.root})
-					if err != nil {
-						continue
-					}
-
-					functionaries = append(functionaries, verifier)
 				}
 			}
 		}
 
-		if err := env.Verify(functionaries...); err != nil {
-			fmt.Printf("didn't verify %v\n", err)
-			continue
-		}
-
-		collectionsByStep[step.Name] = append(collectionsByStep[step.Name], collection)
 	}
 
 	return collectionsByStep, nil
