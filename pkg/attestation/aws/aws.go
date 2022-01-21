@@ -2,6 +2,13 @@ package aws
 
 import (
 	"crypto"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
@@ -14,6 +21,31 @@ const (
 	Name    = "aws"
 	Type    = "https://witness.testifysec.com/attestation/aws/v0.1"
 	RunType = attestation.PreRunType
+)
+
+//These will be configurable in the future
+const (
+	docPath      = "instance-identity/document"
+	sigPath      = "instance-identity/signature"
+	awsCACertPEM = `-----BEGIN CERTIFICATE-----
+	MIIDIjCCAougAwIBAgIJAKnL4UEDMN/FMA0GCSqGSIb3DQEBBQUAMGoxCzAJBgNV
+	BAYTAlVTMRMwEQYDVQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdTZWF0dGxlMRgw
+	FgYDVQQKEw9BbWF6b24uY29tIEluYy4xGjAYBgNVBAMTEWVjMi5hbWF6b25hd3Mu
+	Y29tMB4XDTE0MDYwNTE0MjgwMloXDTI0MDYwNTE0MjgwMlowajELMAkGA1UEBhMC
+	VVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAOBgNVBAcTB1NlYXR0bGUxGDAWBgNV
+	BAoTD0FtYXpvbi5jb20gSW5jLjEaMBgGA1UEAxMRZWMyLmFtYXpvbmF3cy5jb20w
+	gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIe9GN//SRK2knbjySG0ho3yqQM3
+	e2TDhWO8D2e8+XZqck754gFSo99AbT2RmXClambI7xsYHZFapbELC4H91ycihvrD
+	jbST1ZjkLQgga0NE1q43eS68ZeTDccScXQSNivSlzJZS8HJZjgqzBlXjZftjtdJL
+	XeE4hwvo0sD4f3j9AgMBAAGjgc8wgcwwHQYDVR0OBBYEFCXWzAgVyrbwnFncFFIs
+	77VBdlE4MIGcBgNVHSMEgZQwgZGAFCXWzAgVyrbwnFncFFIs77VBdlE4oW6kbDBq
+	MQswCQYDVQQGEwJVUzETMBEGA1UECBMKV2FzaGluZ3RvbjEQMA4GA1UEBxMHU2Vh
+	dHRsZTEYMBYGA1UEChMPQW1hem9uLmNvbSBJbmMuMRowGAYDVQQDExFlYzIuYW1h
+	em9uYXdzLmNvbYIJAKnL4UEDMN/FMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEF
+	BQADgYEAFYcz1OgEhQBXIwIdsgCOS8vEtiJYF+j9uO6jz7VOmJqO+pRlAbRlvY8T
+	C1haGgSI/A1uZUKs/Zfnph0oEI0/hu1IIJ/SKBDtN5lvmZ/IzbOPIJWirlsllQIQ
+	7zvWbGd9c9+Rm3p04oTvhup99la7kZqevJK0QRdD/6NpCKsqP/0=
+	-----END CERTIFICATE-----`
 )
 
 func init() {
@@ -29,6 +61,8 @@ type Attestor struct {
 	hashes   []crypto.Hash
 	session  session.Session
 	conf     *aws.Config
+	rawIID   string
+	rawSig   string
 }
 
 func New() *Attestor {
@@ -64,6 +98,10 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 
 	a.getIAM()
 	a.getIID()
+	err := a.Verify()
+	if err != nil {
+		return err
+	}
 
 	subjects := make(map[string]string)
 	subjects["instance-id"] = a.EC2InstanceIdentityDocument.InstanceID
@@ -88,12 +126,49 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 
 func (a *Attestor) getIID() error {
 	svc := ec2metadata.New(&a.session, a.conf)
-	iid, err := svc.GetInstanceIdentityDocument()
+	iid, err := svc.GetDynamicData(docPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get instance identity document: %v", err)
 	}
 
-	a.EC2InstanceIdentityDocument = iid
+	sig, err := svc.GetDynamicData(sigPath)
+	if err != nil {
+		return fmt.Errorf("failed to get signature: %v", err)
+	}
+
+	a.rawIID = iid
+	a.rawSig = sig
+
+	err = json.Unmarshal([]byte(a.rawIID), &a.EC2InstanceIdentityDocument)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal iid: %v", err)
+	}
+
+	return nil
+}
+
+func (a *Attestor) Verify() error {
+
+	if len(a.rawIID) == 0 || len(a.rawSig) == 0 {
+		return nil
+	}
+
+	docHash := sha256.Sum256([]byte(a.rawIID))
+	sigBytes, err := base64.StdEncoding.DecodeString(a.rawSig)
+	if err != nil {
+		return fmt.Errorf("failed to decode signature: %v", err)
+	}
+
+	pubKey, err := getAWSCAPublicKey()
+	if err != nil {
+		return fmt.Errorf("failed to get AWS public key: %v", err)
+	}
+
+	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, docHash[:], sigBytes)
+	if err != nil {
+		return fmt.Errorf("failed to verify signature: %v", err)
+	}
+
 	return nil
 }
 
@@ -109,4 +184,18 @@ func (a *Attestor) getIAM() error {
 
 func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	return a.subjects
+}
+
+func getAWSCAPublicKey() (*rsa.PublicKey, error) {
+	pem, _ := pem.Decode([]byte(awsCACertPEM))
+	if pem == nil {
+		return nil, fmt.Errorf("failed to decode PEM")
+	}
+
+	ca, err := x509.ParseCertificate(pem.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse certificate: %v", err)
+	}
+
+	return ca.PublicKey.(*rsa.PublicKey), nil
 }
