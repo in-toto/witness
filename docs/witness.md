@@ -5,8 +5,9 @@ Collect and verify attestations about your build environments
 ### Options
 
 ```
-  -c, --config string   Path to the witness config file (default ".witness.yaml")
-  -h, --help            help for witness
+  -c, --config string      Path to the witness config file (default ".witness.yaml")
+  -h, --help               help for witness
+  -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
 
 ### SEE ALSO

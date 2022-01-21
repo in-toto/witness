@@ -21,9 +21,9 @@ import (
 	"github.com/testifysec/witness/cmd/options"
 	"os"
 
-	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/pkg/cryptoutil"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/spiffe"
 
 	// imported so their init functions run
@@ -46,19 +46,32 @@ func New() *cobra.Command {
 		Short:             "Collect and verify attestations about your build environments",
 		DisableAutoGenTag: true,
 	}
+
 	ro.AddFlags(cmd)
 	cmd.AddCommand(SignCmd())
 	cmd.AddCommand(VerifyCmd())
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
-	cobra.OnInitialize(func() { initConfig(cmd, ro) })
+	cobra.OnInitialize(func() { preRoot(cmd, ro) })
 	return cmd
 }
 
 func Execute() {
 	if err := New().Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", color.Red.Sprint(err.Error()))
+		log.Error(err)
 		os.Exit(1)
+	}
+}
+
+func preRoot(cmd *cobra.Command, ro *options.RootOptions) {
+	logger := newLogger()
+	log.SetLogger(logger)
+	if err := logger.SetLevel(ro.LogLevel); err != nil {
+		logger.l.Fatal(err)
+	}
+
+	if err := initConfig(cmd, ro); err != nil {
+		logger.l.Fatal(err)
 	}
 }
 
@@ -85,7 +98,6 @@ func loadSigner(spiffePath, keyPath, certPath string, intermediatePaths []string
 	}
 
 	signerOpts := []cryptoutil.SignerOption{}
-
 	if certPath != "" {
 		leaf, err := loadCert(certPath)
 		if err != nil {

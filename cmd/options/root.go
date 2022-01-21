@@ -17,9 +17,11 @@ package options
 import "github.com/spf13/cobra"
 
 type RootOptions struct {
-	Config string
+	Config   string
+	LogLevel string
 }
 
 func (ro *RootOptions) AddFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&ro.Config, "config", "c", ".witness.yaml", "Path to the witness config file")
+	cmd.PersistentFlags().StringVarP(&ro.LogLevel, "log-level", "l", "info", "Level of logging to output (debug, info, warn, error)")
 }
