@@ -28,6 +28,7 @@ import (
 
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/cryptoutil"
+	"github.com/testifysec/witness/pkg/log"
 	"golang.org/x/sys/unix"
 )
 
@@ -107,10 +108,14 @@ func (p *ptraceContext) runTrace() error {
 		isPtraceTrap := (unix.SIGTRAP | unix.PTRACE_EVENT_STOP) == sig
 		if status.Stopped() && isPtraceTrap {
 			injectedSig = 0
-			_ = p.nextSyscall(pid)
+			if err := p.nextSyscall(pid); err != nil {
+				log.Debugf("(tracing) got error while processing syscall: %v", err)
+			}
 		}
 
-		_ = unix.PtraceSyscall(pid, injectedSig)
+		if err := unix.PtraceSyscall(pid, injectedSig); err != nil {
+			log.Debugf("(tracing) got error from ptrace syscall: %v", err)
+		}
 	}
 }
 

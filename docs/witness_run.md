@@ -25,7 +25,8 @@ witness run [cmd] [flags]
 ### Options inherited from parent commands
 
 ```
-  -c, --config string   Path to the witness config file (default ".witness.yaml")
+  -c, --config string      Path to the witness config file (default ".witness.yaml")
+  -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
 
 ### SEE ALSO

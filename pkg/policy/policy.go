@@ -24,6 +24,7 @@ import (
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/log"
 )
 
 const PolicyPredicate = "https://witness.testifysec.com/policy/v0.1"
@@ -233,22 +234,26 @@ func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[
 	collectionsByStep := make(map[string][]attestation.Collection)
 	for _, verifiedStatement := range verifiedStatements {
 		if verifiedStatement.Statement.PredicateType != attestation.CollectionType {
+			log.Debugf("(policy) skipping statement: predicate type is not a collection (%v)", verifiedStatement.Statement.PredicateType)
 			continue
 		}
 
 		collection := attestation.Collection{}
 		if err := json.Unmarshal(verifiedStatement.Statement.Predicate, &collection); err != nil {
+			log.Debugf("(policy) skipping statement: could not unmarshal predicate as a collection: %f", err)
 			continue
 		}
 
 		step, ok := p.Steps[collection.Name]
 		if !ok {
+			log.Debugf("(policy) skipping statement: collection's name is not a step in the policy (%v)", collection.Name)
 			continue
 		}
 
 		for _, verifier := range verifiedStatement.Verifiers {
 			verifierID, err := verifier.KeyID()
 			if err != nil {
+				log.Debugf("(policy) skipping verifier: could not get key id: %v", err)
 				continue
 			}
 
@@ -261,16 +266,19 @@ func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[
 
 				x509Verifier, ok := verifier.(*cryptoutil.X509Verifier)
 				if !ok {
+					log.Debugf("(policy) skipping verifier: verifier with ID %v is not a public key verifier or a x509 verifier", verifierID)
 					continue
 				}
 
 				if len(functionary.CertConstraint.Roots) == 0 {
+					log.Debugf("(policy) skipping verifier: verifier with ID %v is an x509 verifier, but step %v does not have any truested roots", verifierID, step)
 					continue
 				}
 
 				for _, rootID := range functionary.CertConstraint.Roots {
 					bundle, ok := trustBundles[rootID]
 					if !ok {
+						log.Debugf("(policy) skipping verifier: could not get trust bundle for step %v and root ID %v", step, rootID)
 						continue
 					}
 
