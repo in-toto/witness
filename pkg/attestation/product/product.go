@@ -61,7 +61,6 @@ func fromDigestMap(digestMap map[string]cryptoutil.DigestSet) map[string]attesta
 			Digest:   digestSet,
 		}
 	}
-
 	return products
 }
 
