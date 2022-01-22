@@ -16,6 +16,7 @@ package product
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -107,7 +108,7 @@ func (a *Attestor) GetProducts() map[string]attestation.Product {
 func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	subjects := make(map[string]cryptoutil.DigestSet)
 	for productName, product := range a.Products {
-		subjects[productName] = product.Digest
+		subjects[fmt.Sprintf("file:%v", productName)] = product.Digest
 	}
 
 	return subjects

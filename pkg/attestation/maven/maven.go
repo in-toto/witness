@@ -105,7 +105,7 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	}
 
 	hashes := ctx.Hashes()
-	projectSubject := fmt.Sprintf("mvn:%v/%v@%v", a.GroupId, a.ArtifactId, a.Version)
+	projectSubject := fmt.Sprintf("project:%v/%v@%v", a.GroupId, a.ArtifactId, a.Version)
 	projectDigest, err := cryptoutil.CalculateDigestSetFromBytes([]byte(projectSubject), hashes)
 	if err != nil {
 		return err
@@ -113,7 +113,7 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 
 	a.subjects[projectSubject] = projectDigest
 	for _, dep := range a.Dependencies {
-		depSubject := fmt.Sprintf("mvn:%v/%v@%v", dep.GroupId, dep.ArtifactId, dep.Version)
+		depSubject := fmt.Sprintf("dependency:%v/%v@%v", dep.GroupId, dep.ArtifactId, dep.Version)
 		depDigest, err := cryptoutil.CalculateDigestSetFromBytes([]byte(depSubject), hashes)
 		if err != nil {
 			return err
