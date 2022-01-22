@@ -16,6 +16,7 @@ package attestation
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
@@ -83,7 +84,7 @@ func (c *Collection) Subjects() map[string]cryptoutil.DigestSet {
 		if subjecter, ok := collectionAttestation.Attestation.(Subjecter); ok {
 			subjects := subjecter.Subjects()
 			for subject, digest := range subjects {
-				allSubjects[subject] = digest
+				allSubjects[fmt.Sprintf("%v/%v", collectionAttestation.Type, subject)] = digest
 			}
 		}
 	}

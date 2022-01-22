@@ -15,6 +15,7 @@
 package gitlab
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/testifysec/witness/pkg/attestation"
@@ -109,13 +110,19 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 		return err
 	}
 
-	a.subjects[a.PipelineUrl] = pipelineSubj
+	a.subjects[fmt.Sprintf("pipelineurl:%v", a.PipelineUrl)] = pipelineSubj
 	jobSubj, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.JobUrl), ctx.Hashes())
 	if err != nil {
 		return err
 	}
 
-	a.subjects[a.JobUrl] = jobSubj
+	a.subjects[fmt.Sprintf("joburl:%v", a.JobUrl)] = jobSubj
+	projectSubj, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ProjectUrl), ctx.Hashes())
+	if err != nil {
+		return err
+	}
+
+	a.subjects[fmt.Sprintf("projecturl:%v", a.ProjectUrl)] = projectSubj
 	return nil
 }
 

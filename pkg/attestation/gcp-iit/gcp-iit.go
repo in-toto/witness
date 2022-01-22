@@ -132,33 +132,31 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	if err != nil {
 		return err
 	}
-	a.subjects[a.InstanceID] = instanceIDSubject
+	a.subjects[fmt.Sprintf("instanceid:%v", a.InstanceID)] = instanceIDSubject
 
 	instanceHostnameSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.InstanceHostname), ctx.Hashes())
 	if err != nil {
 		return err
 	}
-	a.subjects[a.InstanceHostname] = instanceHostnameSubject
+	a.subjects[fmt.Sprintf("instancename:%v", a.InstanceHostname)] = instanceHostnameSubject
 
 	projectIDSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ProjectID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
-	a.subjects[a.ProjectID] = projectIDSubject
+	a.subjects[fmt.Sprintf("projectid:%v", a.ProjectID)] = projectIDSubject
 
 	projectNumberSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ProjectNumber), ctx.Hashes())
 	if err != nil {
 		return err
 	}
+	a.subjects[fmt.Sprintf("projectnumber:%v", a.ProjectNumber)] = projectNumberSubject
 
-	a.subjects[a.ProjectNumber] = projectNumberSubject
-
-	clusterUIDSubejct, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ClusterUID), ctx.Hashes())
+	clusterUIDSubject, err := cryptoutil.CalculateDigestSetFromBytes([]byte(a.ClusterUID), ctx.Hashes())
 	if err != nil {
 		return err
 	}
-
-	a.subjects[a.ClusterUID] = clusterUIDSubejct
+	a.subjects[fmt.Sprintf("clusteruid:%v", a.ClusterUID)] = clusterUIDSubject
 
 	return nil
 }
