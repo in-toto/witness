@@ -168,26 +168,25 @@ func (ctx *AttestationContext) RunAttestors() error {
 		ctx.completedAttestors = append(ctx.completedAttestors, attestor)
 	}
 
+	log.Infof("Starting %v attestor...", materialAttestor.Name())
 	if err := materialAttestor.Attest(ctx); err != nil {
-		log.Infof("Starting %v attestor...", materialAttestor.Name())
 		return err
 	}
 	ctx.completedAttestors = append(ctx.completedAttestors, materialAttestor)
 
+	log.Infof("Starting %v attestor...", cmdAttestor.Name())
 	if err := cmdAttestor.Attest(ctx); err != nil {
-		log.Infof("Starting %v attestor...", cmdAttestor.Name())
 		return err
 	}
 	ctx.completedAttestors = append(ctx.completedAttestors, cmdAttestor)
 
+	log.Infof("Starting %v attestor...", productAttestor.Name())
 	if err := productAttestor.Attest(ctx); err != nil {
-		log.Infof("Starting %v attestor...", productAttestor.Name())
 		return err
 	}
 	ctx.completedAttestors = append(ctx.completedAttestors, productAttestor)
 
 	for _, attestor := range postAttestors {
-		log.Infof("Starting %v attestor...", attestor.Name())
 		if err := attestor.Attest(ctx); err != nil {
 			return err
 		}
