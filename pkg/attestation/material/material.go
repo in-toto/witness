@@ -15,6 +15,8 @@
 package material
 
 import (
+	"encoding/json"
+
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/attestation/file"
 	"github.com/testifysec/witness/pkg/cryptoutil"
@@ -35,7 +37,7 @@ func init() {
 type Option func(*Attestor)
 
 type Attestor struct {
-	Materials map[string]cryptoutil.DigestSet `json:"materials"`
+	materials map[string]cryptoutil.DigestSet
 }
 
 func (a Attestor) Name() string {
@@ -65,10 +67,24 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 		return err
 	}
 
-	a.Materials = materials
+	a.materials = materials
 	return nil
 }
 
-func (a *Attestor) GetMaterials() map[string]cryptoutil.DigestSet {
-	return a.Materials
+func (a *Attestor) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.materials)
+}
+
+func (a *Attestor) UnmarshalJSON(data []byte) error {
+	mats := make(map[string]cryptoutil.DigestSet)
+	if err := json.Unmarshal(data, &mats); err != nil {
+		return err
+	}
+
+	a.materials = mats
+	return nil
+}
+
+func (a *Attestor) Materials() map[string]cryptoutil.DigestSet {
+	return a.materials
 }

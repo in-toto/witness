@@ -38,7 +38,7 @@ func init() {
 }
 
 type Attestor struct {
-	Products      map[string]attestation.Product `json:"products"`
+	products      map[string]attestation.Product
 	baseArtifacts map[string]cryptoutil.DigestSet
 }
 
@@ -81,32 +81,37 @@ func New() *Attestor {
 }
 
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
-	baseArtifacts, err := ctx.GetMaterials()
-	if err != nil {
-		return err
-	}
-
-	a.baseArtifacts = baseArtifacts
+	a.baseArtifacts = ctx.Materials()
 	products, err := file.RecordArtifacts(ctx.WorkingDir(), a.baseArtifacts, ctx.Hashes(), map[string]struct{}{})
 	if err != nil {
 		return err
 	}
 
-	a.Products = fromDigestMap(products)
+	a.products = fromDigestMap(products)
 	return nil
 }
 
 func (a *Attestor) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a.Products)
+	return json.Marshal(a.products)
 }
 
-func (a *Attestor) GetProducts() map[string]attestation.Product {
-	return a.Products
+func (a *Attestor) UnmarshalJSON(data []byte) error {
+	prods := make(map[string]attestation.Product)
+	if err := json.Unmarshal(data, &prods); err != nil {
+		return err
+	}
+
+	a.products = prods
+	return nil
+}
+
+func (a *Attestor) Products() map[string]attestation.Product {
+	return a.products
 }
 
 func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {
 	subjects := make(map[string]cryptoutil.DigestSet)
-	for productName, product := range a.Products {
+	for productName, product := range a.products {
 		subjects[fmt.Sprintf("file:%v", productName)] = product.Digest
 	}
 

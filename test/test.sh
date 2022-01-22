@@ -15,6 +15,7 @@
 
 set -e
 
+make -C ../ build
 rm -f ./test-attestation.demo ./testapp ./policy-signed.json
 ../bin/witness -c test.yaml run -- go build -o=testapp .
 ../bin/witness -c test.yaml sign -f policy.json

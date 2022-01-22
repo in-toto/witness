@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/testifysec/witness/cmd/options"
+	"github.com/testifysec/witness/cmd/witness/options"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/spiffe"

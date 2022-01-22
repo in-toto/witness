@@ -38,11 +38,11 @@ type Subjecter interface {
 }
 
 type Materialer interface {
-	GetMaterials() map[string]cryptoutil.DigestSet
+	Materials() map[string]cryptoutil.DigestSet
 }
 
 type Producter interface {
-	GetProducts() map[string]Product
+	Products() map[string]Product
 }
 
 type AttestorFactory func() Attestor

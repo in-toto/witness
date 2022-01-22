@@ -27,6 +27,30 @@ import (
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
+type testProducter struct {
+	products map[string]attestation.Product
+}
+
+func (testProducter) Name() string {
+	return "dummy-products"
+}
+
+func (testProducter) Type() string {
+	return "dummy-products"
+}
+
+func (testProducter) RunType() attestation.RunType {
+	return attestation.PreRunType
+}
+
+func (testProducter) Attest(ctx *attestation.AttestationContext) error {
+	return nil
+}
+
+func (t testProducter) Products() map[string]attestation.Product {
+	return t.products
+}
+
 func TestNew(t *testing.T) {
 	a := New()
 	if a.Name() != Name {
@@ -87,14 +111,12 @@ func TestAttestor_Attest(t *testing.T) {
 		Digest:   tarDigest,
 	}
 
-	ctx, err := attestation.NewContext("test", []attestation.Attestor{a})
+	ctx, err := attestation.NewContext([]attestation.Attestor{testProducter{testProductSet}, a})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ctx.MergeProducts(testProductSet)
-
-	err = a.Attest(ctx)
+	err = ctx.RunAttestors()
 
 	require.Equal(t, imageID, a.ImageID[crypto.SHA256])
 	require.Equal(t, diffID, a.LayerDiffIDs[0][crypto.SHA256])
@@ -126,14 +148,12 @@ func TestAttestor_Subjects(t *testing.T) {
 		Digest:   tarDigest,
 	}
 
-	ctx, err := attestation.NewContext("test", []attestation.Attestor{a})
+	ctx, err := attestation.NewContext([]attestation.Attestor{testProducter{testProductSet}, a})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ctx.MergeProducts(testProductSet)
-
-	err = a.Attest(ctx)
+	err = ctx.RunAttestors()
 	require.NoError(t, err)
 
 	subj := a.Subjects()
