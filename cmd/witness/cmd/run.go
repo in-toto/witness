@@ -15,20 +15,13 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-
-	"github.com/testifysec/witness/cmd/options"
 
 	"github.com/spf13/cobra"
-	witness "github.com/testifysec/witness/pkg"
+	"github.com/testifysec/witness/cmd/witness/options"
+	"github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/attestation"
-	"github.com/testifysec/witness/pkg/attestation/commandrun"
-	"github.com/testifysec/witness/pkg/attestation/material"
-	"github.com/testifysec/witness/pkg/attestation/product"
-	"github.com/testifysec/witness/pkg/intoto"
 	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
 )
@@ -63,59 +56,25 @@ func runRun(ro options.RunOptions, args []string) error {
 
 	defer out.Close()
 
-	//set up attestors
-	attestors, err := attestation.Attestors(ro.Attestations)
-	if err != nil {
-		return fmt.Errorf("failed to get attestors: %w", err)
-	}
-
-	//these are internal attestors and should always run in the order material -> commandrun -> product
-	//the attestor order is important because the product attestor will use the material attestor's data
-	//post attestors expect data produced by the product attestor
-	productAttestor := product.New()
-	materialAttestor := material.New()
-	commandRunAttestor := commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing))
-
-	attestors = append(attestors, productAttestor, materialAttestor, commandRunAttestor)
-
-	//load attestors into context
-	runCtx, err := attestation.NewContext(
+	result, err := witness.Run(
 		ro.StepName,
-		attestors,
-		attestation.WithWorkingDir(ro.WorkingDir),
+		signer,
+		witness.RunWithTracing(ro.Tracing),
+		witness.RunWithCommand(args),
+		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to create attestation context: %w", err)
+		return err
 	}
 
-	//run attestor lifecycle
-	if err := runCtx.RunAttestors(); err != nil {
-		return fmt.Errorf("failed to run attestors: %w", err)
-	}
-
-	completed := runCtx.CompletedAttestors()
-	collection := attestation.NewCollection(ro.StepName, completed)
-	data, err := json.Marshal(&collection)
+	signedBytes, err := json.Marshal(&result.SignedEnvelope)
 	if err != nil {
-		return fmt.Errorf("failed to marshal attestation collection: %w", err)
+		return fmt.Errorf("failed to marshal envelope: %w", err)
 	}
 
-	statement, err := intoto.NewStatement(attestation.CollectionType, data, collection.Subjects())
-	if err != nil {
-		return fmt.Errorf("failed to create in-toto statement: %w", err)
-	}
-
-	statementJson, err := json.Marshal(&statement)
-	if err != nil {
-		return fmt.Errorf("failed to marshal in-toto statement: %w", err)
-	}
-
-	dataReader := bytes.NewReader(statementJson)
-	signedBytes := bytes.Buffer{}
-	writer := io.MultiWriter(out, &signedBytes)
-	if err := witness.Sign(dataReader, intoto.PayloadType, writer, signer); err != nil {
-		return fmt.Errorf("failed to sign data: %w", err)
+	if _, err := out.Write(signedBytes); err != nil {
+		return fmt.Errorf("failed to write envelope to out file: %w", err)
 	}
 
 	rekorServer := ro.RekorServer
@@ -135,7 +94,7 @@ func runRun(ro options.RunOptions, args []string) error {
 			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
 		}
 
-		resp, err := rc.StoreArtifact(signedBytes.Bytes(), pubKeyBytes)
+		resp, err := rc.StoreArtifact(signedBytes, pubKeyBytes)
 		if err != nil {
 			return fmt.Errorf("failed to store artifact in rekor: %w", err)
 		}

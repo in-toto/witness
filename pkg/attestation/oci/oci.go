@@ -147,7 +147,7 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 }
 
 func (a *Attestor) getCanidate(ctx *attestation.AttestationContext) error {
-	products := ctx.GetProducts()
+	products := ctx.Products()
 
 	if len(products) == 0 {
 		return fmt.Errorf("no products to attest")

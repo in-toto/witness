@@ -82,7 +82,7 @@ func TestAttestor_Attest(t *testing.T) {
 
 	a.baseArtifacts = testDigestSet
 
-	ctx, err := attestation.NewContext("test", []attestation.Attestor{a})
+	ctx, err := attestation.NewContext([]attestation.Attestor{a})
 	require.NoError(t, err)
 	err = a.Attest(ctx)
 	require.NoError(t, err)

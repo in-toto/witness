@@ -113,7 +113,7 @@ func TestAttestor_Attest(t *testing.T) {
 		subjects: make(map[string]cryptoutil.DigestSet),
 	}
 
-	ctx, err := attestation.NewContext("test", []attestation.Attestor{a})
+	ctx, err := attestation.NewContext([]attestation.Attestor{a})
 	require.NoError(t, err)
 	err = a.Attest(ctx)
 	require.NoError(t, err)
@@ -156,7 +156,7 @@ func TestAttestor_Subjects(t *testing.T) {
 		subjects: map[string]cryptoutil.DigestSet{},
 	}
 
-	ctx, err := attestation.NewContext("test", []attestation.Attestor{a})
+	ctx, err := attestation.NewContext([]attestation.Attestor{a})
 	require.NoError(t, err)
 	err = a.Attest(ctx)
 	require.NoError(t, err)

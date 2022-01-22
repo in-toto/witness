@@ -18,9 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/testifysec/witness/cmd/options"
-
 	"github.com/spf13/cobra"
+	"github.com/testifysec/witness/cmd/witness/options"
 	witness "github.com/testifysec/witness/pkg"
 )
 

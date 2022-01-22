@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package witness
 
 import (
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/policy"
 )
 
 func VerifySignature(r io.Reader, verifiers ...cryptoutil.Verifier) (dsse.Envelope, error) {
@@ -32,4 +35,80 @@ func VerifySignature(r io.Reader, verifiers ...cryptoutil.Verifier) (dsse.Envelo
 
 	_, err := envelope.Verify(dsse.WithVerifiers(verifiers))
 	return envelope, err
+}
+
+type verifyOptions struct {
+	policyEnvelope      dsse.Envelope
+	policyVerifiers     []cryptoutil.Verifier
+	collectionEnvelopes []dsse.Envelope
+}
+
+type VerifyOption func(*verifyOptions)
+
+func VerifyWithCollectionEnvelopes(collectionEnvelopes []dsse.Envelope) VerifyOption {
+	return func(vo *verifyOptions) {
+		vo.collectionEnvelopes = collectionEnvelopes
+	}
+}
+
+func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier, opts ...VerifyOption) error {
+	vo := verifyOptions{
+		policyEnvelope:  policyEnvelope,
+		policyVerifiers: policyVerifiers,
+	}
+
+	for _, opt := range opts {
+		opt(&vo)
+	}
+
+	if _, err := vo.policyEnvelope.Verify(dsse.WithVerifiers(vo.policyVerifiers)); err != nil {
+		return fmt.Errorf("could not verify policy: %w", err)
+	}
+
+	pol := policy.Policy{}
+	if err := json.Unmarshal(vo.policyEnvelope.Payload, &pol); err != nil {
+		return fmt.Errorf("failed to unmarshal policy from envelope: %w", err)
+	}
+
+	pubKeysById, err := pol.PublicKeyVerifiers()
+	if err != nil {
+		return fmt.Errorf("failed to get pulic keys from policy: %w", err)
+	}
+
+	pubkeys := make([]cryptoutil.Verifier, 0)
+	for _, pubkey := range pubKeysById {
+		pubkeys = append(pubkeys, pubkey)
+	}
+
+	trustBundlesById, err := pol.TrustBundles()
+	if err != nil {
+		return fmt.Errorf("failed to load policy trust bundles: %w", err)
+	}
+
+	roots := make([]*x509.Certificate, 0)
+	intermediates := make([]*x509.Certificate, 0)
+	for _, trustBundle := range trustBundlesById {
+		roots = append(roots, trustBundle.Root)
+		intermediates = append(intermediates, intermediates...)
+	}
+
+	verifiedStatements := make([]policy.VerifiedStatement, 0)
+	for _, env := range vo.collectionEnvelopes {
+		passedVerifiers, err := env.Verify(dsse.WithVerifiers(pubkeys), dsse.WithRoots(roots), dsse.WithIntermediates(intermediates))
+		if err != nil {
+			continue
+		}
+
+		statement := intoto.Statement{}
+		if err := json.Unmarshal(env.Payload, &statement); err != nil {
+			continue
+		}
+
+		verifiedStatements = append(verifiedStatements, policy.VerifiedStatement{
+			Statement: statement,
+			Verifiers: passedVerifiers,
+		})
+	}
+
+	return pol.Verify(verifiedStatements)
 }

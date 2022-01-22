@@ -16,19 +16,16 @@ package cmd
 
 import (
 	"crypto"
-	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/testifysec/witness/cmd/options"
+	"github.com/testifysec/witness/cmd/witness/options"
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
-	"github.com/testifysec/witness/pkg/intoto"
-	"github.com/testifysec/witness/pkg/policy"
 	"github.com/testifysec/witness/pkg/rekor"
 )
 
@@ -69,15 +66,10 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 	}
 
 	defer inFile.Close()
-	policyEnvelope, err := witness.VerifySignature(inFile, verifier)
-	if err != nil {
-		return fmt.Errorf("failed to verify policy: %v", err)
-	}
-
-	pol := policy.Policy{}
-	err = json.Unmarshal(policyEnvelope.Payload, &pol)
-	if err != nil {
-		return fmt.Errorf("failed to parse policy: %v", err)
+	policyEnvelope := dsse.Envelope{}
+	decoder := json.NewDecoder(inFile)
+	if err := decoder.Decode(&policyEnvelope); err != nil {
+		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
 	envelopes := make([]dsse.Envelope, 0)
@@ -101,47 +93,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		envelopes = append(envelopes, rekorEnvs...)
 	}
 
-	pubkeysById, err := pol.PublicKeyVerifiers()
-	if err != nil {
-		return fmt.Errorf("failed to get public keys from policy: %w", err)
-	}
-
-	pubkeys := make([]cryptoutil.Verifier, 0)
-	for _, pubkey := range pubkeysById {
-		pubkeys = append(pubkeys, pubkey)
-	}
-
-	trustBundlesById, err := pol.TrustBundles()
-	if err != nil {
-		return fmt.Errorf("failed to load policy trust bundles: %w", err)
-	}
-
-	roots := make([]*x509.Certificate, 0)
-	intermediates := make([]*x509.Certificate, 0)
-	for _, trustBundle := range trustBundlesById {
-		roots = append(roots, trustBundle.Root)
-		intermediates = append(intermediates, intermediates...)
-	}
-
-	verifiedStatements := make([]policy.VerifiedStatement, 0)
-	for _, env := range envelopes {
-		passedVerifiers, err := env.Verify(dsse.WithVerifiers(pubkeys), dsse.WithRoots(roots), dsse.WithIntermediates(intermediates))
-		if err != nil {
-			continue
-		}
-
-		statement := intoto.Statement{}
-		if err := json.Unmarshal(env.Payload, &statement); err != nil {
-			continue
-		}
-
-		verifiedStatements = append(verifiedStatements, policy.VerifiedStatement{
-			Statement: statement,
-			Verifiers: passedVerifiers,
-		})
-	}
-
-	return pol.Verify(verifiedStatements)
+	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(envelopes))
 }
 
 func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {

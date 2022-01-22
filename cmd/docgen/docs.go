@@ -19,7 +19,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra/doc"
-	"github.com/testifysec/witness/cmd"
+	"github.com/testifysec/witness/cmd/witness/cmd"
 )
 
 var directory string

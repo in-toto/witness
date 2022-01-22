@@ -10,7 +10,7 @@ clean:
 	rm -rf $(BINDIR)
 
 build:
-	CGO_ENABLED=0 go build $(BUILDFLAGS) -o $(BINDIR)/$(BINNAME) ./main.go
+	CGO_ENABLED=0 go build $(BUILDFLAGS) -o $(BINDIR)/$(BINNAME) ./cmd/witness
 
 vet:
 	go vet ./...

@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/testifysec/witness/cmd/options"
+	"github.com/testifysec/witness/cmd/witness/options"
 	"github.com/testifysec/witness/pkg/log"
 )
 
