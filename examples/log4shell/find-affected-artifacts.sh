@@ -16,7 +16,7 @@
 set -e
 
 printf "\nFinding artifacts with log4j 1.2.17...\n"
-LOG4JHASH=$(echo -n mvn:log4j/log4j@1.2.17 | sha256sum | awk '{print $1}')
+LOG4JHASH=$(echo -n dependency:log4j/log4j@1.2.17 | sha256sum | awk '{print $1}')
 entryuuid=$(docker run --rm -it --net host witness-log4shell-demo rekor-cli --rekor_server http://localhost:3000 search --sha "$LOG4JHASH" |\
   awk '/Found matching entries/{getline; print}' | tr -d '\r')
 
