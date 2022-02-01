@@ -61,6 +61,7 @@ func runRun(ro options.RunOptions, args []string) error {
 		signer,
 		witness.RunWithTracing(ro.Tracing),
 		witness.RunWithCommand(args),
+		witness.RunWithAttestors(ro.Attestations),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
 	)
 
