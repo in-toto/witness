@@ -61,8 +61,6 @@ tar -xzf witness_${VERSION}_${ARCH}.tar.gz
 
 > Witness supports keyless signing!
 
-- Link: Using SPIRE with witness for keyless signing.
-
 ```
 openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
 openssl pkey -in testkey.pem -pubout > testpub.pem
@@ -103,7 +101,6 @@ witness run --step build -o test-att.json -- go build -o=testapp .
 
 > - This data can be stored and retrieved from rekor!
 > - This is the data that is evaluated against the Rego policy
-> - Link example attestation data
 
 ```
 cat test-att.json | jq -r .payload | base64 -d | jq
@@ -116,10 +113,6 @@ cat test-att.json | jq -r .payload | base64 -d | jq
 > - Steps are bound to keys. Policy can be written to check the certificate data. For example, we can require a step is signed by a key with a specific `CN` attribute.
 > - Witness will require all attestations to succeed
 > - Witness will evaluate the rego policy against the JSON object in the corresponding attestor
-
-- Link: Witness Policy
-- Link: Embedding Rego in Witness Policies
-- Link: Witness Functionaries
 
 ```
 ## policy.json
@@ -216,7 +209,7 @@ Examples of cryptographic validation is found in the GCP, AWS, and GitLab attest
 
 ### Attestation Lifecycle
 
-![](arch.drawio.png?page=1)
+![](docs/assets/attestation.png)
 
 ## Attestor Types
 
@@ -264,7 +257,7 @@ I witness policy allowers administrators trace the compliance status of an artif
 
 ### Verification Lifecycle
 
-![](arch.drawio.png?page=2)
+![](docs/assets/verification.png)
 
 ## Using SPIRE for Keyless Signing
 
