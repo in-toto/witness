@@ -91,3 +91,42 @@ func (c *Collection) Subjects() map[string]cryptoutil.DigestSet {
 
 	return allSubjects
 }
+
+// Artifacts returns a map of digestsets that describe the union of the materials and products from the collection.
+// This essentially gives a view of end state of the files after all the attestors in the collection ran.
+func (c *Collection) Artifacts() map[string]cryptoutil.DigestSet {
+	allMaterials := make(map[string]cryptoutil.DigestSet)
+	allProducts := make(map[string]cryptoutil.DigestSet)
+	for _, attestation := range c.Attestations {
+		if materialer, ok := attestation.Attestation.(Materialer); ok {
+			for k, v := range materialer.Materials() {
+				allMaterials[k] = v
+			}
+		}
+
+		if producer, ok := attestation.Attestation.(Producer); ok {
+			for k, v := range producer.Products() {
+				allProducts[k] = v.Digest
+			}
+		}
+	}
+
+	for k, v := range allProducts {
+		allMaterials[k] = v
+	}
+
+	return allMaterials
+}
+
+func (c *Collection) Materials() map[string]cryptoutil.DigestSet {
+	materials := make(map[string]cryptoutil.DigestSet)
+	for _, attestation := range c.Attestations {
+		if materialer, ok := attestation.Attestation.(Materialer); ok {
+			for k, v := range materialer.Materials() {
+				materials[k] = v
+			}
+		}
+	}
+
+	return materials
+}

@@ -41,7 +41,7 @@ type Materialer interface {
 	Materials() map[string]cryptoutil.DigestSet
 }
 
-type Producter interface {
+type Producer interface {
 	Products() map[string]Product
 }
 

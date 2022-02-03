@@ -32,6 +32,15 @@ import (
 	"github.com/testifysec/witness/pkg/intoto"
 )
 
+func init() {
+	attestation.RegisterAttestation("dummy-prods", "dummy-prods", attestation.PostRunType, func() attestation.Attestor {
+		return &DummyProducer{}
+	})
+	attestation.RegisterAttestation("dummy-mats", "dummy-mats", attestation.PreRunType, func() attestation.Attestor {
+		return &DummyMaterialer{}
+	})
+}
+
 func createTestKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, error) {
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -124,4 +133,142 @@ deny[msg] {
 			Statement: intotoStatement,
 		},
 	}))
+}
+
+func TestArtifacts(t *testing.T) {
+	_, verifier, pubKeyPem, err := createTestKey()
+	require.NoError(t, err)
+	keyID, err := verifier.KeyID()
+	require.NoError(t, err)
+
+	policy := Policy{
+		Expires: time.Now().Add(1 * time.Hour),
+		PublicKeys: map[string]PublicKey{
+			keyID: {
+				KeyID: keyID,
+				Key:   pubKeyPem,
+			},
+		},
+		Steps: map[string]Step{
+			"step1": {
+				Name: "step1",
+				Functionaries: []Functionary{
+					{
+						Type:        "PublicKey",
+						PublicKeyID: keyID,
+					},
+				},
+				Attestations: []Attestation{
+					{
+						Type: "dummy-prods",
+					},
+				},
+			},
+			"step2": {
+				Name:          "step2",
+				ArtifactsFrom: []string{"step1"},
+				Functionaries: []Functionary{
+					{
+						Type:        "PublicKey",
+						PublicKeyID: keyID,
+					},
+				},
+				Attestations: []Attestation{
+					{
+						Type: "dummy-mats",
+					},
+				},
+			},
+		},
+	}
+
+	dummySha := "a1073968266a4ed65472a80ebcfd31f1955cfdf8f23d439b1df84d78ce05f7a9"
+	path := "testfile"
+	mats := map[string]cryptoutil.DigestSet{path: {crypto.SHA256: dummySha}}
+	prods := map[string]attestation.Product{path: {Digest: cryptoutil.DigestSet{crypto.SHA256: dummySha}, MimeType: "application/text"}}
+	step1Collection := attestation.NewCollection("step1", []attestation.Attestor{DummyProducer{prods}})
+	step2Collection := attestation.NewCollection("step2", []attestation.Attestor{DummyMaterialer{mats}})
+	step1CollectionJson, err := json.Marshal(step1Collection)
+	require.NoError(t, err)
+	step2CollectionJson, err := json.Marshal(step2Collection)
+	require.NoError(t, err)
+	intotoStatement1, err := intoto.NewStatement(attestation.CollectionType, step1CollectionJson, map[string]cryptoutil.DigestSet{})
+	require.NoError(t, err)
+	intotoStatement2, err := intoto.NewStatement(attestation.CollectionType, step2CollectionJson, map[string]cryptoutil.DigestSet{})
+	require.NoError(t, err)
+	assert.NoError(t, policy.Verify([]VerifiedStatement{
+		{
+			Verifiers: []cryptoutil.Verifier{verifier},
+			Statement: intotoStatement1,
+		},
+		{
+			Verifiers: []cryptoutil.Verifier{verifier},
+			Statement: intotoStatement2,
+		},
+	}))
+
+	mats[path][crypto.SHA256] = "badhash"
+	step2Collection = attestation.NewCollection("step2", []attestation.Attestor{DummyMaterialer{mats}})
+	step2CollectionJson, err = json.Marshal(step2Collection)
+	require.NoError(t, err)
+	intotoStatement2, err = intoto.NewStatement(attestation.CollectionType, step2CollectionJson, map[string]cryptoutil.DigestSet{})
+	require.NoError(t, err)
+	assert.Error(t, policy.Verify([]VerifiedStatement{
+		{
+			Verifiers: []cryptoutil.Verifier{verifier},
+			Statement: intotoStatement1,
+		},
+		{
+			Verifiers: []cryptoutil.Verifier{verifier},
+			Statement: intotoStatement2,
+		},
+	}))
+}
+
+type DummyMaterialer struct {
+	M map[string]cryptoutil.DigestSet
+}
+
+func (DummyMaterialer) Name() string {
+	return "dummy-mats"
+}
+
+func (DummyMaterialer) Type() string {
+	return "dummy-mats"
+}
+
+func (DummyMaterialer) RunType() attestation.RunType {
+	return attestation.PreRunType
+}
+
+func (DummyMaterialer) Attest(*attestation.AttestationContext) error {
+	return nil
+}
+
+func (m DummyMaterialer) Materials() map[string]cryptoutil.DigestSet {
+	return m.M
+}
+
+type DummyProducer struct {
+	P map[string]attestation.Product
+}
+
+func (DummyProducer) Name() string {
+	return "dummy-prods"
+}
+
+func (DummyProducer) Type() string {
+	return "dummy-prods"
+}
+
+func (DummyProducer) RunType() attestation.RunType {
+	return attestation.PostRunType
+}
+
+func (DummyProducer) Attest(*attestation.AttestationContext) error {
+	return nil
+}
+
+func (m DummyProducer) Products() map[string]attestation.Product {
+	return m.P
 }
