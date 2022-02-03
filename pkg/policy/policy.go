@@ -29,36 +29,6 @@ import (
 
 const PolicyPredicate = "https://witness.testifysec.com/policy/v0.1"
 
-type ErrNoAttestations string
-
-func (e ErrNoAttestations) Error() string {
-	return fmt.Sprintf("no attestations found for step %v", string(e))
-}
-
-type ErrMissingAttestation struct {
-	Step        string
-	Attestation string
-}
-
-func (e ErrMissingAttestation) Error() string {
-	return fmt.Sprintf("missing attestation in collection for step %v: %v", e.Step, e.Attestation)
-}
-
-type ErrPolicyExpired time.Time
-
-func (e ErrPolicyExpired) Error() string {
-	return fmt.Sprintf("policy expired on %v", time.Time(e))
-}
-
-type ErrKeyIDMismatch struct {
-	Expected string
-	Actual   string
-}
-
-func (e ErrKeyIDMismatch) Error() string {
-	return fmt.Sprintf("public key in policy has expected key id %v but got %v", e.Expected, e.Actual)
-}
-
 type Policy struct {
 	Expires    time.Time            `json:"expires"`
 	Roots      map[string]Root      `json:"roots,omitempty"`
@@ -71,32 +41,6 @@ type Root struct {
 	Intermediates [][]byte `json:"intermediates,omitempty"`
 }
 
-type Step struct {
-	Name          string        `json:"name"`
-	Functionaries []Functionary `json:"functionaries"`
-	Attestations  []Attestation `json:"attestations"`
-}
-
-type Functionary struct {
-	Type           string         `json:"type"`
-	CertConstraint CertConstraint `json:"certConstraint,omitempty"`
-	PublicKeyID    string         `json:"publickeyid,omitempty"`
-}
-
-type Attestation struct {
-	Type         string       `json:"type"`
-	RegoPolicies []RegoPolicy `json:"regopolicies"`
-}
-
-type RegoPolicy struct {
-	Module []byte `json:"module"`
-	Name   string `json:"name"`
-}
-
-type CertConstraint struct {
-	Roots []string `json:"roots"`
-}
-
 type PublicKey struct {
 	KeyID string `json:"keyid"`
 	Key   []byte `json:"key"`
@@ -107,6 +51,7 @@ type VerifiedStatement struct {
 	Statement intoto.Statement
 }
 
+// PublicKeyVerifiers returns verifiers for each of the policy's embedded public keys grouped by the key's ID
 func (p Policy) PublicKeyVerifiers() (map[string]cryptoutil.Verifier, error) {
 	verifiers := make(map[string]cryptoutil.Verifier)
 	for _, key := range p.PublicKeys {
@@ -138,6 +83,7 @@ type TrustBundle struct {
 	Intermediates []*x509.Certificate
 }
 
+// TrustBundles returns the policy's x509 roots and intermediates grouped by the root's ID
 func (p Policy) TrustBundles() (map[string]TrustBundle, error) {
 	bundles := make(map[string]TrustBundle)
 	for id, root := range p.Roots {
@@ -177,6 +123,8 @@ func parseCertificate(data []byte) (*x509.Certificate, error) {
 	return cert, nil
 }
 
+// Verify will evaluate a policy using verifiedStatements. All statement signatures must be verified prior to calling this function.
+// policy.Verify does not verify signatures.
 func (p Policy) Verify(verifiedStatements []VerifiedStatement) error {
 	if time.Now().After(p.Expires) {
 		return ErrPolicyExpired(p.Expires)
@@ -187,44 +135,25 @@ func (p Policy) Verify(verifiedStatements []VerifiedStatement) error {
 		return err
 	}
 
+	passedByStep := make(map[string][]attestation.Collection)
 	for _, step := range p.Steps {
-		if err := step.Verify(approvedCollectionsByStep[step.Name]); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s Step) Verify(attestCollections []attestation.Collection) error {
-	if len(attestCollections) <= 0 {
-		return ErrNoAttestations(s.Name)
-	}
-
-	for _, collection := range attestCollections {
-		found := make(map[string]attestation.Attestor)
-		for _, attestation := range collection.Attestations {
-			found[attestation.Type] = attestation.Attestation
-		}
-
-		for _, expected := range s.Attestations {
-			attestor, ok := found[expected.Type]
-			if !ok {
-				return ErrMissingAttestation{
-					Step:        s.Name,
-					Attestation: expected.Type,
-				}
+		stepResults := step.validateAttestations(approvedCollectionsByStep[step.Name])
+		if !stepResults.HasPassed() {
+			if !stepResults.HasErrors() {
+				return ErrNoAttestations(step.Name)
 			}
 
-			if err := EvaluateRegoPolicy(attestor, expected.RegoPolicies); err != nil {
-				return err
-			}
+			return stepResults
 		}
+
+		passedByStep[step.Name] = append(passedByStep[step.Name], stepResults.Passed...)
 	}
 
-	return nil
+	return p.verifyArtifacts(passedByStep)
 }
 
+// checkFunctionaries checks to make sure the signature on each statement corresponds to a trusted functionary for
+// the step the statement corresponds to
 func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[string][]attestation.Collection, error) {
 	trustBundles, err := p.TrustBundles()
 	if err != nil {
@@ -289,8 +218,87 @@ func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[
 				}
 			}
 		}
-
 	}
 
 	return collectionsByStep, nil
+}
+
+// verifyArtifacts will check the artifacts (materials+products) of the step referred to by `ArtifactsFrom` against the
+// materials of the original step.  This ensures file integrity between each step.
+func (p Policy) verifyArtifacts(collectionsByStep map[string][]attestation.Collection) error {
+	for _, step := range p.Steps {
+		accepted := make([]attestation.Collection, 0)
+		for _, collection := range collectionsByStep[step.Name] {
+			if err := verifyCollectionArtifacts(step, collection, collectionsByStep); err == nil {
+				accepted = append(accepted, collection)
+			}
+		}
+
+		if len(accepted) <= 0 {
+			return ErrNoAttestations(step.Name)
+		}
+	}
+
+	return nil
+}
+
+func verifyCollectionArtifacts(step Step, collection attestation.Collection, collectionsByStep map[string][]attestation.Collection) error {
+	mats := collection.Materials()
+	for _, artifactsFrom := range step.ArtifactsFrom {
+		accepted := make([]attestation.Collection, 0)
+		for _, testCollection := range collectionsByStep[artifactsFrom] {
+			if err := compareArtifacts(mats, testCollection.Artifacts()); err != nil {
+				break
+			}
+
+			accepted = append(accepted, testCollection)
+		}
+
+		if len(accepted) <= 0 {
+			return ErrNoAttestations(step.Name)
+		}
+	}
+
+	return nil
+}
+
+func compareArtifacts(mats map[string]cryptoutil.DigestSet, arts map[string]cryptoutil.DigestSet) error {
+	for path, mat := range mats {
+		art, ok := arts[path]
+		if !ok {
+			continue
+		}
+
+		if !mat.Equal(art) {
+			return ErrMismatchArtifact{
+				Artifact: art,
+				Material: mat,
+				Path:     path,
+			}
+		}
+	}
+
+	return nil
+}
+
+type ErrUnknownStep string
+
+func (e ErrUnknownStep) Error() string {
+	return fmt.Sprintf("policy has no step named %v", string(e))
+}
+
+type ErrArtifactCycle string
+
+func (e ErrArtifactCycle) Error() string {
+	return fmt.Sprintf("cycle detected in step's artifact dependencies: %v", string(e))
+}
+
+type ErrMismatchArtifact struct {
+	Artifact cryptoutil.DigestSet
+	Material cryptoutil.DigestSet
+	Path     string
+}
+
+func (e ErrMismatchArtifact) Error() string {
+	return fmt.Sprintf("mismatched digests for %v", e.Path)
 }

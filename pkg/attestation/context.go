@@ -195,7 +195,7 @@ func (ctx *AttestationContext) runAttestor(attestor Attestor) error {
 		ctx.addMaterials(materialer)
 	}
 
-	if producter, ok := attestor.(Producter); ok {
+	if producter, ok := attestor.(Producer); ok {
 		ctx.addProducts(producter)
 	}
 
@@ -247,7 +247,7 @@ func (ctx *AttestationContext) addMaterials(materialer Materialer) {
 	}
 }
 
-func (ctx *AttestationContext) addProducts(producter Producter) {
+func (ctx *AttestationContext) addProducts(producter Producer) {
 	newProds := producter.Products()
 	for k, v := range newProds {
 		ctx.products[k] = v
