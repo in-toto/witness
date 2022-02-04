@@ -15,9 +15,9 @@ builds:
     goarch:
       - amd64
       - arm64
-    main: ./cmd/witness/
+    main: ./cmd/witness
 gomod:
-  proxy: true
+  proxy: false
 source:
   enabled: true
 sboms:
