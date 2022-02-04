@@ -33,14 +33,17 @@ cat attestation.json | jq -r .payload | base64 -d | jq
 
 ## Attestors
 
-- [AWS](docs/attestor.md#aws) - Attestor for AWS Instance Metadata
-- [GCP](docs/attestor.md#gcp) - Attestor for GCP Instance Idenity Service
-- [GitLab](docs/attestor.md#gitlab) - Attestor for GitLab Pipelines
+- [AWS](docs/attestors/aws-iid.md) - Attestor for AWS Instance Metadata
+- [CommandRun](docs/attestors/commandrun.md) - Attestor for running a command
+- [Environment](docs/attesors/environment.md) - Attestor for environment variables
+- [GCP](docs/attestors/gcp-iit.md) - Attestor for GCP Instance Idenity Service
+- [Git](docs/attestors/git.md) - Attestor for Git Repository
+- [GitLab](docs/attestors/gitlab.md) - Attestor for GitLab Pipelines
 - [GitHub](docs/attestor.md#github) - Attestor for GitHub Actions
-- [CommandRun](docs/attestor.md#commandrun) - Attestor for running a command
-- [Artifact](docs/attestor.md#artifact) - Attestor for uploading artifacts
-- [Environment](docs/attestor.md#environment) - Attestor for environment variables
-- [Git](docs/attestor.md#git) - Attestor for Git Repository
+- [JWT](docs/attestors/jwt.md) - Attestor of JSON Web Tokens
+- [Material](docs/attestors/material.md) - Attesor of materials
+- [Maven](docs/attestors/maven.md) - Attestor of Maven pom.xml
+- [Product](docs/attestors/product.md) - Attestor of products
 
 ## Support
 
