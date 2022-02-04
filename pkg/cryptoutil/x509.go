@@ -18,6 +18,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"io"
+	"time"
 )
 
 type X509Verifier struct {
@@ -25,9 +26,10 @@ type X509Verifier struct {
 	roots         []*x509.Certificate
 	intermediates []*x509.Certificate
 	verifier      Verifier
+	trustedTime   time.Time
 }
 
-func NewX509Verifier(cert *x509.Certificate, intermediates, roots []*x509.Certificate) (*X509Verifier, error) {
+func NewX509Verifier(cert *x509.Certificate, intermediates, roots []*x509.Certificate, trustedTime time.Time) (*X509Verifier, error) {
 	verifier, err := NewVerifier(cert.PublicKey)
 	if err != nil {
 		return nil, err
@@ -38,6 +40,7 @@ func NewX509Verifier(cert *x509.Certificate, intermediates, roots []*x509.Certif
 		roots:         roots,
 		intermediates: intermediates,
 		verifier:      verifier,
+		trustedTime:   trustedTime,
 	}, nil
 }
 
@@ -49,6 +52,7 @@ func (v *X509Verifier) Verify(body io.Reader, sig []byte) error {
 	rootPool := certificatesToPool(v.roots)
 	intermediatePool := certificatesToPool(v.intermediates)
 	if _, err := v.cert.Verify(x509.VerifyOptions{
+		CurrentTime:   v.trustedTime,
 		Roots:         rootPool,
 		Intermediates: intermediatePool,
 	}); err != nil {

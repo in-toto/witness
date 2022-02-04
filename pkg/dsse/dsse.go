@@ -20,6 +20,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
@@ -111,6 +112,7 @@ type verificationOptions struct {
 	roots         []*x509.Certificate
 	intermediates []*x509.Certificate
 	verifiers     []cryptoutil.Verifier
+	trustedTime   time.Time
 }
 
 func WithRoots(roots []*x509.Certificate) VerificationOption {
@@ -128,6 +130,12 @@ func WithIntermediates(intermediates []*x509.Certificate) VerificationOption {
 func WithVerifiers(verifiers []cryptoutil.Verifier) VerificationOption {
 	return func(vo *verificationOptions) {
 		vo.verifiers = verifiers
+	}
+}
+
+func WithTrustedTime(time time.Time) VerificationOption {
+	return func(vo *verificationOptions) {
+		vo.trustedTime = time
 	}
 }
 
@@ -156,7 +164,7 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 				continue
 			}
 
-			verifier, err := cryptoutil.NewX509Verifier(cert, options.intermediates, options.roots)
+			verifier, err := cryptoutil.NewX509Verifier(cert, options.intermediates, options.roots, options.trustedTime)
 			if err != nil {
 				return nil, err
 			}

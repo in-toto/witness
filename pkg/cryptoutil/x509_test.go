@@ -143,16 +143,23 @@ func TestX509(t *testing.T) {
 	sig, err := signer.Sign(bytes.NewReader(data))
 	require.NoError(t, err)
 
-	verifier, err := NewX509Verifier(leaf, []*x509.Certificate{intermediate}, []*x509.Certificate{root})
+	// test success and failure with expected and unexpected data
+	verifier, err := NewX509Verifier(leaf, []*x509.Certificate{intermediate}, []*x509.Certificate{root}, time.Time{})
 	require.NoError(t, err)
 	err = verifier.Verify(bytes.NewReader(data), sig)
 	assert.NoError(t, err)
 	err = verifier.Verify(bytes.NewReader([]byte("this is not the signed data")), sig)
 	assert.Error(t, err)
 
-	verifier, err = NewX509Verifier(leaf, []*x509.Certificate{intermediate}, nil)
+	// test without roots
+	verifier, err = NewX509Verifier(leaf, []*x509.Certificate{intermediate}, nil, time.Time{})
 	require.NoError(t, err)
 	err = verifier.Verify(bytes.NewReader(data), sig)
 	assert.Error(t, err)
 
+	// test invalid time, certificate didn't exist at the "trusted time"
+	verifier, err = NewX509Verifier(leaf, []*x509.Certificate{intermediate}, []*x509.Certificate{root}, time.Now().Add(-1*time.Hour))
+	require.NoError(t, err)
+	err = verifier.Verify(bytes.NewReader(data), sig)
+	assert.Error(t, err)
 }

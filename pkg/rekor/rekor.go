@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/sigstore/rekor/pkg/client"
@@ -160,7 +161,7 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 			return env, fmt.Errorf("failed to decode signature: %w", err)
 		}
 
-		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(sig.PublicKey))
+		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(sig.PublicKey), cryptoutil.VerifyWithTrustedTime(time.Unix(*entry.IntegratedTime, 0)))
 		if err != nil {
 			return env, fmt.Errorf("failed to create verifier from public key on rekor entry: %w", err)
 		}

@@ -22,6 +22,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"time"
 )
 
 type Verifier interface {
@@ -36,6 +37,7 @@ type verifierOptions struct {
 	roots         []*x509.Certificate
 	intermediates []*x509.Certificate
 	hash          crypto.Hash
+	trustedTime   time.Time
 }
 
 func VerifyWithRoots(roots []*x509.Certificate) VerifierOption {
@@ -56,6 +58,12 @@ func VerifyWithHash(h crypto.Hash) VerifierOption {
 	}
 }
 
+func VerifyWithTrustedTime(t time.Time) VerifierOption {
+	return func(vo *verifierOptions) {
+		vo.trustedTime = t
+	}
+}
+
 func NewVerifier(pub interface{}, opts ...VerifierOption) (Verifier, error) {
 	options := &verifierOptions{
 		hash: crypto.SHA256,
@@ -73,7 +81,7 @@ func NewVerifier(pub interface{}, opts ...VerifierOption) (Verifier, error) {
 	case ed25519.PublicKey:
 		return NewED25519Verifier(key), nil
 	case *x509.Certificate:
-		return NewX509Verifier(key, options.intermediates, options.roots)
+		return NewX509Verifier(key, options.intermediates, options.roots, options.trustedTime)
 	default:
 		return nil, ErrUnsupportedKeyType{
 			t: fmt.Sprintf("%T", pub),
