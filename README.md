@@ -4,15 +4,15 @@
 
 ## Witness is a pluggable framework for supply chain security
 
-Witness prevents tampering of build materials and verifies the integrity of the build process from source to target. It works by wrapping commands executed in a continuous integration process. Its attestation system is pluggable and offers support out of the box for most major CI and infrastructure providers. Verification of Witness metadata and a secure PKI distribution system will mitigate against many supply chain attack vectors and can be used as a framework for automated governance.
+Witness prevents tampering of build materials and verifies the integrity of the build process from source to target. It works by wrapping commands executed in a continuous integration process. Its attestation system is pluggable and offers support out of the box for most major CI and infrastructure providers. Verification of Witness metadata and a secure PKI distribution system will mitigate against many software supply chain attack vectors and can be used as a framework for automated governance.
 
-Witness is an implementation of the in-toto spec including ITE-5, ITE-6, ITE-7 with an embedded rego policy engine.
+Witness is an implementation of the in-toto spec including [ITE-5](https://github.com/in-toto/ITE/tree/master/ITE/5), [ITE-6](https://github.com/in-toto/ITE/tree/master/ITE/6), [ITE-7](https://github.com/in-toto/ITE/tree/master/ITE/7) with an [embedded rego policy engine](https://www.openpolicyagent.org/docs/latest/integration/#integrating-with-the-go-api).
 
 - Does **NOT** require elevated privileges.
 - Can run in a containerized or non-containerized environment
 - Records secure hashes of materials, artifacts, and events occurring during the CI process
 - Integrations with cloud identity services
-- Keyless signing with SPIFFE/SPIRE
+- Keyless signing with [SPIFFE/SPIRE](https://spiffe.io/)
 - Support for uploading attestation evidence to rekor server (sigstore)
 - Build policy enforcement with Open Policy Agent.
 - Alpha support for tracing and process tampering prevention
@@ -59,7 +59,7 @@ tar -xzf witness_${VERSION}_${ARCH}.tar.gz
 
 ### Create a Keypair
 
-> Witness supports keyless signing!
+> Witness supports keyless signing with [SPIRE](https://spiffe.io/)!
 
 ```
 openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
@@ -108,7 +108,7 @@ cat test-att.json | jq -r .payload | base64 -d | jq
 
 ### Create a Policy File
 
-> - Make sure to replace the keys in this file with the ones from the step above.
+> - Make sure to replace the keys in this file with the ones from the step above (sed command below).
 > - Rego policies should be base64 encoded
 > - Steps are bound to keys. Policy can be written to check the certificate data. For example, we can require a step is signed by a key with a specific `CN` attribute.
 > - Witness will require all attestations to succeed
@@ -189,13 +189,13 @@ Witness attestors are pieces of code that assert facts about a system and store 
   RunType = attestation.PreRunType
 ```
 
-The attestation types are used when we write policy against these attestations.
+The attestation types are used when we evaluate policy against these attestations.
 
 ## Attestor Security Model
 
-Attestations are only as secure as the data that feeds them. Where possible cyrtographic material should be validated, evidence of validation should be included in the attestation for out-of-band validation.
+Attestations are only as secure as the data that feeds them. Where possible cryptographic material should be validated, evidence of validation should be included in the attestation for out-of-band validation.
 
-Examples of cryptographic validation is found in the GCP, AWS, and GitLab attestors.
+Examples of cryptographic validation is found in the [GCP](https://github.com/testifysec/witness/tree/main/pkg/attestation/gcp-iit), [AWS](https://github.com/testifysec/witness/blob/main/pkg/attestation/aws-iid/aws-iid.go), and [GitLab](https://github.com/testifysec/witness/tree/main/pkg/attestation/gitlab) attestors.
 
 ## Attestor Life Cycle
 
@@ -251,19 +251,17 @@ A witness policy is a signed document that encodes the requirements for an artif
 
 I witness policy allowers administrators trace the compliance status of an artifact at any point during it's lifecycle.
 
-![](https://hackmd.io/_uploads/HkpIDY5CY.jpg)
-
 ## Witness Verification
 
 ### Verification Lifecycle
 
 ![](docs/assets/verification.png)
 
-## Using SPIRE for Keyless Signing
+## Using [SPIRE](https://github.com/spiffe/spire) for Keyless Signing
 
-Witness can consume ephemeral keys from a SPIRE node agent. Configure witness with the flag `--spiffe-socket` to enable keyless signing.
+Witness can consume ephemeral keys from a [SPIRE](https://github.com/spiffe/spire) node agent. Configure witness with the flag `--spiffe-socket` to enable keyless signing.
 
-During the verification, process witness will use the Rekor integrated time to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for the attestation to be integrated into the Rekor log.
+During the verification process witness will use the [Rekor](https://github.com/sigstore/rekor) integrated time to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for the attestation to be integrated into the Rekor log.
 
 ## Witness Examples
 
@@ -286,10 +284,10 @@ During the verification, process witness will use the Rekor integrated time to m
 - Vault Key Provider
 - Cloud KMS Support
 - Kubernetes Admission Controller
-- EDR Agent
+- SIEM Collection Agent 
 - Cosign Signature Validation
 - Notary v2 Signature Validation
-- Zarf Integration
+- [Zarf](https://github.com/defenseunicorns/zarf) Integration
 - IronBank Attestor
 
 ## Support
