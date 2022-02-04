@@ -16,7 +16,10 @@ package policy
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
 type ErrNoAttestations string
@@ -47,4 +50,44 @@ type ErrKeyIDMismatch struct {
 
 func (e ErrKeyIDMismatch) Error() string {
 	return fmt.Sprintf("public key in policy has expected key id %v but got %v", e.Expected, e.Actual)
+}
+
+type ErrUnknownStep string
+
+func (e ErrUnknownStep) Error() string {
+	return fmt.Sprintf("policy has no step named %v", string(e))
+}
+
+type ErrArtifactCycle string
+
+func (e ErrArtifactCycle) Error() string {
+	return fmt.Sprintf("cycle detected in step's artifact dependencies: %v", string(e))
+}
+
+type ErrMismatchArtifact struct {
+	Artifact cryptoutil.DigestSet
+	Material cryptoutil.DigestSet
+	Path     string
+}
+
+func (e ErrMismatchArtifact) Error() string {
+	return fmt.Sprintf("mismatched digests for %v", e.Path)
+}
+
+type ErrRegoInvalidData struct {
+	Path     string
+	Expected string
+	Actual   interface{}
+}
+
+func (e ErrRegoInvalidData) Error() string {
+	return fmt.Sprintf("invalid data from rego at %v, expected %v but got %T", e.Path, e.Expected, e.Actual)
+}
+
+type ErrPolicyDenied struct {
+	Reasons []string
+}
+
+func (e ErrPolicyDenied) Error() string {
+	return fmt.Sprintf("policy was denied due to:\n%v", strings.Join(e.Reasons, "\n  -"))
 }

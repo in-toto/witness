@@ -93,6 +93,7 @@ func (s Step) validateAttestations(attestCollections []attestation.Collection) S
 			found[attestation.Type] = attestation.Attestation
 		}
 
+		passed := true
 		for _, expected := range s.Attestations {
 			attestor, ok := found[expected.Type]
 			if !ok {
@@ -104,7 +105,8 @@ func (s Step) validateAttestations(attestCollections []attestation.Collection) S
 					},
 				})
 
-				continue
+				passed = false
+				break
 			}
 
 			if err := EvaluateRegoPolicy(attestor, expected.RegoPolicies); err != nil {
@@ -113,9 +115,12 @@ func (s Step) validateAttestations(attestCollections []attestation.Collection) S
 					Reason:     err,
 				})
 
-				continue
+				passed = false
+				break
 			}
+		}
 
+		if passed {
 			result.Passed = append(result.Passed, collection)
 		}
 	}

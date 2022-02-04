@@ -19,5 +19,5 @@ printf "\nVerifying policy on nonvulnerable package...\n"
 docker run --rm -it --net host -v "$(pwd):/src" -w /src/nonvuln witness-log4shell-demo witness verify -c ../witness.yaml --artifactfile target/my-app-1.0-SNAPSHOT.jar
 
 printf "\nVerifying policy on vulnerable package...\n"
-docker run --rm -it --net host -v "$(pwd):/src" -w /src/vuln witness-log4shell-demo witness verify -c ../witness.yaml -a ./demo-attestation.json --artifactfile target/my-app-1.0-SNAPSHOT.jar
+docker run --rm -it --net host -v "$(pwd):/src" -w /src/vuln witness-log4shell-demo witness verify -c ../witness.yaml --artifactfile target/my-app-1.0-SNAPSHOT.jar
 
