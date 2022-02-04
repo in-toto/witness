@@ -19,30 +19,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/testifysec/witness/pkg/attestation"
 )
-
-type ErrRegoInvalidData struct {
-	Path     string
-	Expected string
-	Actual   interface{}
-}
-
-func (e ErrRegoInvalidData) Error() string {
-	return fmt.Sprintf("invalid data from rego at %v, expected %v but got %T", e.Path, e.Expected, e.Actual)
-}
-
-type ErrPolicyDenied struct {
-	Reasons []string
-}
-
-func (e ErrPolicyDenied) Error() string {
-	return fmt.Sprintf("policy was denied due to:\n%v", strings.Join(e.Reasons, "\n  -"))
-}
 
 func EvaluateRegoPolicy(attestor attestation.Attestor, policies []RegoPolicy) error {
 	if len(policies) == 0 {

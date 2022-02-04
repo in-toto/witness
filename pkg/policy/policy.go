@@ -280,25 +280,3 @@ func compareArtifacts(mats map[string]cryptoutil.DigestSet, arts map[string]cryp
 
 	return nil
 }
-
-type ErrUnknownStep string
-
-func (e ErrUnknownStep) Error() string {
-	return fmt.Sprintf("policy has no step named %v", string(e))
-}
-
-type ErrArtifactCycle string
-
-func (e ErrArtifactCycle) Error() string {
-	return fmt.Sprintf("cycle detected in step's artifact dependencies: %v", string(e))
-}
-
-type ErrMismatchArtifact struct {
-	Artifact cryptoutil.DigestSet
-	Material cryptoutil.DigestSet
-	Path     string
-}
-
-func (e ErrMismatchArtifact) Error() string {
-	return fmt.Sprintf("mismatched digests for %v", e.Path)
-}
