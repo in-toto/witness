@@ -216,7 +216,7 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 ### Pre Run Attestors
 
 - [AWS](docs/attestors/aws-iid.md) - Attestor for AWS Instance Metadata
-- [GCP](docs/attestors/gcp-iit.md) - Attestor for GCP Instance Idenity Service
+- [GCP](docs/attestors/gcp-iit.md) - Attestor for GCP Instance Identity Service
 - [GitLab](docs/attestors/gitlab.md) - Attestor for GitLab Pipelines
 - [Git](docs/attestors/git.md) - Attestor for Git Repository
 - [Maven](docs/attestors/maven.md) Attestor for Maven Projects
