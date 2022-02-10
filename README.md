@@ -108,6 +108,8 @@ cat test-att.json | jq -r .payload | base64 -d | jq
 
 ### Create a Policy File
 
+Look [here](docs/policy.md) for full documentation on Witness Policies.
+
 > - Make sure to replace the keys in this file with the ones from the step above (sed command below).
 > - Rego policies should be base64 encoded
 > - Steps are bound to keys. Policy can be written to check the certificate data. For example, we can require a step is signed by a key with a specific `CN` attribute.
