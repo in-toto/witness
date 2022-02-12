@@ -6,7 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/go-openapi/runtime v0.21.0
-	github.com/open-policy-agent/opa v0.35.0
+	github.com/open-policy-agent/opa v0.37.0
 	github.com/sigstore/rekor v0.4.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
@@ -14,8 +14,8 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.10
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/sys v0.0.0-20211210111614-af8b64212486
-	google.golang.org/grpc v1.43.0
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
+	google.golang.org/grpc v1.44.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
