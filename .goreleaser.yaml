@@ -4,6 +4,7 @@ builds:
       - "-s -w"
       - "-extldflags=-zrelro"
       - "-extldflags=-znow"
+      - "-extldflags -w -X 'github.com/testifysec/witness/cmd/witness/cmd.Version={{.Tag}}-{{.ShortCommit}}'"
     env:
       - "CGO_ENABLED=0"
       - "GO111MODULE=on"
