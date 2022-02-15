@@ -1,12 +1,10 @@
-PKG := "github.com/testifysec/witness"
-VERSION := $$(git describe --tags | cut -d '-' -f 1)
 .PHONY: all build clean vet test docgen
 
 all: clean test build
 
 BINDIR := ./bin
 BINNAME := witness
-BUILDFLAGS := -trimpath -ldflags "-w -X '$(PKG)/cmd/witness/cmd.Version=$(VERSION)'"
+BUILDFLAGS := -trimpath
 
 clean:
 	rm -rf $(BINDIR)
