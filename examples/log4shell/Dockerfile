@@ -21,3 +21,4 @@ FROM maven:openjdk
 WORKDIR /src
 COPY --from=rekorbuilder /src/rekor/cmd/rekor-cli/rekor-cli /bin/rekor-cli
 COPY ./witness /bin/witness
+RUN chmod u+x /bin/witness

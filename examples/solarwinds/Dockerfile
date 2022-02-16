@@ -25,3 +25,4 @@ RUN git clone https://github.com/testifysec/solarsploit.git && \
 COPY ./witness.yaml ./witness.yaml
 COPY ./main.go ./main.go
 COPY ./witness ./witness
+RUN chmod u+x ./witness
