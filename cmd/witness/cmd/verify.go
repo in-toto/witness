@@ -23,7 +23,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	witness "github.com/testifysec/witness/pkg"
+	"github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/rekor"
