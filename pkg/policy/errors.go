@@ -91,3 +91,11 @@ type ErrPolicyDenied struct {
 func (e ErrPolicyDenied) Error() string {
 	return fmt.Sprintf("policy was denied due to:\n%v", strings.Join(e.Reasons, "\n  -"))
 }
+
+type ErrConstraintCheckFailed struct {
+	errs []error
+}
+
+func (e ErrConstraintCheckFailed) Error() string {
+	return fmt.Sprintf("cert failed constraints check: %+q", e.errs)
+}

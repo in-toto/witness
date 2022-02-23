@@ -186,7 +186,6 @@ func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[
 				continue
 			}
 
-		outerLoop:
 			for _, functionary := range step.Functionaries {
 				if functionary.PublicKeyID != "" && functionary.PublicKeyID == verifierID {
 					collectionsByStep[step.Name] = append(collectionsByStep[collection.Name], collection)
@@ -204,19 +203,14 @@ func (p Policy) checkFunctionaries(verifiedStatements []VerifiedStatement) (map[
 					continue
 				}
 
-				for _, rootID := range functionary.CertConstraint.Roots {
-					bundle, ok := trustBundles[rootID]
-					if !ok {
-						log.Debugf("(policy) skipping verifier: could not get trust bundle for step %v and root ID %v", step, rootID)
-						continue
-					}
-
-					if err := x509Verifier.BelongsToRoot(bundle.Root); err == nil {
-						collectionsByStep[step.Name] = append(collectionsByStep[step.Name], collection)
-						break outerLoop
-					}
+				if err := functionary.CertConstraint.Check(x509Verifier, trustBundles); err != nil {
+					log.Debugf("(policy) skipping verifier: verifier with ID %v doesn't meet certificate constraint: %w", verifierID, err)
+					continue
 				}
+
+				collectionsByStep[step.Name] = append(collectionsByStep[step.Name], collection)
 			}
+
 		}
 	}
 
