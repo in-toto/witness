@@ -25,17 +25,6 @@ import (
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/spiffe"
-
-	// imported so their init functions run
-	_ "github.com/testifysec/witness/pkg/attestation/aws-iid"
-	_ "github.com/testifysec/witness/pkg/attestation/commandrun"
-	_ "github.com/testifysec/witness/pkg/attestation/environment"
-	_ "github.com/testifysec/witness/pkg/attestation/gcp-iit"
-	_ "github.com/testifysec/witness/pkg/attestation/git"
-	_ "github.com/testifysec/witness/pkg/attestation/gitlab"
-	_ "github.com/testifysec/witness/pkg/attestation/jwt"
-	_ "github.com/testifysec/witness/pkg/attestation/maven"
-	_ "github.com/testifysec/witness/pkg/attestation/oci"
 )
 
 var (

@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	witness "github.com/testifysec/witness/pkg"
+	"github.com/testifysec/witness/pkg"
 )
 
 func SignCmd() *cobra.Command {
