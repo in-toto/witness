@@ -13,6 +13,8 @@
 # limitations under the License.
 
 #!/bin/sh
+set -e
 
-
-rm out.tar || true && KO_DOCKER_REPO=null witness run -c test.yaml -a oci --trace=false -- ko publish --push=false --tarball out.tar .
+make -C ../ build
+rm -f out.tar
+KO_DOCKER_REPO=null ../bin/witness run -c test.yaml -a oci --trace=false -- ko publish --push=false --tarball out.tar .
