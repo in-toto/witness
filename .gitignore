@@ -4,3 +4,4 @@ vendor/
 test/testapp
 test/test-attestation.json
 test/policy-signed.json
+test/out.tar
