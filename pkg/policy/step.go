@@ -44,10 +44,6 @@ type RegoPolicy struct {
 	Name   string `json:"name"`
 }
 
-type CertConstraint struct {
-	Roots []string `json:"roots"`
-}
-
 // StepResult contains information about the verified collections for each step.
 // Passed contains the collections that passed any rego policies and all expected attestations exist.
 // Rejected contains the rejected collections and the error that caused them to be rejected.

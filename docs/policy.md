@@ -77,7 +77,41 @@ Policies are JSON documents that are signed and wrapped in a DSSE envelope. The 
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
+| `commonname` | string | Common name that the certifiate's subject must have |
+| `dnsnames` | array of strings | DNS names that the certificate must have |
+| `emails` | array of strings | Email addresses that the certificate must have |
+| `organizations` | array of strings | Organizations that the certificate must have |
+| `uris` | array of strings | URIs that the certificate must have |
 | `roots` | array of strings | Array of Key IDs the signer's certificate must belong to to be trusted. |
+
+Every attribute of the certificate must match the attributes defined by the constraint exactly. A certificate must match
+at least one constraint to pass the policy. Wildcards are allowed if they are the only elemnt in the constraint.
+
+Example of a constraint that would allow any certificate, as long as it belongs to a root defined in the policy:
+
+```
+{
+  "commonname": "*",
+  "dnsnames": ["*"],
+  "emails": ["*"],
+  "organizations": ["*"],
+  "uris": ["*"],
+  "roots": ["*"]
+}
+```
+
+SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforce a SPIFFE ID may look like:
+
+```
+{
+  "commonname": "*",
+  "dnsnames": ["*"],
+  "emails": ["*"],
+  "organizations": ["*"],
+  "uris": ["spiffe://example.com/step1"],
+  "roots": ["*"]
+}
+```
 
 ### `attestation` Object
 
@@ -112,8 +146,8 @@ deny[msg] {
 {
   "expires": "2022-12-17T23:57:40-05:00",
   "steps": {
-		"clone": {
-			"name": "clone",
+    "clone": {
+      "name": "clone",
       "attestations": [
         {
           "type": "https://witness.testifysec.com/attestations/material/v0.1",
@@ -134,10 +168,10 @@ deny[msg] {
           "publickeyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"
         }
       ]
-		},
+    },
     "build": {
       "name": "build",
-			"artifactsFrom": ["clone"],
+      "artifactsFrom": ["clone"],
       "attestations": [
         {
           "type": "https://witness.testifysec.com/attestations/material/v0.1",
@@ -161,6 +195,17 @@ deny[msg] {
         {
           "type": "publickey",
           "publickeyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"
+        },
+        {
+          "type": "root",
+          "certConstraint": {
+            "commonname": "*",
+            "dnsnames": ["*"],
+            "emails": ["*"],
+            "organizations": ["*"],
+            "uris": ["spiffe://example.com/step1"],
+            "roots": ["ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"]
+          }
         }
       ]
     }
@@ -169,6 +214,11 @@ deny[msg] {
     "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647": {
       "keyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647",
       "key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQWYyOW9QUDhVZ2hCeUc4NTJ1QmRPeHJKS0tuN01NNWhUYlA5ZXNnT1ovazA9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+    }
+  },
+  "roots": {
+    "949aaab542a02514f27f41ed8e443bb54bbd9b062ca3ce1da2492170d8fffe98": {
+      "certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURhekNDQWxPZ0F3SUJBZ0lVSnlobzI5ckorTXZYdGhGZjRncnV3UWhUZVNNd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNWVk14RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWVGdzB5TWpBeU1qTXlNalV4TkRoYUZ3MHlOekF5Ck1qSXlNalV4TkRoYU1FVXhDekFKQmdOVkJBWVRBbFZUTVJNd0VRWURWUVFJREFwVGIyMWxMVk4wWVhSbE1TRXcKSHdZRFZRUUtEQmhKYm5SbGNtNWxkQ0JYYVdSbmFYUnpJRkIwZVNCTWRHUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQgpBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ3VnVnNVYlV1cHB6S3ArOUxyckxLeGFrc0JlVTRiei9lQ0w1ZXo0bEppClFhcm1vcVRDeWI0WlVqVTNTSCsxYVdLSU9aM2kyeUZmL0hYRktNemh5SHFWZnpzbDVJUEo5TzVTR0huK3FldnoKVzBTMVdQeEN4MS9KdlFoUFNaQ21adWhaMmI5NFVYdXhCL2tSWGRiNnhYdnVReVFPMDYybTQrTkZWYVhBWWZjTQprVUlBSnpQTUZUSHhKOUQ1dWdaMWlSV0VHUUQ1d2kwNS9ZRG5yZHR3N2J3V3ZkOW4yL3c1UHUvUU1iVHZ4NWxlCnNFK2U1ZWZZd1NZLzBvT2dWRHBHVG9TVStpeDMrYWVlVjFSL1IvNm81NlJ0LzQ5eG9KWjF5bCtyQ3ByOUswN3AKL0FOSk9HTE5oYlRXVGp1N1lTSUxtbnYreVJwRUdUTnptU1lpNEFFTStZYm5BZ01CQUFHalV6QlJNQjBHQTFVZApEZ1FXQkJRemppS2pzR1NZNjUvNTFlQVJINVpEdXFIOUtEQWZCZ05WSFNNRUdEQVdnQlF6amlLanNHU1k2NS81CjFlQVJINVpEdXFIOUtEQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmgKUXhBNWExMUJ4VXh6Q1hObDg4ZUxkaDg5NlNudkdwYkNTZVhxQzJKS0w2QkxHVHg4NC9SZmMxNzVyZ2VUTW9YcQpEWjA1Nm9xc1FPZ2czWVRXWEJDMTJJbmVnUW40Wm90L2cydWk3cTJOZ0NZNWNSSG9qZnhQd2JxbS9uU2k1eXNSClFCQTZuMUJ3cUlZclBpVVBvcE9YY1BIQVJ4SEwzUitIOHRpWCtyM1hRM3FZdnNuTUpOL3JlcGJOQjJKVi9TL28KT0llT1U5Y1RJRnRHNWNNd2RHcTdMeVlkK095NkRiNjN5aDNkNS82bEZOVElqdlZXaHhzS280U3dxZlhuOXY4TApia2xTOFB0Mm12MVMxa2thZGhMT1FqaGlBQ1N2UHB6OW5USXdXWTJUYTcvNGpFR0I3ZTF3aU8wZ0dhbFJhVXQyClpmYmt3eXFSQWxXUXNBcDJqZS8wCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
     }
   }
 }
