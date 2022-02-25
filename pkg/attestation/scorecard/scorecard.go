@@ -108,7 +108,7 @@ func (a *Attestor) getCanidate(ctx *attestation.AttestationContext) error {
 			return fmt.Errorf("error reading file: %s", path)
 		}
 
-		//check to see if we can unmarshal into sarif type
+		//check to see if we can unmarshal into scorecard type
 		if err := json.Unmarshal(reportBytes, &a.Scorecard); err != nil {
 			fmt.Printf("error unmarshaling report: %s\n", err)
 			continue
@@ -119,7 +119,7 @@ func (a *Attestor) getCanidate(ctx *attestation.AttestationContext) error {
 
 		return nil
 	}
-	return fmt.Errorf("no sarif file found")
+	return fmt.Errorf("no scorecard file found")
 }
 
 func (a *Attestor) Subjects() map[string]cryptoutil.DigestSet {

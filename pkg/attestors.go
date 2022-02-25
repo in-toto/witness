@@ -25,4 +25,6 @@ import (
 	_ "github.com/testifysec/witness/pkg/attestation/jwt"
 	_ "github.com/testifysec/witness/pkg/attestation/maven"
 	_ "github.com/testifysec/witness/pkg/attestation/oci"
+	_ "github.com/testifysec/witness/pkg/attestation/sarif"
+	_ "github.com/testifysec/witness/pkg/attestation/scorecard"
 )
