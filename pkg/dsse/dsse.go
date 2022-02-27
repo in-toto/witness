@@ -154,17 +154,23 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 	passedVerifiers := make([]cryptoutil.Verifier, 0)
 	for _, sig := range e.Signatures {
 		if sig.Certificate != nil && len(sig.Certificate) > 0 {
-			possibleCert, err := cryptoutil.TryParseKeyFromReader(bytes.NewReader(sig.Certificate))
+			cert, err := TryParseCertificate(sig.Certificate)
 			if err != nil {
 				continue
 			}
 
-			cert, ok := possibleCert.(*x509.Certificate)
-			if !ok {
-				continue
+			sigIntermediates := make([]*x509.Certificate, 0)
+			for _, int := range sig.Intermediates {
+				intCert, err := TryParseCertificate(int)
+				if err != nil {
+					continue
+				}
+
+				sigIntermediates = append(sigIntermediates, intCert)
 			}
 
-			verifier, err := cryptoutil.NewX509Verifier(cert, options.intermediates, options.roots, options.trustedTime)
+			sigIntermediates = append(sigIntermediates, options.intermediates...)
+			verifier, err := cryptoutil.NewX509Verifier(cert, sigIntermediates, options.roots, options.trustedTime)
 			if err != nil {
 				return nil, err
 			}
@@ -192,4 +198,18 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 	}
 
 	return passedVerifiers, nil
+}
+
+func TryParseCertificate(data []byte) (*x509.Certificate, error) {
+	possibleCert, err := cryptoutil.TryParseKeyFromReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+
+	cert, ok := possibleCert.(*x509.Certificate)
+	if !ok {
+		return nil, fmt.Errorf("data was a valid verifier but not a certificate")
+	}
+
+	return cert, nil
 }
