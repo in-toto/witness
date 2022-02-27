@@ -23,6 +23,7 @@ import (
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/policy"
 )
 
@@ -96,11 +97,13 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 	for _, env := range vo.collectionEnvelopes {
 		passedVerifiers, err := env.Verify(dsse.WithVerifiers(pubkeys), dsse.WithRoots(roots), dsse.WithIntermediates(intermediates))
 		if err != nil {
+			log.Debugf("(verify) skipping envelope: couldn't verify enveloper's signature with the policy's verifiers: %+v", err)
 			continue
 		}
 
 		statement := intoto.Statement{}
 		if err := json.Unmarshal(env.Payload, &statement); err != nil {
+			log.Debugf("(verify) skipping envelope: couldn't unmarshal envelope payload into in-toto statement: %+v", err)
 			continue
 		}
 
