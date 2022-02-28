@@ -174,6 +174,9 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 		_, ok := verifier.(*cryptoutil.X509Verifier)
 		if ok {
 			envSig.Certificate = sig.PublicKey
+			for _, intermediate := range sig.Intermediates {
+				envSig.Intermediates = append(envSig.Intermediates, intermediate)
+			}
 		}
 
 		env.Signatures = append(env.Signatures, envSig)
