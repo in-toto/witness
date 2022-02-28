@@ -68,6 +68,7 @@ func (v *X509Verifier) BelongsToRoot(root *x509.Certificate) error {
 	_, err := v.cert.Verify(x509.VerifyOptions{
 		Roots:         rootPool,
 		Intermediates: intermediatePool,
+		CurrentTime:   v.trustedTime,
 	})
 
 	return err
