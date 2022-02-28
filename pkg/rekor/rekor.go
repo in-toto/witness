@@ -161,21 +161,23 @@ func ParseEnvelopeFromEntry(entry *models.LogEntryAnon) (dsse.Envelope, error) {
 			return env, fmt.Errorf("failed to decode signature: %w", err)
 		}
 
-		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(sig.PublicKey), cryptoutil.VerifyWithTrustedTime(time.Unix(*entry.IntegratedTime, 0)))
+		trustedTime := time.Unix(*entry.IntegratedTime, 0)
+		verifier, err := cryptoutil.NewVerifierFromReader(bytes.NewReader(sig.PublicKey), cryptoutil.VerifyWithTrustedTime(trustedTime))
 		if err != nil {
 			return env, fmt.Errorf("failed to create verifier from public key on rekor entry: %w", err)
 		}
 
-		envSig := dsse.Signature{
-			Signature: decodedSig,
-			KeyID:     sig.Keyid,
-		}
-
+		envSig := dsse.NewSignature(sig.Keyid, decodedSig, dsse.SignatureWithTrustedTime(trustedTime))
 		_, ok := verifier.(*cryptoutil.X509Verifier)
 		if ok {
 			envSig.Certificate = sig.PublicKey
 			for _, intermediate := range sig.Intermediates {
-				envSig.Intermediates = append(envSig.Intermediates, intermediate)
+				decoded, err := base64.StdEncoding.DecodeString(string(intermediate))
+				if err != nil {
+					continue
+				}
+
+				envSig.Intermediates = append(envSig.Intermediates, decoded)
 			}
 		}
 

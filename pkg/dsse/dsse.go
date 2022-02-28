@@ -50,6 +50,8 @@ type Signature struct {
 	Signature     []byte   `json:"sig"`
 	Certificate   []byte   `json:"certificate,omitempty"`
 	Intermediates [][]byte `json:"intermediates,omitempty"`
+
+	trustedTime time.Time
 }
 
 // preauthEncode wraps the data to be signed or verified and it's type in the DSSE protocol's
@@ -112,7 +114,6 @@ type verificationOptions struct {
 	roots         []*x509.Certificate
 	intermediates []*x509.Certificate
 	verifiers     []cryptoutil.Verifier
-	trustedTime   time.Time
 }
 
 func WithRoots(roots []*x509.Certificate) VerificationOption {
@@ -130,12 +131,6 @@ func WithIntermediates(intermediates []*x509.Certificate) VerificationOption {
 func WithVerifiers(verifiers []cryptoutil.Verifier) VerificationOption {
 	return func(vo *verificationOptions) {
 		vo.verifiers = verifiers
-	}
-}
-
-func WithTrustedTime(time time.Time) VerificationOption {
-	return func(vo *verificationOptions) {
-		vo.trustedTime = time
 	}
 }
 
@@ -170,7 +165,7 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 			}
 
 			sigIntermediates = append(sigIntermediates, options.intermediates...)
-			verifier, err := cryptoutil.NewX509Verifier(cert, sigIntermediates, options.roots, options.trustedTime)
+			verifier, err := cryptoutil.NewX509Verifier(cert, sigIntermediates, options.roots, sig.trustedTime)
 			if err != nil {
 				return nil, err
 			}
@@ -212,4 +207,43 @@ func TryParseCertificate(data []byte) (*x509.Certificate, error) {
 	}
 
 	return cert, nil
+}
+
+type SignatureOption func(so *signatureOptions)
+
+type signatureOptions struct {
+	cert          []byte
+	intermediates [][]byte
+	trustedTime   time.Time
+}
+
+func SignatureWithCertificate(certBytes []byte) SignatureOption {
+	return func(so *signatureOptions) {
+		so.cert = certBytes
+	}
+}
+
+func SignatureWithIntermediates(intermediates [][]byte) SignatureOption {
+	return func(so *signatureOptions) {
+		so.intermediates = intermediates
+	}
+}
+func SignatureWithTrustedTime(trustedTime time.Time) SignatureOption {
+	return func(so *signatureOptions) {
+		so.trustedTime = trustedTime
+	}
+}
+func NewSignature(keyID string, sig []byte, opts ...SignatureOption) Signature {
+	so := signatureOptions{}
+	for _, opt := range opts {
+		opt(&so)
+	}
+
+	return Signature{
+		KeyID:         keyID,
+		Signature:     sig,
+		Certificate:   so.cert,
+		Intermediates: so.intermediates,
+		trustedTime:   so.trustedTime,
+	}
 }
