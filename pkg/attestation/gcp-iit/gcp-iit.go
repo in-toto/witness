@@ -31,7 +31,7 @@ import (
 
 const (
 	Name    = "gcp-iit"
-	Type    = "https://witness.testifysec.com/attestation/gcp-iit/v0.1"
+	Type    = "https://witness.dev/attestations/gcp-iit/v0.1"
 	RunType = attestation.PreRunType
 
 	jwksUrl = "https://www.googleapis.com/oauth2/v3/certs"

@@ -25,7 +25,7 @@ import (
 
 const (
 	Name    = "environment"
-	Type    = "https://witness.testifysec.com/attestations/environment/v0.1"
+	Type    = "https://witness.dev/attestations/environment/v0.1"
 	RunType = attestation.PreRunType
 )
 

@@ -26,7 +26,7 @@ import (
 
 const (
 	Name    = "jwt"
-	Type    = "https://witness.testifysec.com/attestations/jwt/v0.1"
+	Type    = "https://witness.dev/attestations/jwt/v0.1"
 	RunType = attestation.PreRunType
 )
 

@@ -13,19 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+#set -e
 
 cd ..
 go mod tidy
 go mod vendor
-go build -o ./bin/witness
+make
 cd dev
 
 RED='\033[0;31m'
 
 sha=$(git rev-parse --short HEAD)
 tag=$(git describe --tags $(git rev-list --tags --max-count=1))
-imagetag=`echo registry.gitlab.com/testifysec/witness/builder:${tag}-${sha}-golang-1.17.3`
+imagetag=`echo registry.gitlab.com/testifysec/demos/witness-demo/builder:${tag}-${sha}-golang-1.17.3`
 
 
 docker build -f ./Dockerfile.go-builder -t ${imagetag} ./../

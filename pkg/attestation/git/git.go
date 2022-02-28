@@ -25,7 +25,7 @@ import (
 
 const (
 	Name    = "git"
-	Type    = "https://witness.testifysec.com/attestations/git/v0.1"
+	Type    = "https://witness.dev/attestations/git/v0.1"
 	RunType = attestation.PreRunType
 )
 

@@ -126,15 +126,15 @@ Look [here](docs/policy.md) for full documentation on Witness Policies.
       "name": "build",
       "attestations": [
         {
-          "type": "https://witness.testifysec.com/attestations/material/v0.1",
+          "type": "https://witness.dev/attestations/material/v0.1",
           "regopolicies": []
         },
         {
-          "type": "https://witness.testifysec.com/attestations/command-run/v0.1",
+          "type": "https://witness.dev/attestations/command-run/v0.1",
           "regopolicies": []
         },
         {
-          "type": "https://witness.testifysec.com/attestations/product/v0.1",
+          "type": "https://witness.dev/attestations/product/v0.1",
           "regopolicies": []
         }
       ],
@@ -187,7 +187,7 @@ Witness attestors are pieces of code that assert facts about a system and store 
 
 ```
   Name    = "aws"
-  Type    = "https://witness.testifysec.com/attestation/aws/v0.1"
+  Type    = "https://witness.dev/attestations/aws/v0.1"
   RunType = attestation.PreRunType
 ```
 

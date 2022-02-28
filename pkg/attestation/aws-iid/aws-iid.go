@@ -33,7 +33,7 @@ import (
 
 const (
 	Name    = "aws"
-	Type    = "https://witness.testifysec.com/attestation/aws/v0.1"
+	Type    = "https://witness.dev/attestations/aws/v0.1"
 	RunType = attestation.PreRunType
 )
 

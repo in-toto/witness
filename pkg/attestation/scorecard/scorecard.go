@@ -28,7 +28,7 @@ import (
 
 const (
 	Name    = "scorecard"
-	Type    = "https://witness.testifysec.com/attestations/scorecard/v0.1"
+	Type    = "https://witness.dev/attestations/scorecard/v0.1"
 	RunType = attestation.PostRunType
 )
 

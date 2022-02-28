@@ -150,15 +150,15 @@ deny[msg] {
       "name": "clone",
       "attestations": [
         {
-          "type": "https://witness.testifysec.com/attestations/material/v0.1",
+          "type": "https://witness.dev/attestations/material/v0.1",
           "regopolicies": []
         },
         {
-          "type": "https://witness.testifysec.com/attestations/command-run/v0.1",
+          "type": "https://witness.dev/attestations/command-run/v0.1",
           "regopolicies": []
         },
         {
-          "type": "https://witness.testifysec.com/attestations/product/v0.1",
+          "type": "https://witness.dev/attestations/product/v0.1",
           "regopolicies": []
         }
       ],
@@ -174,11 +174,11 @@ deny[msg] {
       "artifactsFrom": ["clone"],
       "attestations": [
         {
-          "type": "https://witness.testifysec.com/attestations/material/v0.1",
+          "type": "https://witness.dev/attestations/material/v0.1",
           "regopolicies": []
         },
         {
-          "type": "https://witness.testifysec.com/attestations/command-run/v0.1",
+          "type": "https://witness.dev/attestations/command-run/v0.1",
           "regopolicies": [
             {
               "name": "expected command",
@@ -187,7 +187,7 @@ deny[msg] {
           ]
         },
         {
-          "type": "https://witness.testifysec.com/attestations/product/v0.1",
+          "type": "https://witness.dev/attestations/product/v0.1",
           "regopolicies": []
         }
       ],
