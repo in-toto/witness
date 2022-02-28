@@ -1491,8 +1491,8 @@ github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
 github.com/tent/canonical-json-go v0.0.0-20130607151641-96e4ba3a7613/go.mod h1:g6AnIpDSYMcphz193otpSIzN+11Rs+AAIIC6rm1enug=
-github.com/testifysec/rekor v0.0.1-dsse-type5 h1:3W9/pzcF+y58UYCp6N9CkioNIxGDPIbvhOzAa1x6IDU=
-github.com/testifysec/rekor v0.0.1-dsse-type5/go.mod h1:u9clLqaVjqV9pExVL1XkM37dGyMCOX/LMocS9nsnWDY=
+github.com/testifysec/rekor v0.4.0-dsse-intermediates h1:vbAA0ToJT9CJd9ZmjT/dJWoYXBCIpDbJReinXNpVJho=
+github.com/testifysec/rekor v0.4.0-dsse-intermediates/go.mod h1:u9clLqaVjqV9pExVL1XkM37dGyMCOX/LMocS9nsnWDY=
 github.com/theupdateframework/go-tuf v0.0.0-20211203210025-7ded50136bf9 h1:Toe1Dy1nG62nh3CLZ6/izUrdgjhV/aGHvvu+uwGykxk=
 github.com/theupdateframework/go-tuf v0.0.0-20211203210025-7ded50136bf9/go.mod h1:n2n6wwC9BEnYS/C/APAtNln0eM5zYAYOkOTx6VEG/mA=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=

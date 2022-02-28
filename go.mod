@@ -110,4 +110,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
-replace github.com/sigstore/rekor v0.4.0 => github.com/testifysec/rekor v0.0.1-dsse-type5
+replace github.com/sigstore/rekor => github.com/testifysec/rekor v0.4.0-dsse-intermediates
