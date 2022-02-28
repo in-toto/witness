@@ -24,7 +24,7 @@ import (
 
 const (
 	Name    = "material"
-	Type    = "https://witness.testifysec.com/attestations/material/v0.1"
+	Type    = "https://witness.dev/attestations/material/v0.1"
 	RunType = attestation.Internal
 )
 

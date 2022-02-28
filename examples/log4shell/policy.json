@@ -5,19 +5,19 @@
             "name": "demo",
             "attestations": [
                 {
-                    "type": "https://witness.testifysec.com/attestations/material/v0.1",
+                    "type": "https://witness.dev/attestations/material/v0.1",
                     "regopolicies": []
                 },
                 {
-                    "type": "https://witness.testifysec.com/attestations/command-run/v0.1",
+                    "type": "https://witness.dev/attestations/command-run/v0.1",
                     "regopolicies": []
                 },
                 {
-                    "type": "https://witness.testifysec.com/attestations/product/v0.1",
+                    "type": "https://witness.dev/attestations/product/v0.1",
                     "regopolicies": []
                 },
                 {
-                    "type": "https://witness.testifysec.com/attestations/maven/v0.1",
+                    "type": "https://witness.dev/attestations/maven/v0.1",
                     "regopolicies": [
                         {
                             "name": "log4j vulnerability",

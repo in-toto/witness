@@ -33,7 +33,7 @@ import (
 
 const (
 	Name    = "oci"
-	Type    = "https://witness.testifysec.com/attestations/oci/v0.1"
+	Type    = "https://witness.dev/attestations/oci/v0.1"
 	RunType = attestation.PostRunType
 )
 

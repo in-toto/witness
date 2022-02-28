@@ -26,7 +26,7 @@ import (
 
 const (
 	Name    = "maven"
-	Type    = "https://witness.testifysec.com/attestations/maven/v0.1"
+	Type    = "https://witness.dev/attestations/maven/v0.1"
 	RunType = attestation.PreRunType
 )
 

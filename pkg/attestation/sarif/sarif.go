@@ -28,7 +28,7 @@ import (
 
 const (
 	Name    = "sarif"
-	Type    = "https://witness.testifysec.com/attestations/sarif/v0.1"
+	Type    = "https://witness.dev/attestations/sarif/v0.1"
 	RunType = attestation.PostRunType
 )
 

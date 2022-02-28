@@ -26,7 +26,7 @@ import (
 
 const (
 	Name    = "command-run"
-	Type    = "https://witness.testifysec.com/attestations/command-run/v0.1"
+	Type    = "https://witness.dev/attestations/command-run/v0.1"
 	RunType = attestation.Internal
 )
 
