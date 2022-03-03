@@ -41,12 +41,28 @@ func VerifySignature(r io.Reader, verifiers ...cryptoutil.Verifier) (dsse.Envelo
 type verifyOptions struct {
 	policyEnvelope      dsse.Envelope
 	policyVerifiers     []cryptoutil.Verifier
-	collectionEnvelopes []dsse.Envelope
+	collectionEnvelopes []collectionEnvelope
+}
+
+type collectionEnvelope struct {
+	Envelope  dsse.Envelope
+	Reference string
 }
 
 type VerifyOption func(*verifyOptions)
 
-func VerifyWithCollectionEnvelopes(collectionEnvelopes []dsse.Envelope) VerifyOption {
+//VerifyWithPolicy verifies a dsse envelopes against a policy
+func VerifyWithCollectionEnvelopes(dsseEnvelopes []dsse.Envelope) VerifyOption {
+
+	collectionEnvelopes := make([]collectionEnvelope, len(dsseEnvelopes))
+
+	for _, env := range dsseEnvelopes {
+		collectionEnvelopes = append(collectionEnvelopes, collectionEnvelope{
+			Envelope:  env,
+			Reference: "",
+		})
+	}
+
 	return func(vo *verifyOptions) {
 		vo.collectionEnvelopes = collectionEnvelopes
 	}
@@ -95,14 +111,14 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 
 	verifiedStatements := make([]policy.VerifiedStatement, 0)
 	for _, env := range vo.collectionEnvelopes {
-		passedVerifiers, err := env.Verify(dsse.WithVerifiers(pubkeys), dsse.WithRoots(roots), dsse.WithIntermediates(intermediates))
+		passedVerifiers, err := env.Envelope.Verify(dsse.WithVerifiers(pubkeys), dsse.WithRoots(roots), dsse.WithIntermediates(intermediates))
 		if err != nil {
 			log.Debugf("(verify) skipping envelope: couldn't verify enveloper's signature with the policy's verifiers: %+v", err)
 			continue
 		}
 
 		statement := intoto.Statement{}
-		if err := json.Unmarshal(env.Payload, &statement); err != nil {
+		if err := json.Unmarshal(env.Envelope.Payload, &statement); err != nil {
 			log.Debugf("(verify) skipping envelope: couldn't unmarshal envelope payload into in-toto statement: %+v", err)
 			continue
 		}
