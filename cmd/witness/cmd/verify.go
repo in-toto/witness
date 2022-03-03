@@ -167,7 +167,7 @@ func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.Dig
 			return nil, fmt.Errorf("failed to parse dsse envelope from rekor entry: %w", err)
 		}
 
-		reference := fmt.Sprintf("%s/api/v1/log/entries/%s", rekorServer, *entry.LogID)
+		reference := fmt.Sprintf("%s/api/v1/log/entries?logIndex=%d", rekorServer, *entry.LogIndex)
 
 		collectionEnv := witness.CollectionEnvelope{
 			Envelope:  env,
