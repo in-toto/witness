@@ -49,6 +49,7 @@ type PublicKey struct {
 type VerifiedStatement struct {
 	Verifiers []cryptoutil.Verifier
 	Statement intoto.Statement
+	Reference string
 }
 
 // PublicKeyVerifiers returns verifiers for each of the policy's embedded public keys grouped by the key's ID

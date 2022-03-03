@@ -41,10 +41,10 @@ func VerifySignature(r io.Reader, verifiers ...cryptoutil.Verifier) (dsse.Envelo
 type verifyOptions struct {
 	policyEnvelope      dsse.Envelope
 	policyVerifiers     []cryptoutil.Verifier
-	collectionEnvelopes []collectionEnvelope
+	collectionEnvelopes []CollectionEnvelope
 }
 
-type collectionEnvelope struct {
+type CollectionEnvelope struct {
 	Envelope  dsse.Envelope
 	Reference string
 }
@@ -53,11 +53,10 @@ type VerifyOption func(*verifyOptions)
 
 //VerifyWithPolicy verifies a dsse envelopes against a policy
 func VerifyWithCollectionEnvelopes(dsseEnvelopes []dsse.Envelope) VerifyOption {
-
-	collectionEnvelopes := make([]collectionEnvelope, len(dsseEnvelopes))
+	collectionEnvelopes := make([]CollectionEnvelope, len(dsseEnvelopes))
 
 	for _, env := range dsseEnvelopes {
-		collectionEnvelopes = append(collectionEnvelopes, collectionEnvelope{
+		collectionEnvelopes = append(collectionEnvelopes, CollectionEnvelope{
 			Envelope:  env,
 			Reference: "",
 		})
@@ -68,7 +67,16 @@ func VerifyWithCollectionEnvelopes(dsseEnvelopes []dsse.Envelope) VerifyOption {
 	}
 }
 
+//Verify verifies a dsse envelopes against a policy and nil on success
 func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier, opts ...VerifyOption) error {
+	_, err := VerifyE(policyEnvelope, policyVerifiers, opts...)
+	return err
+}
+
+//VerifyE verifies a dsse envelopes against a policy and returns the envelopes on success
+func VerifyE(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier, opts ...VerifyOption) ([]CollectionEnvelope, error) {
+	verifiedEnvelopes := make([]CollectionEnvelope, 0)
+
 	vo := verifyOptions{
 		policyEnvelope:  policyEnvelope,
 		policyVerifiers: policyVerifiers,
@@ -79,17 +87,17 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 	}
 
 	if _, err := vo.policyEnvelope.Verify(dsse.WithVerifiers(vo.policyVerifiers)); err != nil {
-		return fmt.Errorf("could not verify policy: %w", err)
+		return nil, fmt.Errorf("could not verify policy: %w", err)
 	}
 
 	pol := policy.Policy{}
 	if err := json.Unmarshal(vo.policyEnvelope.Payload, &pol); err != nil {
-		return fmt.Errorf("failed to unmarshal policy from envelope: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal policy from envelope: %w", err)
 	}
 
 	pubKeysById, err := pol.PublicKeyVerifiers()
 	if err != nil {
-		return fmt.Errorf("failed to get pulic keys from policy: %w", err)
+		return nil, fmt.Errorf("failed to get pulic keys from policy: %w", err)
 	}
 
 	pubkeys := make([]cryptoutil.Verifier, 0)
@@ -99,7 +107,7 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 
 	trustBundlesById, err := pol.TrustBundles()
 	if err != nil {
-		return fmt.Errorf("failed to load policy trust bundles: %w", err)
+		return nil, fmt.Errorf("failed to load policy trust bundles: %w", err)
 	}
 
 	roots := make([]*x509.Certificate, 0)
@@ -126,8 +134,24 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 		verifiedStatements = append(verifiedStatements, policy.VerifiedStatement{
 			Statement: statement,
 			Verifiers: passedVerifiers,
+			Reference: env.Reference,
 		})
 	}
 
-	return pol.Verify(verifiedStatements)
+	err = pol.Verify(verifiedStatements)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify policy: %w", err)
+	}
+
+	for _, env := range vo.collectionEnvelopes {
+		for _, statement := range verifiedStatements {
+			if statement.Reference == env.Reference {
+				verifiedEnvelopes = append(verifiedEnvelopes, CollectionEnvelope{
+					Envelope:  env.Envelope,
+					Reference: env.Reference,
+				})
+			}
+		}
+	}
+	return verifiedEnvelopes, nil
 }
