@@ -67,6 +67,13 @@ func VerifyWithCollectionEnvelopes(dsseEnvelopes []dsse.Envelope) VerifyOption {
 	}
 }
 
+//VerifyWithPolicy verifies a dsse envelopes against a policy
+func VerifyWithCollectionEnvelopesE(collectionEnvelopes []CollectionEnvelope) VerifyOption {
+	return func(vo *verifyOptions) {
+		vo.collectionEnvelopes = collectionEnvelopes
+	}
+}
+
 //Verify verifies a dsse envelopes against a policy and nil on success
 func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier, opts ...VerifyOption) error {
 	_, err := VerifyE(policyEnvelope, policyVerifiers, opts...)

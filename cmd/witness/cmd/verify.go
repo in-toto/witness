@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"crypto"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,9 +24,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg"
+	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
 )
 
@@ -72,7 +74,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
-	envelopes := make([]dsse.Envelope, 0)
+	envelopes := make([]witness.CollectionEnvelope, 0)
 	diskEnvs, err := loadEnvelopesFromDisk(vo.AttestationFilePaths)
 	if err != nil {
 		return fmt.Errorf("failed to load attestation files: %w", err)
@@ -93,11 +95,30 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		envelopes = append(envelopes, rekorEnvs...)
 	}
 
-	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(envelopes))
+	evidence, err := witness.VerifyE(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopesE(envelopes))
+	if err != nil {
+		return fmt.Errorf("failed to verify policy: %w", err)
+
+	}
+
+	evidenceString := []string{}
+
+	for _, e := range evidence {
+		evidenceString = append(evidenceString, e.Reference)
+	}
+
+	log.Info("Verification succeeded")
+	log.Info("Evidence:")
+	for i, e := range evidenceString {
+		log.Info(fmt.Sprintf("%d: %s", i+1, e))
+	}
+
+	return nil
+
 }
 
-func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {
-	envelopes := make([]dsse.Envelope, 0)
+func loadEnvelopesFromDisk(paths []string) ([]witness.CollectionEnvelope, error) {
+	envelopes := make([]witness.CollectionEnvelope, 0)
 	for _, path := range paths {
 		file, err := os.Open(path)
 		if err != nil {
@@ -114,14 +135,22 @@ func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {
 		if err := json.Unmarshal(fileBytes, &env); err != nil {
 			continue
 		}
-		envelopes = append(envelopes, env)
+
+		h := sha256.Sum256(fileBytes)
+
+		collectionEnv := witness.CollectionEnvelope{
+			Envelope:  env,
+			Reference: fmt.Sprintf("sha256:%x  %s", h, path),
+		}
+
+		envelopes = append(envelopes, collectionEnv)
 	}
 
 	return envelopes, nil
 }
 
-func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.DigestSet) ([]dsse.Envelope, error) {
-	envelopes := make([]dsse.Envelope, 0)
+func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.DigestSet) ([]witness.CollectionEnvelope, error) {
+	envelopes := make([]witness.CollectionEnvelope, 0)
 	rc, err := rekor.New(rekorServer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get initialize Rekor client: %w", err)
@@ -138,7 +167,14 @@ func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.Dig
 			return nil, fmt.Errorf("failed to parse dsse envelope from rekor entry: %w", err)
 		}
 
-		envelopes = append(envelopes, env)
+		reference := fmt.Sprintf("%s/api/v1/log/entries/%s", rekorServer, *entry.LogID)
+
+		collectionEnv := witness.CollectionEnvelope{
+			Envelope:  env,
+			Reference: reference,
+		}
+
+		envelopes = append(envelopes, collectionEnv)
 	}
 
 	return envelopes, nil
