@@ -1,2 +1,2 @@
-FROM golang:1.17.3
+FROM golang:1.17.8
 COPY  ./bin/witness /usr/bin
