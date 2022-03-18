@@ -20,3 +20,7 @@ rm -f ./test-attestation.demo ./testapp ./policy-signed.json
 ../bin/witness -c test.yaml run -- go build -o=testapp .
 ../bin/witness -c test.yaml sign -f policy.json
 ../bin/witness -c test.yaml verify -k ca.pem
+
+
+cat policy-signed.json | jq -r '.signatures[0].certificate' | base64 -d | openssl x509 -text | less
+openssl x509 -in ca.pem -text | less

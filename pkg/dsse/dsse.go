@@ -148,7 +148,9 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 	matchingSigFound := false
 	passedVerifiers := make([]cryptoutil.Verifier, 0)
 	for _, sig := range e.Signatures {
+		fmt.Println("Verifying signature for key", sig.KeyID)
 		if sig.Certificate != nil && len(sig.Certificate) > 0 {
+			fmt.Println("Certificate found")
 			cert, err := TryParseCertificate(sig.Certificate)
 			if err != nil {
 				continue

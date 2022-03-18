@@ -55,6 +55,7 @@ func (v *X509Verifier) Verify(body io.Reader, sig []byte) error {
 		CurrentTime:   v.trustedTime,
 		Roots:         rootPool,
 		Intermediates: intermediatePool,
+		KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
 	}); err != nil {
 		return err
 	}

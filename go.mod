@@ -6,16 +6,16 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/go-openapi/runtime v0.21.0
-	github.com/open-policy-agent/opa v0.37.0
+	github.com/open-policy-agent/opa v0.38.0
 	github.com/owenrumney/go-sarif v1.1.1
 	github.com/sigstore/rekor v0.4.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.10
+	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.12
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158
+	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9
 	google.golang.org/grpc v1.44.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
@@ -35,6 +35,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
+	github.com/spiffe/spire v1.2.1 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -48,7 +49,7 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
-	github.com/aws/aws-sdk-go v1.42.38
+	github.com/aws/aws-sdk-go v1.43.0
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/cyberphone/json-canonicalization v0.0.0-20210303052042-6bc126869bf4 // indirect

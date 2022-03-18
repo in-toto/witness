@@ -16,14 +16,17 @@ package cmd
 
 import (
 	"crypto"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spiffe/spire/pkg/common/pemutil"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg"
+	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/rekor"
@@ -55,9 +58,29 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 	}
 
 	defer keyFile.Close()
-	verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
+
+	// verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to load key: %v", err)
+	// }
+
+	rf, err := os.Open("ca.pem")
 	if err != nil {
-		return fmt.Errorf("failed to load key: %v", err)
+		return err
+	}
+
+	b, err := ioutil.ReadAll(rf)
+	if err != nil {
+		return err
+	}
+
+	rootcert, err := pemutil.ParseCertificate(b)
+	if err != nil {
+		return err
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to create verifier: %v", err)
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)
@@ -93,7 +116,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		envelopes = append(envelopes, rekorEnvs...)
 	}
 
-	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(envelopes))
+	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{}, witness.VerifyWithCollectionEnvelopes(envelopes), witness.VerifyWithRoots([]*x509.Certificate{rootcert}))
 }
 
 func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {

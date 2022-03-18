@@ -42,6 +42,7 @@ type verifyOptions struct {
 	policyEnvelope      dsse.Envelope
 	policyVerifiers     []cryptoutil.Verifier
 	collectionEnvelopes []dsse.Envelope
+	policyRoots         []*x509.Certificate
 }
 
 type VerifyOption func(*verifyOptions)
@@ -49,6 +50,12 @@ type VerifyOption func(*verifyOptions)
 func VerifyWithCollectionEnvelopes(collectionEnvelopes []dsse.Envelope) VerifyOption {
 	return func(vo *verifyOptions) {
 		vo.collectionEnvelopes = collectionEnvelopes
+	}
+}
+
+func VerifyWithRoots(rootcerts []*x509.Certificate) VerifyOption {
+	return func(vo *verifyOptions) {
+		vo.policyRoots = rootcerts
 	}
 }
 
@@ -62,7 +69,8 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 		opt(&vo)
 	}
 
-	if _, err := vo.policyEnvelope.Verify(dsse.WithVerifiers(vo.policyVerifiers)); err != nil {
+	//pass in root here
+	if _, err := vo.policyEnvelope.Verify(dsse.WithRoots(vo.policyRoots)); err != nil {
 		return fmt.Errorf("could not verify policy: %w", err)
 	}
 
