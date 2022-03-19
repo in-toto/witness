@@ -15,16 +15,12 @@
 package cmd
 
 import (
-	"context"
-	"crypto/x509"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/log"
-	"github.com/testifysec/witness/pkg/spiffe"
 )
 
 var (
@@ -65,75 +61,6 @@ func preRoot(cmd *cobra.Command, ro *options.RootOptions) {
 	if err := initConfig(cmd, ro); err != nil {
 		logger.l.Fatal(err)
 	}
-}
-
-func loadSigner(spiffePath, keyPath, certPath string, intermediatePaths []string) (cryptoutil.Signer, error) {
-	if spiffePath == "" && keyPath == "" {
-		return nil, fmt.Errorf("one of key or spiffe-socket flags must be provided")
-	} else if spiffePath != "" && keyPath != "" {
-		return nil, fmt.Errorf("only one of key or spiffe-socket flags may be provided")
-	}
-
-	if spiffePath != "" {
-		return spiffe.Signer(context.Background(), spiffePath)
-	}
-
-	keyFile, err := os.Open(keyPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open key file: %v", err)
-	}
-
-	defer keyFile.Close()
-	key, err := cryptoutil.TryParseKeyFromReader(keyFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load key: %v", err)
-	}
-
-	signerOpts := []cryptoutil.SignerOption{}
-	if certPath != "" {
-		leaf, err := loadCert(certPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load certificate: %v", err)
-		}
-
-		signerOpts = append(signerOpts, cryptoutil.SignWithCertificate(leaf))
-	}
-
-	if len(intermediatePaths) > 0 {
-		intermediates := []*x509.Certificate{}
-		for _, path := range intermediatePaths {
-			cert, err := loadCert(path)
-			if err != nil {
-				return nil, fmt.Errorf("failed to load intermediate: %v", err)
-			}
-
-			intermediates = append(intermediates, cert)
-		}
-
-		signerOpts = append(signerOpts, cryptoutil.SignWithIntermediates(intermediates))
-	}
-
-	return cryptoutil.NewSigner(key, signerOpts...)
-}
-
-func loadCert(path string) (*x509.Certificate, error) {
-	certFile, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load certificate: %v", err)
-	}
-
-	defer certFile.Close()
-	possibleCert, err := cryptoutil.TryParseKeyFromReader(certFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse certificate")
-	}
-
-	cert, ok := possibleCert.(*x509.Certificate)
-	if !ok {
-		return nil, fmt.Errorf("%v is not a x509 certificate", path)
-	}
-
-	return cert, nil
 }
 
 func loadOutfile(outFilePath string) (*os.File, error) {

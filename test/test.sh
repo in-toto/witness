@@ -13,14 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+
+set -x
+
+
 
 make -C ../ build
 rm -f ./test-attestation.demo ./testapp ./policy-signed.json
 ../bin/witness -c test.yaml run -- go build -o=testapp .
 ../bin/witness -c test.yaml sign -f policy.json
-../bin/witness -c test.yaml verify -k ca.pem
+../bin/witness -c test.yaml verify
 
 
-cat policy-signed.json | jq -r '.signatures[0].certificate' | base64 -d | openssl x509 -text | less
-openssl x509 -in ca.pem -text | less
+# cat policy-signed.json | jq -r '.signatures[0].certificate' | base64 -d | openssl x509 -text | less
+# openssl x509 -in ca.pem -text | less

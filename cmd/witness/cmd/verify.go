@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -49,52 +48,49 @@ func VerifyCmd() *cobra.Command {
 	return cmd
 }
 
-//todo: this logic should be broken out and moved to pkg/
-//we need to abstract where keys are coming from, etc
 func runVerify(vo options.VerifyOptions, args []string) error {
-	keyFile, err := os.Open(vo.KeyPath)
-	if err != nil {
-		return fmt.Errorf("failed to open key file: %v", err)
+	verifiers := []cryptoutil.Verifier{}
+
+	errors := []error{}
+
+	//Policy Public Key Verifier
+	if vo.KeyPath != "" {
+		verifier, err := fileVerifier(vo.KeyPath)
+		if err != nil {
+			errors = append(errors, err)
+		} else {
+			verifiers = append(verifiers, verifier)
+		}
 	}
 
-	defer keyFile.Close()
-
-	// verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to load key: %v", err)
-	// }
-
-	rf, err := os.Open("ca.pem")
-	if err != nil {
-		return err
+	//Polcy CA Verifier
+	if len(vo.CAPaths) > 0 {
+		verifier, err := caVerifier(vo.CAPaths)
+		if err != nil {
+			errors = append(errors, err...)
+		} else {
+			verifiers = append(verifiers, verifier)
+		}
 	}
 
-	b, err := ioutil.ReadAll(rf)
-	if err != nil {
-		return err
+	if len(errors) > 0 {
+		return fmt.Errorf("failed to load policy verifiers: %v", errors)
 	}
 
-	rootcert, err := pemutil.ParseCertificate(b)
-	if err != nil {
-		return err
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to create verifier: %v", err)
-	}
-
-	inFile, err := os.Open(vo.PolicyFilePath)
+	//Load Policy
+	policyFile, err := os.Open(vo.PolicyFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file to sign: %v", err)
 	}
 
-	defer inFile.Close()
+	defer policyFile.Close()
 	policyEnvelope := dsse.Envelope{}
-	decoder := json.NewDecoder(inFile)
+	decoder := json.NewDecoder(policyFile)
 	if err := decoder.Decode(&policyEnvelope); err != nil {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
+	//Load Envelopes
 	envelopes := make([]dsse.Envelope, 0)
 	diskEnvs, err := loadEnvelopesFromDisk(vo.AttestationFilePaths)
 	if err != nil {
@@ -116,7 +112,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		envelopes = append(envelopes, rekorEnvs...)
 	}
 
-	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{}, witness.VerifyWithCollectionEnvelopes(envelopes), witness.VerifyWithRoots([]*x509.Certificate{rootcert}))
+	return witness.Verify(policyEnvelope, verifiers, witness.VerifyWithCollectionEnvelopes(envelopes))
 }
 
 func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {
@@ -165,4 +161,35 @@ func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.Dig
 	}
 
 	return envelopes, nil
+}
+
+func caVerifier(caPaths []string) (cryptoutil.Verifier, []error) {
+	caCerts := make([]*x509.Certificate, 0)
+	errors := []error{}
+
+	for _, caPath := range caPaths {
+		caCert, err := pemutil.LoadCertificate(caPath)
+		if err != nil {
+			errors = append(errors, err)
+			continue
+		}
+		caCerts = append(caCerts, caCert)
+	}
+
+	if len(caCerts) == 0 {
+		return nil, errors
+	}
+
+	return cryptoutil.NewCAVerifier(caCerts), nil
+}
+
+func fileVerifier(keyPath string) (cryptoutil.Verifier, error) {
+	keyFile, err := os.Open(keyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open key file: %v", err)
+	}
+
+	defer keyFile.Close()
+
+	return cryptoutil.NewVerifierFromReader(keyFile)
 }

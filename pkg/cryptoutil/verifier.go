@@ -15,6 +15,7 @@
 package cryptoutil
 
 import (
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -23,6 +24,8 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	"google.golang.org/appengine/log"
 )
 
 type Verifier interface {
@@ -62,6 +65,37 @@ func VerifyWithTrustedTime(t time.Time) VerifierOption {
 	return func(vo *verifierOptions) {
 		vo.trustedTime = t
 	}
+}
+
+func NewCAVerifier(certs []*x509.Certificate, opts ...VerifierOption) Verifier {
+	roots := []*x509.Certificate{}
+
+	options := &verifierOptions{
+		hash: crypto.SHA256,
+	}
+
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	certs = append(certs, options.roots...)
+
+	for _, cert := range certs {
+		if !cert.IsCA {
+			log.Errorf(context.Background(), "certificate %s is not a CA", cert.Subject.CommonName)
+		} else {
+			roots = append(roots, cert)
+		}
+	}
+
+	verifier, err := NewX509Verifier(nil, nil, roots, time.Now())
+	if err != nil {
+		log.Errorf(context.Background(), "failed to create CA verifier: %v", err)
+		return nil
+	}
+
+	return verifier
+
 }
 
 func NewVerifier(pub interface{}, opts ...VerifierOption) (Verifier, error) {

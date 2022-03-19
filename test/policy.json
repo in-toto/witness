@@ -25,15 +25,15 @@
       "functionaries": [
         {
           "type": "publickey",
-          "publickeyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"
+          "publickeyid": "b97f0fb40bb749f5e6a55e588e800ffea3f1ec63665af8199aeba4472ab45327"
         }
       ]
     }
   },
   "publickeys": {
-    "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647": {
-      "keyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647",
-      "key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQWYyOW9QUDhVZ2hCeUc4NTJ1QmRPeHJKS0tuN01NNWhUYlA5ZXNnT1ovazA9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+    "b97f0fb40bb749f5e6a55e588e800ffea3f1ec63665af8199aeba4472ab45327": {
+      "keyid": "b97f0fb40bb749f5e6a55e588e800ffea3f1ec63665af8199aeba4472ab45327",
+      "key": "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1DNENBUUF3QlFZREsyVndCQ0lFSUk5ZFYyMkFVVnpZTmdqcmZEMkdTRG91NmRXTEtLdytPaUczOXMvWmNYV2kKLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ=="
     }
   }
 }
