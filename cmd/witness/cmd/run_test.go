@@ -147,7 +147,7 @@ func Test_runRunRSACA(t *testing.T) {
 		t.Errorf("Error reading intermediate cert: %v", err)
 	}
 
-	if !bytes.Equal(b, envelopes[0].Signatures[0].Intermediates[0]) {
+	if !bytes.Equal(b, envelopes[0].Envelope.Signatures[0].Intermediates[0]) {
 		t.Errorf("Intermediates do not match")
 	}
 
@@ -156,7 +156,7 @@ func Test_runRunRSACA(t *testing.T) {
 		t.Errorf("Error reading leaf cert: %v", err)
 	}
 
-	if !bytes.Equal(b, envelopes[0].Signatures[0].Certificate) {
+	if !bytes.Equal(b, envelopes[0].Envelope.Signatures[0].Certificate) {
 		t.Errorf("Leaf cert does not match")
 	}
 

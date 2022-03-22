@@ -64,16 +64,16 @@ func Test_loadEnvelopesFromDisk(t *testing.T) {
 		t.Errorf("expected 1 envelope, got %d", len(envelopes))
 	}
 
-	if string(envelopes[0].Payload) != string(testPayload) {
-		t.Errorf("expected payload to be %s, got %s", string(testPayload), string(envelopes[0].Payload))
+	if string(envelopes[0].Envelope.Payload) != string(testPayload) {
+		t.Errorf("expected payload to be %s, got %s", string(testPayload), string(envelopes[0].Envelope.Payload))
 	}
 
-	if envelopes[0].PayloadType != "text" {
-		t.Errorf("expected payload type to be text, got %s", envelopes[0].PayloadType)
+	if envelopes[0].Envelope.PayloadType != "text" {
+		t.Errorf("expected payload type to be text, got %s", envelopes[0].Envelope.PayloadType)
 	}
 
-	if len(envelopes[0].Signatures) != 0 {
-		t.Errorf("expected 0 signatures, got %d", len(envelopes[0].Signatures))
+	if len(envelopes[0].Envelope.Signatures) != 0 {
+		t.Errorf("expected 0 signatures, got %d", len(envelopes[0].Envelope.Signatures))
 	}
 
 	err = os.RemoveAll("/tmp/witness")

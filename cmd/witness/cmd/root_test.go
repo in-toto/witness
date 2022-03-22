@@ -33,6 +33,19 @@ const (
 	keybits = 512
 )
 
+func Test_loadOutfile(t *testing.T) {
+	outfile := "/tmp/outfile.txt"
+
+	f, err := loadOutfile(outfile)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	if f.Name() != "/tmp/outfile.txt" {
+		t.Errorf("expected outfile to be /tmp/outfile.txt, got %s", f.Name())
+	}
+}
+
 func Test_loadSignersKeyPair(t *testing.T) {
 	privatePem, _ := rsakeypair(t)
 
