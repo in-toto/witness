@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"crypto"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,9 +24,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg"
+	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
 )
 
@@ -45,6 +47,10 @@ func VerifyCmd() *cobra.Command {
 	vo.AddFlags(cmd)
 	return cmd
 }
+
+const (
+	MAX_DEPTH = 4
+)
 
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
@@ -72,32 +78,58 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
-	envelopes := make([]dsse.Envelope, 0)
 	diskEnvs, err := loadEnvelopesFromDisk(vo.AttestationFilePaths)
 	if err != nil {
 		return fmt.Errorf("failed to load attestation files: %w", err)
 	}
 
-	envelopes = append(envelopes, diskEnvs...)
+	verifiedEvidence := []witness.CollectionEnvelope{}
+
 	if vo.RekorServer != "" {
+
 		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
 		if err != nil {
 			return fmt.Errorf("failed to calculate artifact file's hash: %w", err)
 		}
 
-		rekorEnvs, err := loadEnvelopesFromRekor(vo.RekorServer, artifactDigestSet)
+		rc, err := rekor.New(vo.RekorServer)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
 		}
 
-		envelopes = append(envelopes, rekorEnvs...)
+		digestSets := []cryptoutil.DigestSet{}
+		digestSets = append(digestSets, artifactDigestSet)
+
+		verifiers := []cryptoutil.Verifier{}
+		verifiers = append(verifiers, verifier)
+
+		evidence, err := rc.FindEvidence(digestSets, policyEnvelope, verifiers, diskEnvs, MAX_DEPTH)
+		if err != nil {
+			return fmt.Errorf("failed to find evidence: %w", err)
+		}
+
+		verifiedEvidence = append(verifiedEvidence, evidence...)
 	}
 
-	return witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(envelopes))
+	if vo.RekorServer == "" {
+		verifiedEvidence, err = witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(diskEnvs))
+		if err != nil {
+			return fmt.Errorf("failed to verify policy: %w", err)
+
+		}
+	}
+
+	log.Info("Verification succeeded")
+	log.Info("Evidence:")
+	for i, e := range verifiedEvidence {
+		log.Info(fmt.Sprintf("%d: %s", i, e.Reference))
+	}
+	return nil
+
 }
 
-func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {
-	envelopes := make([]dsse.Envelope, 0)
+func loadEnvelopesFromDisk(paths []string) ([]witness.CollectionEnvelope, error) {
+	envelopes := make([]witness.CollectionEnvelope, 0)
 	for _, path := range paths {
 		file, err := os.Open(path)
 		if err != nil {
@@ -114,31 +146,15 @@ func loadEnvelopesFromDisk(paths []string) ([]dsse.Envelope, error) {
 		if err := json.Unmarshal(fileBytes, &env); err != nil {
 			continue
 		}
-		envelopes = append(envelopes, env)
-	}
 
-	return envelopes, nil
-}
+		h := sha256.Sum256(fileBytes)
 
-func loadEnvelopesFromRekor(rekorServer string, artifactDigestSet cryptoutil.DigestSet) ([]dsse.Envelope, error) {
-	envelopes := make([]dsse.Envelope, 0)
-	rc, err := rekor.New(rekorServer)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get initialize Rekor client: %w", err)
-	}
-
-	entries, err := rc.FindEntriesBySubject(artifactDigestSet)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find any entries in rekor: %w", err)
-	}
-
-	for _, entry := range entries {
-		env, err := rekor.ParseEnvelopeFromEntry(entry)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse dsse envelope from rekor entry: %w", err)
+		collectionEnv := witness.CollectionEnvelope{
+			Envelope:  env,
+			Reference: fmt.Sprintf("sha256:%x  %s", h, path),
 		}
 
-		envelopes = append(envelopes, env)
+		envelopes = append(envelopes, collectionEnv)
 	}
 
 	return envelopes, nil

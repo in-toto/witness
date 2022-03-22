@@ -5,3 +5,10 @@ test/testapp
 test/test-attestation.json
 test/policy-signed.json
 test/out.tar
+test/sarif-report.json
+test/sast.attestation.json
+test/scorecard.attestation.json
+test/scorecard.json
+log
+sarif-report.json
+test/log
