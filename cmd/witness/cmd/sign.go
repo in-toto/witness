@@ -15,12 +15,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg"
+	witness "github.com/testifysec/witness/pkg"
+	"github.com/testifysec/witness/pkg/log"
 )
 
 func SignCmd() *cobra.Command {
@@ -44,10 +46,26 @@ func SignCmd() *cobra.Command {
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
 func runSign(so options.SignOptions) error {
-	signer, err := loadSigner(so.KeyOptions.SpiffePath, so.KeyOptions.KeyPath, so.KeyOptions.CertPath, so.KeyOptions.IntermediatePaths)
-	if err != nil {
-		return err
+	ctx := context.Background()
+	signers, errors := loadSigners(ctx, so.KeyOptions)
+	if len(errors) > 0 {
+		for _, err := range errors {
+			log.Error(err)
+		}
+		return fmt.Errorf("failed to load signers")
 	}
+
+	if len(signers) > 1 {
+		log.Error("only one signer is supported")
+		return fmt.Errorf("only one signer is supported")
+	}
+
+	if len(signers) == 0 {
+		log.Error("no signers found")
+		return fmt.Errorf("no signers found")
+	}
+
+	signer := signers[0]
 
 	inFile, err := os.Open(so.InFilePath)
 	if err != nil {
