@@ -15,12 +15,13 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg"
+	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/attestation"
 	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
@@ -44,10 +45,26 @@ func RunCmd() *cobra.Command {
 }
 
 func runRun(ro options.RunOptions, args []string) error {
-	signer, err := loadSigner(ro.KeyOptions.SpiffePath, ro.KeyOptions.KeyPath, ro.KeyOptions.CertPath, ro.KeyOptions.IntermediatePaths)
-	if err != nil {
-		return fmt.Errorf("failed to load signer: %w", err)
+	ctx := context.Background()
+	signers, errors := loadSigners(ctx, ro.KeyOptions)
+	if len(errors) > 0 {
+		for _, err := range errors {
+			log.Error(err)
+		}
+		return fmt.Errorf("failed to load signers")
 	}
+
+	if len(signers) > 1 {
+		log.Error("only one signer is supported")
+		return fmt.Errorf("only one signer is supported")
+	}
+
+	if len(signers) == 0 {
+		log.Error("no signers found")
+		return fmt.Errorf("no signers found")
+	}
+
+	signer := signers[0]
 
 	out, err := loadOutfile(ro.OutFilePath)
 	if err != nil {
