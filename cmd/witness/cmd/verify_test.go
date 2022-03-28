@@ -225,6 +225,7 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 		Name:          "step02",
 		Functionaries: []policy.Functionary{functionary},
 		Attestations:  []policy.Attestation{{Type: commandrun.Type}},
+		ArtifactsFrom: []string{"step01"},
 	}
 
 	p := policy.Policy{
