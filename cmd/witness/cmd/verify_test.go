@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/attestation/commandrun"
 	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/policy"
 )
 
@@ -82,33 +84,31 @@ func Test_loadEnvelopesFromDisk(t *testing.T) {
 }
 
 func Test_RunVerifyKeyPair(t *testing.T) {
+	logger := newLogger()
+	log.SetLogger(logger)
+	logger.SetLevel("DEBUG")
 	policy, funcPriv := makepolicyRSAPub(t)
 	signedPolicy, pub := signPolicy(t, policy)
 
-	err := os.MkdirAll("/tmp/witness", 0755)
-	if err != nil {
+	attestationDir := t.TempDir()
+	workDir := t.TempDir()
+	policyPath := filepath.Join(attestationDir, "signed-policy.json")
+	if err := os.WriteFile(policyPath, signedPolicy, 0644); err != nil {
 		t.Error(err)
 	}
 
-	defer os.RemoveAll("/tmp/witness")
-
-	err = os.WriteFile("/tmp/witness/signed-policy.json", signedPolicy, 0644)
-	if err != nil {
+	policyPubPath := filepath.Join(attestationDir, "policy-pub.pem")
+	if err := os.WriteFile(policyPubPath, pub, 0644); err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile("/tmp/witness/policy-pub.pem", pub, 0644)
-	if err != nil {
-		t.Error(err)
-	}
-
-	err = os.WriteFile("/tmp/witness/func-priv.pem", funcPriv, 0644)
-	if err != nil {
+	funcPrivPath := filepath.Join(attestationDir, "func-priv.pem")
+	if err := os.WriteFile(funcPrivPath, funcPriv, 0644); err != nil {
 		t.Error(err)
 	}
 
 	keyOptions := options.KeyOptions{
-		KeyPath: "/tmp/witness/func-priv.pem",
+		KeyPath: funcPrivPath,
 	}
 
 	step1Args := []string{
@@ -117,18 +117,18 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		"echo 'test01' > test.txt",
 	}
 
+	s1CollPath := filepath.Join(attestationDir, "step01.json")
 	s1RunOptions := options.RunOptions{
 		KeyOptions:   keyOptions,
-		WorkingDir:   "/tmp/witness",
+		WorkingDir:   workDir,
 		Attestations: []string{},
-		OutFilePath:  "/tmp/witness/step01.json",
+		OutFilePath:  s1CollPath,
 		StepName:     "step01",
 		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
-	if err != nil {
+	if err := runRun(s1RunOptions, step1Args); err != nil {
 		t.Error(err)
 	}
 
@@ -138,34 +138,32 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		"echo 'test02' >> test.txt",
 	}
 
+	s2CollPath := filepath.Join(attestationDir, "step02.json")
 	s2RunOptions := options.RunOptions{
 		KeyOptions:   keyOptions,
-		WorkingDir:   "/tmp/witness",
+		WorkingDir:   workDir,
 		Attestations: []string{},
-		OutFilePath:  "/tmp/witness/step02.json",
+		OutFilePath:  s2CollPath,
 		StepName:     "step02",
 		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
-	if err != nil {
+	if err := runRun(s2RunOptions, step2Args); err != nil {
 		t.Error(err)
 	}
 
 	vo := options.VerifyOptions{
-		KeyPath:              "/tmp/witness/policy-pub.pem",
-		AttestationFilePaths: []string{"/tmp/witness/step01.json", "/tmp/witness/step02.json"},
-		PolicyFilePath:       "/tmp/witness/signed-policy.json",
-		ArtifactFilePath:     "/tmp/witness/test.txt",
+		KeyPath:              policyPubPath,
+		AttestationFilePaths: []string{s1CollPath, s2CollPath},
+		PolicyFilePath:       policyPath,
+		ArtifactFilePath:     filepath.Join(workDir, "test.txt"),
 		RekorServer:          "",
 	}
 
-	err = runVerify(vo, []string{})
-	if err != nil {
+	if err := runVerify(vo, []string{}); err != nil {
 		t.Error(err)
 	}
-
 }
 
 func signPolicy(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {

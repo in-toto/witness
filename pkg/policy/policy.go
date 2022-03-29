@@ -242,6 +242,7 @@ func verifyCollectionArtifacts(step Step, collection attestation.Collection, col
 		accepted := make([]attestation.Collection, 0)
 		for _, testCollection := range collectionsByStep[artifactsFrom] {
 			if err := compareArtifacts(mats, testCollection.Artifacts()); err != nil {
+				log.Debugf("(policy) collection for step %s did not satisfy artifacts for collection for step %s: %v", testCollection.Name, step.Name, err)
 				break
 			}
 
