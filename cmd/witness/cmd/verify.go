@@ -55,15 +55,24 @@ const (
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
 func runVerify(vo options.VerifyOptions, args []string) error {
-	keyFile, err := os.Open(vo.KeyPath)
-	if err != nil {
-		return fmt.Errorf("failed to open key file: %v", err)
+	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
+		return fmt.Errorf("must suply public key or ca paths")
 	}
 
-	defer keyFile.Close()
-	verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
-	if err != nil {
-		return fmt.Errorf("failed to load key: %v", err)
+	var verifier cryptoutil.Verifier
+
+	if vo.KeyPath != "" {
+		keyFile, err := os.Open(vo.KeyPath)
+		if err != nil {
+			return fmt.Errorf("failed to open key file: %w", err)
+		}
+		defer keyFile.Close()
+
+		verifier, err = cryptoutil.NewVerifierFromReader(keyFile)
+		if err != nil {
+			return fmt.Errorf("failed to create verifier: %w", err)
+		}
+
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)

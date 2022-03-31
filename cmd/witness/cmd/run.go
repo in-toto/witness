@@ -46,6 +46,7 @@ func RunCmd() *cobra.Command {
 
 func runRun(ro options.RunOptions, args []string) error {
 	ctx := context.Background()
+
 	signers, errors := loadSigners(ctx, ro.KeyOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {

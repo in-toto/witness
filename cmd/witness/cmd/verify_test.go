@@ -17,16 +17,109 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/testifysec/witness/cmd/witness/options"
 	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/attestation/commandrun"
+	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
 	"github.com/testifysec/witness/pkg/policy"
 )
+
+func Test_RunVerifyCA(t *testing.T) {
+	ca, intermediates, leafcert, leafkey := fullChain(t)
+
+	ko := options.KeyOptions{
+		KeyPath: leafkey.Name(),
+		IntermediatePaths: []string{
+			intermediates[0].Name(),
+		},
+		CertPath: leafcert.Name(),
+	}
+
+	caBytes, err := ioutil.ReadFile(ca.Name())
+	require.NoError(t, err)
+
+	policy := makepolicyCA(t, caBytes)
+	signedPolicy, pub := signPolicyRSA(t, policy)
+
+	workingDir := t.TempDir()
+	attestationDir := t.TempDir()
+
+	err = os.WriteFile(filepath.Join(workingDir, "signed-policy.json"), signedPolicy, 0644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.WriteFile(filepath.Join(workingDir, "policy-pub.pem"), pub, 0644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	step1Args := []string{
+		"bash",
+		"-c",
+		"echo 'test01' > test.txt",
+	}
+
+	s1RunOptions := options.RunOptions{
+		KeyOptions:   ko,
+		WorkingDir:   workingDir,
+		Attestations: []string{},
+		OutFilePath:  filepath.Join(attestationDir, "step01.json"),
+		StepName:     "step01",
+		RekorServer:  "",
+		Tracing:      false,
+	}
+
+	err = runRun(s1RunOptions, step1Args)
+	if err != nil {
+		t.Error(err)
+	}
+
+	step2Args := []string{
+		"bash",
+		"-c",
+		"echo 'test02' >> test.txt",
+	}
+
+	s2RunOptions := options.RunOptions{
+		KeyOptions:   ko,
+		WorkingDir:   workingDir,
+		Attestations: []string{},
+		OutFilePath:  filepath.Join(attestationDir, "step02.json"),
+		StepName:     "step02",
+		RekorServer:  "",
+		Tracing:      false,
+	}
+
+	err = runRun(s2RunOptions, step2Args)
+	if err != nil {
+		t.Error(err)
+	}
+
+	vo := options.VerifyOptions{
+		KeyPath:              filepath.Join(workingDir, "policy-pub.pem"),
+		AttestationFilePaths: []string{filepath.Join(attestationDir, "step01.json"), filepath.Join(attestationDir, "step02.json")},
+		PolicyFilePath:       filepath.Join(workingDir, "signed-policy.json"),
+		ArtifactFilePath:     filepath.Join(workingDir, "test.txt"),
+		RekorServer:          "",
+
+		EmailContstraints: []string{},
+	}
+
+	err = runVerify(vo, []string{})
+	if err != nil {
+		t.Error(err)
+	}
+
+}
 
 func Test_loadEnvelopesFromDisk(t *testing.T) {
 	testPayload := []byte("test")
@@ -49,13 +142,13 @@ func Test_loadEnvelopesFromDisk(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(workingDir+"envelope.txt", jsonEnvelope, 0644)
+	err = os.WriteFile(filepath.Join(workingDir, "envelope.txt"), jsonEnvelope, 0644)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	envelopes, err := loadEnvelopesFromDisk([]string{workingDir + "envelope.txt"})
+	envelopes, err := loadEnvelopesFromDisk([]string{filepath.Join(workingDir, "envelope.txt")})
 	if err != nil {
 		t.Error(err)
 	}
@@ -75,38 +168,32 @@ func Test_loadEnvelopesFromDisk(t *testing.T) {
 	if len(envelopes[0].Envelope.Signatures) != 0 {
 		t.Errorf("expected 0 signatures, got %d", len(envelopes[0].Envelope.Signatures))
 	}
-
-	err = os.RemoveAll("/tmp/witness")
-	if err != nil {
-		t.Error(err)
-	}
-
 }
 
 func Test_RunVerifyKeyPair(t *testing.T) {
 	policy, funcPriv := makepolicyRSAPub(t)
-	signedPolicy, pub := signPolicy(t, policy)
+	signedPolicy, pub := signPolicyRSA(t, policy)
 
 	workingDir := t.TempDir()
 	attestationDir := t.TempDir()
 
-	err := os.WriteFile(workingDir+"signed-policy.json", signedPolicy, 0644)
+	err := os.WriteFile(filepath.Join(workingDir, "signed-policy.json"), signedPolicy, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(workingDir+"policy-pub.pem", pub, 0644)
+	err = os.WriteFile(filepath.Join(workingDir, "policy-pub.pem"), pub, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(workingDir+"func-priv.pem", funcPriv, 0644)
+	err = os.WriteFile(filepath.Join(workingDir, "func-priv.pem"), funcPriv, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
 	keyOptions := options.KeyOptions{
-		KeyPath: workingDir + "func-priv.pem",
+		KeyPath: filepath.Join(workingDir, "func-priv.pem"),
 	}
 
 	step1Args := []string{
@@ -119,7 +206,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  attestationDir + "step01.json",
+		OutFilePath:  filepath.Join(attestationDir, "step01.json"),
 		StepName:     "step01",
 		RekorServer:  "",
 		Tracing:      false,
@@ -140,7 +227,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  attestationDir + "step02.json",
+		OutFilePath:  filepath.Join(attestationDir, "step02.json"),
 		StepName:     "step02",
 		RekorServer:  "",
 		Tracing:      false,
@@ -152,10 +239,10 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 	}
 
 	vo := options.VerifyOptions{
-		KeyPath:              workingDir + "policy-pub.pem",
-		AttestationFilePaths: []string{attestationDir + "step01.json", attestationDir + "step02.json"},
-		PolicyFilePath:       workingDir + "signed-policy.json",
-		ArtifactFilePath:     workingDir + "test.txt",
+		KeyPath:              filepath.Join(workingDir, "policy-pub.pem"),
+		AttestationFilePaths: []string{filepath.Join(attestationDir, "step01.json"), filepath.Join(attestationDir, "step02.json")},
+		PolicyFilePath:       filepath.Join(workingDir, "signed-policy.json"),
+		ArtifactFilePath:     filepath.Join(workingDir, "test.txt"),
 		RekorServer:          "",
 	}
 
@@ -166,7 +253,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 
 }
 
-func signPolicy(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
+func signPolicyRSA(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
 	sign, _, pub, _, err := createTestRSAKey()
 	if err != nil {
 		t.Error(err)
@@ -183,6 +270,40 @@ func signPolicy(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
 	}
 
 	return writer.Bytes(), pub
+}
+
+func makepolicyCA(t *testing.T, ca []byte) []byte {
+
+	r := bytes.NewReader(ca)
+
+	verifier, err := cryptoutil.NewVerifierFromReader(r)
+	require.NoError(t, err)
+
+	keyID, err := verifier.KeyID()
+	require.NoError(t, err)
+
+	functionary := policy.Functionary{
+		Type: "root",
+		CertConstraint: policy.CertConstraint{
+			CommonName:    "*",
+			DNSNames:      []string{"*"},
+			Emails:        []string{"*"},
+			Organizations: []string{"*"},
+			URIs:          []string{"*"},
+			Roots:         []string{keyID},
+		},
+	}
+
+	root := policy.Root{
+		Certificate: ca,
+	}
+
+	roots := map[string]policy.Root{}
+
+	roots[keyID] = root
+
+	policy := makepolicy(t, functionary, policy.PublicKey{}, roots)
+	return policy
 }
 
 func makepolicyRSAPub(t *testing.T) ([]byte, []byte) {
@@ -206,13 +327,11 @@ func makepolicyRSAPub(t *testing.T) ([]byte, []byte) {
 		Key:   pub,
 	}
 
-	root := policy.Root{}
-
-	p := makepolicy(t, functionary, pk, root)
+	p := makepolicy(t, functionary, pk, nil)
 	return p, fpriv
 }
 
-func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.PublicKey, root policy.Root) []byte {
+func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.PublicKey, roots map[string]policy.Root) []byte {
 	step01 := policy.Step{
 		Name:          "step01",
 		Functionaries: []policy.Functionary{functionary},
@@ -233,15 +352,19 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	}
 
 	if functionary.CertConstraint.Roots != nil {
-		keyID := functionary.CertConstraint.Roots[0]
-		p.Roots[keyID] = root
+		p.Roots = roots
 	}
 
 	p.Steps = make(map[string]policy.Step)
 	p.Steps[step01.Name] = step01
 	p.Steps[step02.Name] = step02
 
-	p.PublicKeys[publicKey.KeyID] = publicKey
+	if publicKey.KeyID != "" {
+
+		p.PublicKeys[publicKey.KeyID] = publicKey
+
+	}
+
 	pb, err := json.MarshalIndent(p, "", "  ")
 	if err != nil {
 		t.Error(err)
