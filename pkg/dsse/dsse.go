@@ -179,11 +179,14 @@ func (e Envelope) Verify(opts ...VerificationOption) ([]cryptoutil.Verifier, err
 		}
 
 		for _, verifier := range options.verifiers {
-			if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
-				return nil, err
-			} else {
-				passedVerifiers = append(passedVerifiers, verifier)
-				matchingSigFound = true
+			if verifier != nil {
+
+				if err := verifier.Verify(bytes.NewReader(pae), sig.Signature); err != nil {
+					return nil, err
+				} else {
+					passedVerifiers = append(passedVerifiers, verifier)
+					matchingSigFound = true
+				}
 			}
 		}
 	}

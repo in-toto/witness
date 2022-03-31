@@ -15,16 +15,12 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
-	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/log"
-	"github.com/testifysec/witness/pkg/signer/file"
-	"github.com/testifysec/witness/pkg/signer/spiffe"
 )
 
 var (
@@ -65,31 +61,6 @@ func preRoot(cmd *cobra.Command, ro *options.RootOptions) {
 	if err := initConfig(cmd, ro); err != nil {
 		logger.l.Fatal(err)
 	}
-}
-
-func loadSigners(ctx context.Context, ko options.KeyOptions) ([]cryptoutil.Signer, []error) {
-	signers := []cryptoutil.Signer{}
-	errors := []error{}
-
-	if ko.SpiffePath != "" {
-		s, err := spiffe.Signer(ctx, ko.SpiffePath)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("failed to create signer: %v", err))
-		} else {
-			signers = append(signers, s)
-		}
-	}
-
-	if ko.KeyPath != "" {
-		s, err := file.Signer(ctx, ko.KeyPath, ko.CertPath, ko.IntermediatePaths)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("failed to create signer: %v", err))
-		} else {
-			signers = append(signers, s)
-		}
-	}
-
-	return signers, errors
 }
 
 func loadOutfile(outFilePath string) (*os.File, error) {
