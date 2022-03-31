@@ -23,6 +23,8 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/testifysec/witness/pkg/log"
 )
 
 type Verifier interface {
@@ -96,4 +98,34 @@ func NewVerifierFromReader(r io.Reader, opts ...VerifierOption) (Verifier, error
 	}
 
 	return NewVerifier(key, opts...)
+}
+
+func NewCAVerifier(certs []*x509.Certificate, opts ...VerifierOption) Verifier {
+	roots := []*x509.Certificate{}
+
+	options := &verifierOptions{
+		hash: crypto.SHA256,
+	}
+
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	certs = append(certs, options.roots...)
+
+	for _, cert := range certs {
+		if !cert.IsCA {
+			log.Errorf("certificate %s is not a CA", cert.Subject.CommonName)
+		} else {
+			roots = append(roots, cert)
+		}
+	}
+
+	verifier, err := NewX509Verifier(nil, nil, roots, time.Now())
+	if err != nil {
+		log.Errorf("failed to create CA verifier: %v", err)
+		return nil
+	}
+	return verifier
+
 }

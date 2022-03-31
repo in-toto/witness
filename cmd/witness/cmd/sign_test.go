@@ -15,10 +15,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
 	"github.com/testifysec/witness/cmd/witness/options"
+	"github.com/testifysec/witness/pkg/dsse"
 )
 
 func Test_runSignPolicyRSA(t *testing.T) {
@@ -58,4 +60,63 @@ func Test_runSignPolicyRSA(t *testing.T) {
 		t.Errorf("Unexpected output size")
 	}
 
+}
+
+func Test_runSignPolicyCA(t *testing.T) {
+	_, intermediates, leafcert, leafkey := fullChain(t)
+
+	keyOptions := options.KeyOptions{
+		KeyPath: leafkey.Name(),
+		IntermediatePaths: []string{
+			intermediates[0].Name(),
+		},
+		CertPath: leafcert.Name(),
+	}
+
+	workingDir := t.TempDir()
+
+	testdata := []byte("test")
+
+	err := os.WriteFile(workingDir+"test.txt", testdata, 0644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	signOptions := options.SignOptions{
+		KeyOptions:  keyOptions,
+		DataType:    "text",
+		OutFilePath: workingDir + "outfile.txt",
+		InFilePath:  workingDir + "test.txt",
+	}
+
+	err = runSign(signOptions)
+	if err != nil {
+		t.Error(err)
+	}
+
+	signedBytes, err := os.ReadFile(workingDir + "outfile.txt")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(signedBytes) < 1 {
+		t.Errorf("Unexpected output size")
+	}
+
+	t.Logf("%s", signedBytes)
+
+	envelope := dsse.Envelope{}
+
+	err = json.Unmarshal(signedBytes, &envelope)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(envelope.Signatures) != 1 {
+		t.Errorf("Unexpected number of signatures")
+	}
+
+	if len(envelope.Signatures[0].Intermediates) != 1 {
+		t.Errorf("Unexpected number of signature bytes")
+	}
 }

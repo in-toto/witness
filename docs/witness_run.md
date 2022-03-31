@@ -9,17 +9,20 @@ witness run [cmd] [flags]
 ### Options
 
 ```
-  -a, --attestations strings    Attestations to record (default [environment,git])
-      --certificate string      Path to the signing key's certificate
-  -h, --help                    help for run
-  -i, --intermediates strings   Intermediates that link trust back to a root in the policy
-  -k, --key string              Path to the signing key
-  -o, --outfile string          File to write signed data.  Defaults to stdout
-  -r, --rekor-server string     Rekor server to store attestations
-      --spiffe-socket string    Path to the SPIFFE Workload API socket
-  -s, --step string             Name of the step being run
-      --trace                   enable tracing for the command
-  -d, --workingdir string       Directory that commands will be run from
+  -a, --attestations strings           Attestations to record (default [environment,git])
+      --certificate string             Path to the signing key's certificate
+      --fulcio string                  Fulcio address to sign with
+      --fulcio-oidc-client-id string   OIDC client ID to use for authentication
+      --fulcio-oidc-issuer string      OIDC issuer to use for authentication
+  -h, --help                           help for run
+  -i, --intermediates strings          Intermediates that link trust back to a root in the policy
+  -k, --key string                     Path to the signing key
+  -o, --outfile string                 File to write signed data.  Defaults to stdout
+  -r, --rekor-server string            Rekor server to store attestations
+      --spiffe-socket string           Path to the SPIFFE Workload API socket
+  -s, --step string                    Name of the step being run
+      --trace                          enable tracing for the command
+  -d, --workingdir string              Directory that commands will be run from
 ```
 
 ### Options inherited from parent commands

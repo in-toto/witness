@@ -42,6 +42,7 @@ type verifyOptions struct {
 	policyEnvelope      dsse.Envelope
 	policyVerifiers     []cryptoutil.Verifier
 	collectionEnvelopes []dsse.Envelope
+	policyRoots         []*x509.Certificate
 }
 
 type VerifyOption func(*verifyOptions)
@@ -49,6 +50,12 @@ type VerifyOption func(*verifyOptions)
 func VerifyWithCollectionEnvelopes(collectionEnvelopes []dsse.Envelope) VerifyOption {
 	return func(vo *verifyOptions) {
 		vo.collectionEnvelopes = collectionEnvelopes
+	}
+}
+
+func VerifyWithRoots(rootcerts []*x509.Certificate) VerifyOption {
+	return func(vo *verifyOptions) {
+		vo.policyRoots = rootcerts
 	}
 }
 
@@ -62,7 +69,12 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 		opt(&vo)
 	}
 
-	if _, err := vo.policyEnvelope.Verify(dsse.WithVerifiers(vo.policyVerifiers)); err != nil {
+	verificationOptions := []dsse.VerificationOption{
+		dsse.WithVerifiers(vo.policyVerifiers),
+		dsse.WithRoots(vo.policyRoots),
+	}
+
+	if _, err := vo.policyEnvelope.Verify(verificationOptions...); err != nil {
 		return fmt.Errorf("could not verify policy: %w", err)
 	}
 
@@ -73,7 +85,8 @@ func Verify(policyEnvelope dsse.Envelope, policyVerifiers []cryptoutil.Verifier,
 
 	pubKeysById, err := pol.PublicKeyVerifiers()
 	if err != nil {
-		return fmt.Errorf("failed to get pulic keys from policy: %w", err)
+		fmt.Println(err)
+		//return fmt.Errorf("failed to get pulic keys from policy: %w", err)
 	}
 
 	pubkeys := make([]cryptoutil.Verifier, 0)
