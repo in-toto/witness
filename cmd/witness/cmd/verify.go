@@ -17,9 +17,12 @@ package cmd
 import (
 	"crypto"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -55,15 +58,50 @@ const (
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
 func runVerify(vo options.VerifyOptions, args []string) error {
-	keyFile, err := os.Open(vo.KeyPath)
-	if err != nil {
-		return fmt.Errorf("failed to open key file: %v", err)
+	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
+		return fmt.Errorf("must suply public key or ca paths")
 	}
 
-	defer keyFile.Close()
-	verifier, err := cryptoutil.NewVerifierFromReader(keyFile)
-	if err != nil {
-		return fmt.Errorf("failed to load key: %v", err)
+	var verifier cryptoutil.Verifier
+
+	if vo.KeyPath != "" {
+		keyFile, err := os.Open(vo.KeyPath)
+		if err != nil {
+			return fmt.Errorf("failed to open key file: %w", err)
+		}
+		defer keyFile.Close()
+
+		verifier, err = cryptoutil.NewVerifierFromReader(keyFile)
+		if err != nil {
+			return fmt.Errorf("failed to create verifier: %w", err)
+		}
+
+	}
+
+	var roots []*x509.Certificate
+	if len(vo.CAPaths) > 0 {
+		for _, caPath := range vo.CAPaths {
+			caBytes, err := ioutil.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read ca file: %w", err)
+			}
+
+			block, rest := pem.Decode(caBytes)
+			if block == nil {
+				return fmt.Errorf("failed to decode ca file")
+			}
+
+			cert, err := x509.ParseCertificate(block.Bytes)
+			if err != nil {
+				return fmt.Errorf("failed to parse ca file: %w", err)
+			}
+
+			if len(rest) > 0 {
+				return fmt.Errorf("failed to parse ca file: trailing data, only one certificate is supported")
+			}
+
+			roots = append(roots, cert)
+		}
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)
@@ -125,7 +163,6 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		log.Info(fmt.Sprintf("%d: %s", i, e.Reference))
 	}
 	return nil
-
 }
 
 func loadEnvelopesFromDisk(paths []string) ([]witness.CollectionEnvelope, error) {

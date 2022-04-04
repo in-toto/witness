@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -45,8 +44,7 @@ func RunCmd() *cobra.Command {
 }
 
 func runRun(ro options.RunOptions, args []string) error {
-	ctx := context.Background()
-	signers, errors := loadSigners(ctx, ro.KeyOptions)
+	signers, errors := getSigners(ro.KeyOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
 			log.Error(err)

@@ -21,6 +21,9 @@ type KeyOptions struct {
 	CertPath          string
 	IntermediatePaths []string
 	SpiffePath        string
+	FulcioURL         string
+	OIDCIssuer        string
+	OIDCClientID      string
 }
 
 func (ko *KeyOptions) AddFlags(cmd *cobra.Command) {
@@ -28,4 +31,7 @@ func (ko *KeyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&ko.CertPath, "certificate", "", "Path to the signing key's certificate")
 	cmd.Flags().StringSliceVarP(&ko.IntermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root in the policy")
 	cmd.Flags().StringVar(&ko.SpiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
+	cmd.Flags().StringVar(&ko.FulcioURL, "fulcio", "", "Fulcio address to sign with")
+	cmd.Flags().StringVar(&ko.OIDCIssuer, "fulcio-oidc-issuer", "", "OIDC issuer to use for authentication")
+	cmd.Flags().StringVar(&ko.OIDCClientID, "fulcio-oidc-client-id", "", "OIDC client ID to use for authentication")
 }
