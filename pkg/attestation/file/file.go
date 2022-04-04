@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 
 	"github.com/testifysec/witness/pkg/cryptoutil"
+	"github.com/testifysec/witness/pkg/log"
 )
 
 // recordArtifacts will walk basePath and record the digests of each file with each of the functions in hashes.
@@ -45,7 +46,8 @@ func RecordArtifacts(basePath string, baseArtifacts map[string]cryptoutil.Digest
 			// if this is a symlink, eval the true path and eval any artifacts in the symlink. we record every symlink we've visited to prevent infinite loops
 			linkedPath, err := filepath.EvalSymlinks(path)
 			if err != nil {
-				return err
+				log.Warnf("failed to eval symlink %s: %s", path, err)
+				return nil
 			}
 
 			if _, ok := visitedSymlinks[linkedPath]; ok {
