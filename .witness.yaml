@@ -1,0 +1,16 @@
+run:
+    trace: false
+    fulcio: https://v1.fulcio.sigstore.dev
+    fulcio-oidc-client-id: https://oauth2.sigstore.dev/auth
+    fulcio-oidc-issuer:  "sigstore"
+    rekor-server: https://log.testifysec.io
+    
+
+sign:
+    outfile: policy-signed.json
+verify:
+    attestations: 
+        - "test-attestation.json"
+    policy: policy-signed.json
+    publickey: testpub.pem
+    artifactfile: testapp
