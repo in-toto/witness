@@ -141,7 +141,13 @@ func (ctx *AttestationContext) RunAttestors() error {
 			postAttestors = append(postAttestors, attestor)
 
 		case Internal:
-			return fmt.Errorf("internal attestors unallowed in attestor array")
+			if attestor.Name() == "material" {
+				ctx.materialAttestor = attestor
+			}
+
+			if attestor.Name() == "product" {
+				ctx.productAttestor = attestor
+			}
 
 		default:
 			return ErrInvalidOption{

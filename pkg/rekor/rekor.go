@@ -79,7 +79,9 @@ func New(rekorServer string) (RekorClient, error) {
 }
 
 func (r *wrappedRekorClient) StoreArtifact(artifactBytes, pubkeyBytes []byte) (*entries.CreateLogEntryCreated, error) {
-	entry, err := types.NewProposedEntry(context.Background(), "dsse", "0.0.1", types.ArtifactProperties{
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*180)
+
+	entry, err := types.NewProposedEntry(ctx, "dsse", "0.0.1", types.ArtifactProperties{
 		ArtifactBytes:  artifactBytes,
 		PublicKeyBytes: pubkeyBytes,
 	})
@@ -91,6 +93,7 @@ func (r *wrappedRekorClient) StoreArtifact(artifactBytes, pubkeyBytes []byte) (*
 
 	params := entries.NewCreateLogEntryParams()
 	params.SetProposedEntry(entry)
+	params.Context = ctx
 	return r.Entries.CreateLogEntry(params)
 }
 

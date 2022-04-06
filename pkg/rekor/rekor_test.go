@@ -126,7 +126,6 @@ func Test_wrappedRekorClient_StoreArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	signedBytes, err := json.MarshalIndent(result.SignedEnvelope, "", "  ")
-	fmt.Println(string(signedBytes))
 	require.NoError(t, err)
 
 	require.NoError(t, err)
