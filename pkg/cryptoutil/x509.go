@@ -51,6 +51,7 @@ func (v *X509Verifier) KeyID() (string, error) {
 func (v *X509Verifier) Verify(body io.Reader, sig []byte) error {
 	rootPool := certificatesToPool(v.roots)
 	intermediatePool := certificatesToPool(v.intermediates)
+
 	if _, err := v.cert.Verify(x509.VerifyOptions{
 		CurrentTime:   v.trustedTime,
 		Roots:         rootPool,
@@ -72,7 +73,6 @@ func (v *X509Verifier) BelongsToRoot(root *x509.Certificate) error {
 		CurrentTime:   v.trustedTime,
 		KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
 	})
-
 	return err
 }
 
