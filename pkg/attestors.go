@@ -27,4 +27,5 @@ import (
 	_ "github.com/testifysec/witness/pkg/attestation/oci"
 	_ "github.com/testifysec/witness/pkg/attestation/sarif"
 	_ "github.com/testifysec/witness/pkg/attestation/scorecard"
+	_ "github.com/testifysec/witness/pkg/attestation/syft"
 )

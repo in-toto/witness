@@ -19,8 +19,10 @@ import (
 	"context"
 	"crypto"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -31,21 +33,35 @@ import (
 	"github.com/sigstore/rekor/pkg/generated/models"
 	"github.com/sigstore/rekor/pkg/types"
 	rekordsse "github.com/sigstore/rekor/pkg/types/dsse/v0.0.1"
+	witness "github.com/testifysec/witness/pkg"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/dsse"
+	"github.com/testifysec/witness/pkg/intoto"
+	"github.com/testifysec/witness/pkg/log"
 )
+
+const refString = "%s/api/v1/log/entries?logIndex=%d"
 
 var (
 	rekorSupportedHashes = map[crypto.Hash]string{crypto.SHA256: "sha256", crypto.SHA1: "sha1"}
+	backRefs             = []string{
+		"https://witness.dev/attestations/gitlab/v0.1/pipelineurl",
+		"https://witness.dev/attestations/git/v0.1/commithash",
+		"https://witness.dev/attestations/product/v0.1/file",
+	}
 )
 
 type wrappedRekorClient struct {
 	*generatedClient.Rekor
+	url            string
+	searchedHashes map[string]bool
+	searchedIndex  map[string]bool
 }
 
 type RekorClient interface {
 	StoreArtifact(artifactBytes, pubkeyBytes []byte) (*entries.CreateLogEntryCreated, error)
 	FindEntriesBySubject(cryptoutil.DigestSet) ([]*models.LogEntryAnon, error)
+	FindEvidence([]cryptoutil.DigestSet, dsse.Envelope, []cryptoutil.Verifier, []witness.CollectionEnvelope, int32) ([]witness.CollectionEnvelope, error)
 }
 
 func New(rekorServer string) (RekorClient, error) {
@@ -55,7 +71,10 @@ func New(rekorServer string) (RekorClient, error) {
 	}
 
 	return &wrappedRekorClient{
-		Rekor: client,
+		Rekor:          client,
+		url:            rekorServer,
+		searchedHashes: map[string]bool{},
+		searchedIndex:  map[string]bool{},
 	}, nil
 }
 
@@ -66,6 +85,7 @@ func (r *wrappedRekorClient) StoreArtifact(artifactBytes, pubkeyBytes []byte) (*
 	})
 
 	if err != nil {
+		fmt.Println("error creating entry:", err)
 		return nil, err
 	}
 
@@ -87,6 +107,108 @@ func (r *wrappedRekorClient) getTlogEntry(uuid string) (*models.LogEntryAnon, er
 	return nil, errors.New("empty response")
 }
 
+func (r *wrappedRekorClient) FindEvidence(subject []cryptoutil.DigestSet, policyEnvelope dsse.Envelope, verifier []cryptoutil.Verifier, verifiedEnvelopes []witness.CollectionEnvelope, recursionLimit int32) ([]witness.CollectionEnvelope, error) {
+
+	entries := []*models.LogEntryAnon{}
+	for _, ds := range subject {
+		entry, err := r.FindEntriesBySubject(ds)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, e := range entry {
+			if !r.searchedIndex[fmt.Sprintf(refString, r.url, e.LogIndex)] {
+				entries = append(entries, e)
+			}
+		}
+	}
+
+	var evidenceToVerify []witness.CollectionEnvelope
+
+	for _, entry := range entries {
+
+		envelope, err := ParseEnvelopeFromEntry(entry)
+		if err != nil {
+			return nil, err
+		}
+
+		reference := fmt.Sprintf(refString, r.url, *entry.LogIndex)
+
+		collectionEnvelope := witness.CollectionEnvelope{
+			Envelope:  envelope,
+			Reference: reference,
+		}
+
+		evidenceToVerify = append(evidenceToVerify, collectionEnvelope)
+	}
+
+	veropt := witness.VerifyWithCollectionEnvelopes(append(verifiedEnvelopes, evidenceToVerify...))
+	verifiedEvidence, err := witness.Verify(policyEnvelope, verifier, veropt)
+
+	//remove dups
+
+	if err == nil {
+		deduped := map[string]witness.CollectionEnvelope{}
+
+		for _, e := range verifiedEvidence {
+			deduped[e.Reference] = e
+		}
+
+		verifiedEvidence = []witness.CollectionEnvelope{}
+		for _, e := range deduped {
+			verifiedEvidence = append(verifiedEvidence, e)
+		}
+
+		return verifiedEvidence, nil
+	} else if recursionLimit > 0 {
+		backrefSubjs, err := getBackRefSubjects(evidenceToVerify)
+		if err != nil {
+			return nil, err
+		}
+		return r.FindEvidence(backrefSubjs, policyEnvelope, verifier, verifiedEvidence, recursionLimit-1)
+	}
+
+	return nil, err
+}
+
+func getBackRefSubjects(verifiedEvidence []witness.CollectionEnvelope) ([]cryptoutil.DigestSet, error) {
+	var backRefSubjects []cryptoutil.DigestSet
+
+	subjects := []intoto.Subject{}
+
+	for _, ce := range verifiedEvidence {
+		statementBytes := ce.Envelope.Payload
+		statement := intoto.Statement{}
+		if err := json.Unmarshal(statementBytes, &statement); err != nil {
+			return nil, err
+		}
+
+		subjects = append(subjects, statement.Subject...)
+
+	}
+
+	for _, subject := range subjects {
+		for _, backRef := range backRefs {
+			if strings.Contains(subject.Name, backRef) {
+				log.Infof("Found backref %s", subject.Name)
+
+				ds := cryptoutil.DigestSet{}
+				for name, value := range subject.Digest {
+					switch name {
+					case "sha256":
+						ds[crypto.SHA256] = value
+					case "sha1":
+						ds[crypto.SHA1] = value
+					}
+				}
+
+				backRefSubjects = append(backRefSubjects, ds)
+			}
+		}
+	}
+	return backRefSubjects, nil
+}
+
 func (r *wrappedRekorClient) FindEntriesBySubject(subjectDigestSet cryptoutil.DigestSet) ([]*models.LogEntryAnon, error) {
 	params := index.NewSearchIndexParams()
 	params.Query = &models.SearchIndex{}
@@ -97,6 +219,12 @@ func (r *wrappedRekorClient) FindEntriesBySubject(subjectDigestSet cryptoutil.Di
 			break
 		}
 	}
+
+	if r.searchedHashes[params.Query.Hash] {
+		return nil, nil
+	}
+
+	log.Infof("Searching for entries with subject hash: %s", params.Query.Hash)
 
 	searchIndex, err := r.Index.SearchIndex(params)
 	if err != nil {
@@ -114,6 +242,10 @@ func (r *wrappedRekorClient) FindEntriesBySubject(subjectDigestSet cryptoutil.Di
 		entries = append(entries, entry)
 	}
 
+	r.searchedHashes[params.Query.Hash] = true
+	for _, entry := range entries {
+		r.searchedIndex[fmt.Sprintf(refString, r.url, *entry.LogIndex)] = true
+	}
 	return entries, nil
 }
 
