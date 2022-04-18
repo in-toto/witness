@@ -33,6 +33,7 @@ import (
 
 func Test_RunVerifyCA(t *testing.T) {
 	ca, intermediates, leafcert, leafkey := fullChain(t)
+
 	ko := options.KeyOptions{
 		KeyPath: leafkey.Name(),
 		IntermediatePaths: []string{
@@ -41,16 +42,21 @@ func Test_RunVerifyCA(t *testing.T) {
 		CertPath: leafcert.Name(),
 	}
 
-	caBytes, err := ioutil.ReadFile(ko.CertPath)
+	caBytes, err := ioutil.ReadFile(ca.Name())
 	require.NoError(t, err)
 
 	policy := makepolicyCA(t, caBytes)
-	signedPolicy, _ := signPolicyCA(t, policy, ko)
+	signedPolicy, pub := signPolicyRSA(t, policy)
 
 	workingDir := t.TempDir()
 	attestationDir := t.TempDir()
 
 	err = os.WriteFile(workingDir+"signed-policy.json", signedPolicy, 0644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.WriteFile(workingDir+"policy-pub.pem", pub, 0644)
 	if err != nil {
 		t.Error(err)
 	}
@@ -98,13 +104,13 @@ func Test_RunVerifyCA(t *testing.T) {
 	}
 
 	vo := options.VerifyOptions{
-		KeyPath:              "",
+		KeyPath:              workingDir + "policy-pub.pem",
 		AttestationFilePaths: []string{attestationDir + "step01.json", attestationDir + "step02.json"},
 		PolicyFilePath:       workingDir + "signed-policy.json",
 		ArtifactFilePath:     workingDir + "test.txt",
 		RekorServer:          "",
-		CAPaths:              []string{ca.Name()},
-		EmailContstraints:    []string{},
+
+		EmailContstraints: []string{},
 	}
 
 	err = runVerify(vo, []string{})
@@ -379,7 +385,12 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	p.Steps[step01.Name] = step01
 	p.Steps[step02.Name] = step02
 
-	p.PublicKeys[publicKey.KeyID] = publicKey
+	if publicKey.KeyID != "" {
+
+		p.PublicKeys[publicKey.KeyID] = publicKey
+
+	}
+
 	pb, err := json.MarshalIndent(p, "", "  ")
 	if err != nil {
 		t.Error(err)
