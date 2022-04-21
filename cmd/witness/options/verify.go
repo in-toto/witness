@@ -31,6 +31,6 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&vo.AttestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
-	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server to fetch attestations from")
+	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server from which to fetch attestations")
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
 }

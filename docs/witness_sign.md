@@ -20,7 +20,7 @@ witness sign [file] [flags]
       --fulcio-oidc-issuer string      OIDC issuer to use for authentication
   -h, --help                           help for sign
   -f, --infile string                  Witness policy file to sign
-  -i, --intermediates strings          Intermediates that link trust back to a root in the policy
+  -i, --intermediates strings          Intermediates that link trust back to a root of trust in the policy
   -k, --key string                     Path to the signing key
   -o, --outfile string                 File to write signed data. Defaults to stdout
       --spiffe-socket string           Path to the SPIFFE Workload API socket
