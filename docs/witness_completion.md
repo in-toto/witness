@@ -5,14 +5,14 @@ Generate completion script
 ### Synopsis
 
 To load completions:
-Bash:
+bash:
   $ source <(witness completion bash)
   # To load completions for each session, execute once:
   # Linux:
   $ witness completion bash > /etc/bash_completion.d/witness
   # macOS:
   $ witness completion bash > /usr/local/etc/bash_completion.d/witness
-Zsh:
+zsh:
   # If shell completion is not already enabled in your environment,
   # you will need to enable it.  You can execute the following once:
   $ echo "autoload -U compinit; compinit" >> ~/.zshrc
