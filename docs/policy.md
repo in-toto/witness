@@ -1,44 +1,48 @@
 # Policies
 
-Witness policies allow users to make assertions and test attestation collections generated during `witness run`.
-Examples of when a policy could be enforced include within a Kubernetes admission controller, at the end of a CI/CD
-pipeline, prior to image promotion, or before deployment to an execution environment.
+TestifySec Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
+Examples of when a policy could be enforced include 
 
-Policies enable the ability to ensure all expected attestations are within a collection and support embedded
+- within a [Kubernetes admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
+- at the end of a CI/CD pipeline
+- prior to image promotion, or 
+- before deployment to an execution environment.
+
+Policies help you ensure that all expected attestations are within a collection and support embedded
 [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies to make determinations about the content
-of each attestation. Attestation signatures cal be linked to trusted functionaries with embedded public keys or X509
+of each attestation. Attestation signatures can be linked to trusted functionaries with embedded public keys or [X.509](https://en.wikipedia.org/wiki/X.509)
 roots of trust.
 
-With these powers combined Witness policies ultimately allow users to automatically make decisions about the
-trustworthiness of an artifact. Details of who, how, when, and where an artifact was built are all able to be considered
+Combining these powers, Witness policies ultimately allow users to make decisions automatically about the
+trustworthiness of an artifact. Details of who, how, when, and where an artifact was built can all be considered
 when evaluating policies.
 
 ## Verification Process
 
-`witness verify` will evaluate a set of attestation collections against a policy document. If the attestation
-collections satisfy the policy witness will exit with an exit code of 0. Any other exit code indicates an error or
+`Witness verify` will evaluate a set of attestation collections against a policy document. If the attestation
+collections satisfy the policy, Witness will exit with an exit code of 0. Any other exit code indicates an error or
 policy failure.
 
 Evaluating a Witness policy involves a few different steps:
 
-1. Verify signatures on collections against publickeys and roots within the policy. Any collections that fail signature
+1. Verify signatures on collections against public keys and trust roots within the policy. Any collections that fail signature
    verification will not be used.
 1. Verify the signer of each collection maps to a trusted functionary for the corresponding step in the policy.
-1. Verify materials recorded in each collection is consistent with the artifacts (materials + products) of other
+1. Verify that materials recorded in each collection are consistent with the artifacts (materials + products) of other
    collections as configured by the policy.
 1. Verify all rego policies embedded in the policy evaluate successfully against collections.
 
 ## Schema
 
-Policies are JSON documents that are signed and wrapped in a DSSE envelope. The DSSE payload type will be 
+Policies are JSON documents that are signed and wrapped in [DSSE envelopes](https://github.com/secure-systems-lab/dsse). The DSSE payload type will be 
 `https://witness.testifysec.com/policy/v0.1`.
 
 ### `policy` Object
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `expires` | string | ISO-8601 formatted time. This defines an expiration time for the policy. Evaluation of expired policies always fail. |
-| `roots` | object | Trusted X509 root certificates. Attestations that are signed with a certificate that belong to this root will be trusted. Keys of the object are the root certificate's Key ID, values are a `root` object. |
+| `expires` | string | [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) formatted time. This key defines an expiration time for the policy. Evaluation of expired policies always fails. |
+| `roots` | object | Trusted [X.509 root certificates](https://en.wikipedia.org/wiki/X.509). Attestations that are signed with a certificate that belong to this root will be trusted. Keys of the object are the root certificate's Key ID, values are a `root` object. |
 | `publickeys` | object | Trusted public keys. Attestations that are signed with one of these keys will be trusted. Keys of the object are the public key's Key ID, values are a `publickey` object. |
 | `steps` | object | Expected steps that must appear to satisfy the policy. Each step requires an attestation collection with a matching name and the expected attestations. Keys of the object are the step's name, values are a `step` object. |
 
@@ -46,14 +50,14 @@ Policies are JSON documents that are signed and wrapped in a DSSE envelope. The 
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `certificate` | string | Base64 encoded PEM block that describes a valid X509 root certificate. |
-| `intermediates` | array of strings | Array of base64 encoded PEM blocks that describe valid X509 intermediate certificates belonging to `certificate` |
+| `certificate` | string | [Base64](https://en.wikipedia.org/wiki/Base64) encoded [PEM](https://pkg.go.dev/encoding/pem) block that describes a valid X.509 root certificate. |
+| `intermediates` | array of strings | Array of base64 encoded PEM blocks that describe valid X.509 intermediate certificates belonging to `certificate` |
 
 ### `publickey` Object
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `keyid` | string | sha256sum of the public key |
+| `keyid` | string | [sha256sum](https://linux.die.net/man/1/sha256sum) of the public key |
 | `key` | string | Base64 encoded public key |
 
 ### `step` Object
@@ -70,7 +74,7 @@ Policies are JSON documents that are signed and wrapped in a DSSE envelope. The 
 | Key | Type | Description |
 | --- | ---- | ----------- |
 | `type` | string | Type of functionary. Valid values are "root" or "publickey". |
-| `certConstraint` | `certConstraint` object | Object defining constraints about the signer's certificate for "root" functionaries. Only valid if `type` is "root". |
+| `certConstraint` | `certConstraint` object | Object defining constraints upon the signer's certificate for "root" functionaries. Only valid if `type` is "root". |
 | `publickeyid` | string | Key ID of a public key that is trusted to sign this step. Only valid if `type` is "publickey". |
 
 ### `certConstraint` Object
@@ -85,9 +89,9 @@ Policies are JSON documents that are signed and wrapped in a DSSE envelope. The 
 | `roots` | array of strings | Array of Key IDs the signer's certificate must belong to to be trusted. |
 
 Every attribute of the certificate must match the attributes defined by the constraint exactly. A certificate must match
-at least one constraint to pass the policy. Wildcards are allowed if they are the only elemnt in the constraint.
+at least one constraint to pass the policy. Wildcards are allowed if they are the only element in the constraint.
 
-Example of a constraint that would allow any certificate, as long as it belongs to a root defined in the policy:
+Example of a constraint that would allow use of any certificate, as long as it belongs to a root defined in the policy:
 
 ```
 {
@@ -100,7 +104,7 @@ Example of a constraint that would allow any certificate, as long as it belongs 
 }
 ```
 
-SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforce a SPIFFE ID may look like:
+[SPIFFE](https://spiffe.io/) IDs are defined as URIs on the certificate, so a policy that would enforce a SPIFFE ID may look like:
 
 ```
 {
@@ -118,7 +122,7 @@ SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforc
 | Key | Type | Description |
 | --- | ---- | ----------- |
 | `type` | string | Type reference of an attestation that must appear in a step. |
-| `regopolicies` | array of `regopolicy` objects | Rego policies that will be run against the attestation. All must pass. |
+| `regopolicies` | array of `regopolicy` objects | [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies that will be run against the attestation. All must pass. |
 
 ### `regopolicy` Object
 
@@ -127,9 +131,11 @@ SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforc
 | `name` | string | Name of the rego policy. Will be reported on failures. |
 | `module` | string | Base64 encoded rego module |
 
-Rego modules are expected to output a data with the name of `deny` in the case a rego policy evaluation is failed.
-`deny` can be a string or an array of strings and should be populated with a human readable string describing why the
-policy was denied. Any other data output by the module will be ignored. An example of a valid rego policy may look like:
+Rego modules are expected to output a data with the name of `deny` in the case of a rego policy evaluation failure.
+`deny` can be a string or an array of strings and should be populated with a human-readable string describing why the
+policy was denied. Any other data output by the module will be ignored. 
+
+Following is an example output for a valid rego policy:
 
 ```
 package commandrun.exitcode
@@ -235,7 +241,7 @@ deny[msg] {
 }
 ```
 
-The above example policy requires two attestation collections are present, one named "clone" and one named "build". Both
+The above example policy requires that two attestation collections be present, one named "clone" and one named "build". Both
 collections must have a material, command-run, and product attestor within them. The command-run attestor for the
 "build" collection must have recorded a command of `go build -o=testapp .` to pass the embedded rego policy. The build
 step is configured to ensure the materials used are consistent with the artifacts from the clone step, assuring that

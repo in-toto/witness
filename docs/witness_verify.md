@@ -19,7 +19,7 @@ witness verify [flags]
   -p, --policy string          Path to the policy to verify
       --policy-ca strings      Paths to CA certificates to use for verifying the policy
   -k, --publickey string       Path to the policy signer's public key
-  -r, --rekor-server string    Rekor server to fetch attestations from
+  -r, --rekor-server string    Rekor server from which to fetch attestations
 ```
 
 ### Options inherited from parent commands
