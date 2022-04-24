@@ -1,6 +1,6 @@
 # OCI Attestor
 
-The OCI Attestor records information about a provided Open Container Initiative (OCI) image stored on disk as a tarball.
+The OCI Attestor records information about a provided [Open Container Initiative](https://opencontainers.org/) (OCI) image stored on disk as a tarball.
 Information about the image tags, layers, and manifest are collected and reported in this
 attestation.
 
