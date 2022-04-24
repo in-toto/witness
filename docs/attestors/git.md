@@ -1,6 +1,6 @@
 # Git Attestor
 
-The Git attestor records the current state of the objects in the git repository, including untracked objects.
+The Git Attestor records the current state of the objects in the git repository, including untracked objects.
 Both staged and unstaged states are recorded.
 
 
