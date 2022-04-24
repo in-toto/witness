@@ -10,7 +10,7 @@ Examples of when a policy could be enforced include
 
 Policies help you ensure that all expected attestations are within a collection and support embedded
 [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies to make determinations about the content
-of each attestation. Attestation signatures can be linked to trusted functionaries with embedded public keys or X.509
+of each attestation. Attestation signatures can be linked to trusted functionaries with embedded public keys or [X.509](https://en.wikipedia.org/wiki/X.509)
 roots of trust.
 
 Combining these powers, Witness policies ultimately allow users to make decisions automatically about the
@@ -50,7 +50,7 @@ Policies are JSON documents that are signed and wrapped in [DSSE envelopes](http
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `certificate` | string | Base64 encoded PEM block that describes a valid X.509 root certificate. |
+| `certificate` | string | [Base64](https://en.wikipedia.org/wiki/Base64) encoded [PEM](https://pkg.go.dev/encoding/pem) block that describes a valid X.509 root certificate. |
 | `intermediates` | array of strings | Array of base64 encoded PEM blocks that describe valid X.509 intermediate certificates belonging to `certificate` |
 
 ### `publickey` Object
