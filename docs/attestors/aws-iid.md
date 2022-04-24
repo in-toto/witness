@@ -1,7 +1,7 @@
 # AWS Instance Identity Attestor
 
-The AWS Instance Identity Attestor communicates with the AWS Instance Metadata to collect
-information about the instance Witness is being executed on. The documents signature is
+The AWS (Amazon Web Services) Instance Identity Attestor communicates with the AWS Instance Metadata to collect
+information about the AWS instance Witness on which executing. The document signature is
 verified with the AWS RSA public certificate available [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/verify-signature.html).
 This verification method currently does not work for the Hong Kong, Bahrain, Cape Town, Milan, China, or
 GovCloud regions.
