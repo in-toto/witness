@@ -1,8 +1,8 @@
 # GitLab Attestor
 
-The GitLab Attestor records information about the GitLab CI/CD job execution in which
-TestifySec Witness was run. Witness verifies the JWT (JSON Web Token) provided in `CI_JOB_JWT` against the
-instance's JWKS (JSON Web Key Ste) to ensure authenticity at execution time.
+The [GitLab](https://about.gitlab.com/) Attestor records information about the GitLab CI/CD job execution in which
+TestifySec Witness was run. Witness verifies the JWT ([JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)) provided in `CI_JOB_JWT` against the
+instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity at execution time.
 
 ## Subjects
 
