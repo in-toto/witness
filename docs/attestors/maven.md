@@ -1,6 +1,6 @@
 # Maven Attestor
 
-The Maven Attestor records project and dependency information from a provided pom.xml (Maven Project Object Model).
+The Maven Attestor records project and dependency information from a provided pom.xml ([Maven Project Object Model](https://maven.apache.org/guides/introduction/introduction-to-the-pom.html)).
 
 ## Subjects
 
