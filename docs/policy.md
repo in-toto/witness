@@ -1,6 +1,6 @@
 # Policies
 
-Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
+TestifySec Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
 Examples of when a policy could be enforced include 
 
 - within a Kubernetes admission controller
@@ -8,7 +8,7 @@ Examples of when a policy could be enforced include
 - prior to image promotion, or 
 - before deployment to an execution environment.
 
-Policies enable the ability to ensure that all expected attestations are within a collection and support embedded
+Policies help you ensure that all expected attestations are within a collection and support embedded
 [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies to make determinations about the content
 of each attestation. Attestation signatures can be linked to trusted functionaries with embedded public keys or X.509
 roots of trust.
@@ -41,8 +41,8 @@ Policies are JSON documents that are signed and wrapped in [DSSE envelopes](http
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `expires` | string | ISO-8601 formatted time. This key defines an expiration time for the policy. Evaluation of expired policies always fails. |
-| `roots` | object | Trusted X509 root certificates. Attestations that are signed with a certificate that belong to this root will be trusted. Keys of the object are the root certificate's Key ID, values are a `root` object. |
+| `expires` | string | [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) formatted time. This key defines an expiration time for the policy. Evaluation of expired policies always fails. |
+| `roots` | object | Trusted [X.509 root certificates](https://en.wikipedia.org/wiki/X.509). Attestations that are signed with a certificate that belong to this root will be trusted. Keys of the object are the root certificate's Key ID, values are a `root` object. |
 | `publickeys` | object | Trusted public keys. Attestations that are signed with one of these keys will be trusted. Keys of the object are the public key's Key ID, values are a `publickey` object. |
 | `steps` | object | Expected steps that must appear to satisfy the policy. Each step requires an attestation collection with a matching name and the expected attestations. Keys of the object are the step's name, values are a `step` object. |
 
@@ -57,7 +57,7 @@ Policies are JSON documents that are signed and wrapped in [DSSE envelopes](http
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `keyid` | string | sha256sum of the public key |
+| `keyid` | string | [sha256sum](https://linux.die.net/man/1/sha256sum) of the public key |
 | `key` | string | Base64 encoded public key |
 
 ### `step` Object
@@ -104,7 +104,7 @@ Example of a constraint that would allow use of any certificate, as long as it b
 }
 ```
 
-SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforce a SPIFFE ID may look like:
+[SPIFFE](https://spiffe.io/) IDs are defined as URIs on the certificate, so a policy that would enforce a SPIFFE ID may look like:
 
 ```
 {
@@ -122,7 +122,7 @@ SPIFFE IDs are defined as URIs on the certificate, so a policy that would enforc
 | Key | Type | Description |
 | --- | ---- | ----------- |
 | `type` | string | Type reference of an attestation that must appear in a step. |
-| `regopolicies` | array of `regopolicy` objects | Rego policies that will be run against the attestation. All must pass. |
+| `regopolicies` | array of `regopolicy` objects | [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies that will be run against the attestation. All must pass. |
 
 ### `regopolicy` Object
 
