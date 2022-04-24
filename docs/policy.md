@@ -3,7 +3,7 @@
 TestifySec Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
 Examples of when a policy could be enforced include 
 
-- within a Kubernetes admission controller
+- within a [Kubernetes admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - at the end of a CI/CD pipeline
 - prior to image promotion, or 
 - before deployment to an execution environment.
