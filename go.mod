@@ -17,8 +17,9 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.12
 	github.com/stretchr/testify v1.7.1
+	github.com/testifysec/archivist-api v0.0.0-20220502044345-059a521f0ad1
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.46.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
