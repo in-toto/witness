@@ -17,8 +17,9 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/spiffe/go-spiffe/v2 v2.0.0-beta.12
 	github.com/stretchr/testify v1.7.0
+	github.com/testifysec/archivist-api v0.0.0-20220502044345-059a521f0ad1
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.46.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
@@ -154,7 +155,7 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
