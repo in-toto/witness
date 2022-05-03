@@ -31,23 +31,20 @@ import (
 type testCollectorServer struct {
 	archivist.UnimplementedCollectorServer
 	test    *testing.T
-	cancel  context.CancelFunc
 	context context.Context
 }
 
-func newTestServer(t *testing.T, cancel context.CancelFunc, ctx context.Context) archivist.CollectorServer {
+func newTestServer(t *testing.T, ctx context.Context) archivist.CollectorServer {
 	return &testCollectorServer{
 		test:    t,
-		cancel:  cancel,
 		context: ctx,
 	}
 }
 
+type ctxKey string
+
 func (s *testCollectorServer) Store(_ context.Context, request *archivist.StoreRequest) (*emptypb.Empty, error) {
-	failed := assert.Equal(s.test, s.context.Value("envelope"), request.Object)
-	if failed {
-		s.cancel()
-	}
+	assert.Equal(s.test, s.context.Value(ctxKey("envelope")), request.Object)
 	return &emptypb.Empty{}, nil
 }
 
@@ -56,10 +53,9 @@ func TestInsecureSink(t *testing.T) {
 	grpcOptions = append(grpcOptions, grpc.Creds(insecure.NewCredentials()))
 	grpcServer := grpc.NewServer(grpcOptions...)
 
-	ctx, cancel := context.WithCancel(context.Background())
 	testValue := "test"
-	ctx = context.WithValue(context.Background(), "envelope", testValue)
-	collectorService := newTestServer(t, cancel, ctx)
+	ctx := context.WithValue(context.Background(), ctxKey("envelope"), testValue)
+	collectorService := newTestServer(t, ctx)
 	archivist.RegisterCollectorServer(grpcServer, collectorService)
 
 	hostUrl, _ := url.Parse("tcp://127.0.0.1:9090")
@@ -83,10 +79,9 @@ func TestTlsSink(t *testing.T) {
 	grpcOptions := []grpc.ServerOption{grpc.Creds(creds)}
 	grpcServer := grpc.NewServer(grpcOptions...)
 
-	ctx, cancel := context.WithCancel(context.Background())
 	testValue := "test"
-	ctx = context.WithValue(context.Background(), "envelope", testValue)
-	collectorService := newTestServer(t, cancel, ctx)
+	ctx := context.WithValue(context.Background(), ctxKey("envelope"), testValue)
+	collectorService := newTestServer(t, ctx)
 	archivist.RegisterCollectorServer(grpcServer, collectorService)
 
 	hostUrl, _ := url.Parse("tcp://127.0.0.1:9091")
