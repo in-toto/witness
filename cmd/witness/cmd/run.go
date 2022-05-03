@@ -16,8 +16,6 @@ package cmd
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -27,10 +25,6 @@ import (
 	"github.com/testifysec/witness/pkg/log"
 	"github.com/testifysec/witness/pkg/rekor"
 	"github.com/testifysec/witness/pkg/sink"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
-	"io/ioutil"
 )
 
 func RunCmd() *cobra.Command {
@@ -127,35 +121,22 @@ func runRun(ro options.RunOptions, args []string) error {
 		log.Infof("Rekor entry added at %v%v\n", rekorServer, resp.Location)
 	}
 
-	collectorServer := ro.CollectorOptions.Server
-	if collectorServer != "" {
-		err := pushToCollector(ro.CollectorOptions, signedBytes)
+	sinkServer := ro.CollectorOptions.Server
+	if sinkServer != "" {
+		client, err := sink.New(
+			sinkServer,
+			ro.CollectorOptions.CACertPath,
+			ro.CollectorOptions.ClientCert,
+			ro.CollectorOptions.ClientKey,
+		)
 		if err != nil {
+			return fmt.Errorf("failed to send signed envelope to collector: %v", err)
+		}
+
+		if err = client.Store(string(signedBytes)); err != nil {
 			return fmt.Errorf("failed to send signed envelope to collector: %v", err)
 		}
 	}
 
 	return nil
-}
-
-func pushToCollector(collectorOpts options.CollectorOptions, signedEnvelope []byte) error {
-	dialOpts := make([]grpc.DialOption, 0)
-
-	if collectorOpts.CACertPath != "" {
-		caFile, err := ioutil.ReadFile(collectorOpts.CACertPath)
-		if err != nil {
-			return err
-		}
-		pool := x509.NewCertPool()
-		if !pool.AppendCertsFromPEM(caFile) {
-			return fmt.Errorf("failed to load collector CA into pool: %v", err)
-		}
-		cfg := &tls.Config{RootCAs: pool}
-		dialOpts = append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(cfg)))
-	} else {
-		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	}
-
-	client := sink.NewClient(dialOpts)
-	return client.Store(string(signedEnvelope))
 }
