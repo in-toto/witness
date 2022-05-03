@@ -133,7 +133,7 @@ func runRun(ro options.RunOptions, args []string) error {
 			return fmt.Errorf("failed to send signed envelope to collector: %v", err)
 		}
 
-		if err = client.Store(string(signedBytes)); err != nil {
+		if err = client.Store(string(signedBytes), ctx); err != nil {
 			return fmt.Errorf("failed to send signed envelope to collector: %v", err)
 		}
 	}
