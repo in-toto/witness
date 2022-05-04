@@ -127,7 +127,7 @@ func runRun(ro options.RunOptions, args []string) error {
 			ro.CollectorOptions.CACertPath,
 			ro.CollectorOptions.ClientCert,
 			ro.CollectorOptions.ClientKey,
-			ro.CollectorOptions.SPIFFEAddr,
+			ro.KeyOptions.SpiffePath,
 			ro.CollectorOptions.SPIFFEServerId,
 		)
 		if err != nil {
