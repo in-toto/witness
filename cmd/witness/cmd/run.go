@@ -122,7 +122,7 @@ func runRun(ro options.RunOptions, args []string) error {
 
 	sinkServer := ro.CollectorOptions.Server
 	if sinkServer != "" {
-		client, err := sink.New(
+		client, err := sink.NewCollector(
 			sinkServer,
 			ro.CollectorOptions.CACertPath,
 			ro.CollectorOptions.ClientCert,
