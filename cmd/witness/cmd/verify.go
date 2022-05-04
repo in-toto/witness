@@ -15,12 +15,15 @@
 package cmd
 
 import (
+	"context"
 	"crypto"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/testifysec/witness/pkg/sink"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
@@ -87,9 +90,40 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
-	diskEnvs, err := loadEnvelopesFromDisk(vo.AttestationFilePaths)
-	if err != nil {
-		return fmt.Errorf("failed to load attestation files: %w", err)
+	fetchedEnvelopes := make([]witness.CollectionEnvelope, 0)
+	log.Info(vo.AttestationDigests, len(vo.AttestationDigests))
+	if len(vo.AttestationDigests) > 0 {
+		for _, d := range vo.AttestationDigests {
+			parts := strings.Split(d, " ")
+			if len(parts) == 1 {
+				return fmt.Errorf("failed to parse attestation digests: %v", err)
+			}
+
+			digest := parts[0]
+			alg := parts[1]
+
+			archivist, err := sink.NewArchivist("127.0.0.1:8080", "", "", "",
+				"unix:///tmp/spire-agent/public/api.sock", "spiffe://witness.com/collector")
+			if err != nil {
+				return fmt.Errorf("failed connecting to upstream archivist: %v", err)
+			}
+
+			resp, err := archivist.GetBySubjectDigestRequest(context.Background(), alg, digest)
+			if err != nil {
+				return fmt.Errorf("failed requesting attestations by digest: %v", err)
+			}
+			for _, i := range resp {
+				log.Infof("output: %s", i)
+			}
+			return nil
+			// todo: fix this
+			// fetchedEnvelopes = resp
+		}
+	} else {
+		fetchedEnvelopes, err = loadEnvelopesFromDisk(vo.AttestationFilePaths)
+		if err != nil {
+			return fmt.Errorf("failed to load attestation files: %w", err)
+		}
 	}
 
 	verifiedEvidence := []witness.CollectionEnvelope{}
@@ -112,7 +146,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		verifiers := []cryptoutil.Verifier{}
 		verifiers = append(verifiers, verifier)
 
-		evidence, err := rc.FindEvidence(digestSets, policyEnvelope, verifiers, diskEnvs, MAX_DEPTH)
+		evidence, err := rc.FindEvidence(digestSets, policyEnvelope, verifiers, fetchedEnvelopes, MAX_DEPTH)
 		if err != nil {
 			return fmt.Errorf("failed to find evidence: %w", err)
 		}
@@ -121,7 +155,11 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 	}
 
 	if vo.RekorServer == "" {
-		verifiedEvidence, err = witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(diskEnvs))
+		verifiedEvidence, err = witness.Verify(
+			policyEnvelope,
+			[]cryptoutil.Verifier{verifier},
+			witness.VerifyWithCollectionEnvelopes(fetchedEnvelopes),
+		)
 		if err != nil {
 			return fmt.Errorf("failed to verify policy: %w", err)
 
