@@ -20,6 +20,8 @@ witness run [cmd] [flags]
   -k, --key string                          Path to the signing key
   -o, --outfile string                      File to write signed data.  Defaults to stdout
   -r, --rekor-server string                 Rekor server to store attestations
+      --spiffe-address string               SPIFFE address for the workload api
+      --spiffe-server-id string             Sets allowed SPIFFE ID for dialing the server, defaults to any
       --spiffe-socket string                Path to the SPIFFE Workload API socket
   -s, --step string                         Name of the step being run
       --trace                               enable tracing for the command
