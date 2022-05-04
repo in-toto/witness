@@ -128,6 +128,8 @@ func runRun(ro options.RunOptions, args []string) error {
 			ro.CollectorOptions.CACertPath,
 			ro.CollectorOptions.ClientCert,
 			ro.CollectorOptions.ClientKey,
+			ro.CollectorOptions.SPIFFEAddr,
+			ro.CollectorOptions.SPIFFEServerId,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to send signed envelope to collector: %v", err)
