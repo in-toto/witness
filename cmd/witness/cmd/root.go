@@ -67,12 +67,12 @@ func preRoot(cmd *cobra.Command, ro *options.RootOptions) {
 	}
 }
 
-func loadSigners(ctx context.Context, ko options.KeyOptions) ([]cryptoutil.Signer, []error) {
+func loadSigners(ctx context.Context, ko options.KeyOptions, so options.SpiffeOptions) ([]cryptoutil.Signer, []error) {
 	signers := []cryptoutil.Signer{}
 	errors := []error{}
 
-	if ko.SpiffePath != "" {
-		s, err := spiffe.Signer(ctx, ko.SpiffePath)
+	if so.Address != "" {
+		s, err := spiffe.Signer(ctx, so.Address)
 		if err != nil {
 			errors = append(errors, fmt.Errorf("failed to create signer: %v", err))
 		} else {

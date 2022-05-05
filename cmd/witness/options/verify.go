@@ -22,16 +22,18 @@ type VerifyOptions struct {
 	PolicyFilePath       string
 	ArtifactFilePath     string
 	RekorServer          string
-	SpiffePath           string
 	AttestationDigests   []string
+	SpiffeOptions        SpiffeOptions
+	CollectorOptions     CollectorOptions
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
+	vo.SpiffeOptions.AddFlags(cmd)
+	vo.CollectorOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&vo.KeyPath, "publickey", "k", "", "Path to the policy signer's public key")
 	cmd.Flags().StringSliceVarP(&vo.AttestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server to fetch attestations from")
-	cmd.Flags().StringVar(&vo.SpiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
-	cmd.Flags().StringSliceVar(&vo.AttestationDigests, "attestation-digests", []string{}, "List of attestations in the form 'algorithm,digest' for retrieval from archivist")
+	cmd.Flags().StringSliceVar(&vo.AttestationDigests, "attestation-digests", []string{}, "List of attestations in the form 'algorithm digest' for retrieval from archivist")
 }

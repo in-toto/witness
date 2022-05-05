@@ -46,7 +46,7 @@ func RunCmd() *cobra.Command {
 
 func runRun(ro options.RunOptions, args []string) error {
 	ctx := context.Background()
-	signers, errors := loadSigners(ctx, ro.KeyOptions)
+	signers, errors := loadSigners(ctx, ro.KeyOptions, ro.SpiffeOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
 			log.Error(err)
@@ -127,8 +127,8 @@ func runRun(ro options.RunOptions, args []string) error {
 			ro.CollectorOptions.CACertPath,
 			ro.CollectorOptions.ClientCert,
 			ro.CollectorOptions.ClientKey,
-			ro.KeyOptions.SpiffePath,
-			ro.CollectorOptions.SPIFFEServerId,
+			ro.SpiffeOptions.Address,
+			ro.SpiffeOptions.TrustedServerId,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to send signed envelope to collector: %v", err)

@@ -25,11 +25,13 @@ type RunOptions struct {
 	RekorServer      string
 	Tracing          bool
 	CollectorOptions CollectorOptions
+	SpiffeOptions    SpiffeOptions
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	ro.KeyOptions.AddFlags(cmd)
 	ro.CollectorOptions.AddFlags(cmd)
+	ro.SpiffeOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory that commands will be run from")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
 	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to write signed data.  Defaults to stdout")

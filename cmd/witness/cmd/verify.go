@@ -82,7 +82,6 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 	}
 
 	fetchedEnvelopes := make([]witness.CollectionEnvelope, 0)
-	log.Info(vo.AttestationDigests, len(vo.AttestationDigests))
 	if len(vo.AttestationDigests) > 0 {
 		for _, d := range vo.AttestationDigests {
 			parts := strings.Split(d, " ")
@@ -93,8 +92,14 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 			digest := parts[0]
 			alg := parts[1]
 
-			archivist, err := sink.NewArchivist("127.0.0.1:8080", "", "", "",
-				"unix:///tmp/spire-agent/public/api.sock", "spiffe://witness.com/collector")
+			archivist, err := sink.NewArchivist(
+				vo.CollectorOptions.Server,
+				vo.CollectorOptions.CACertPath,
+				vo.CollectorOptions.ClientCert,
+				vo.CollectorOptions.ClientKey,
+				vo.SpiffeOptions.Address,
+				vo.SpiffeOptions.TrustedServerId,
+			)
 			if err != nil {
 				return fmt.Errorf("failed connecting to upstream archivist: %v", err)
 			}

@@ -47,7 +47,7 @@ func SignCmd() *cobra.Command {
 //we need to abstract where keys are coming from, etc
 func runSign(so options.SignOptions) error {
 	ctx := context.Background()
-	signers, errors := loadSigners(ctx, so.KeyOptions)
+	signers, errors := loadSigners(ctx, so.KeyOptions, so.SpiffeOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
 			log.Error(err)

@@ -82,6 +82,7 @@ func setDialOpts(caPath, clientCertPath, clientKeyPath, spiffeAddress, spiffeSer
 	dialOpts := make([]grpc.DialOption, 0)
 
 	if spiffeAddress != "" {
+		// todo: remove picker
 		picker := func(ids []*x509svid.SVID) *x509svid.SVID {
 			for _, id := range ids {
 				if id.ID.String() == "spiffe://witness.com/witness" {

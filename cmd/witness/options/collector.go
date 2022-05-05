@@ -17,17 +17,14 @@ package options
 import "github.com/spf13/cobra"
 
 type CollectorOptions struct {
-	Server         string
-	CACertPath     string
-	ClientCert     string
-	ClientKey      string
-	SPIFFEAddr     string
-	SPIFFEServerId string
+	Server     string
+	CACertPath string
+	ClientCert string
+	ClientKey  string
 }
 
 func (co *CollectorOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&co.Server, "collector-server", "127.0.0.1:8080", "Collector server protocol and address")
-	cmd.Flags().StringVar(&co.SPIFFEServerId, "spiffe-server-id", "", "Sets allowed SPIFFE ID for dialing the server, defaults to any")
 	cmd.Flags().StringVar(&co.CACertPath, "collector-ca-path", "", "Path to the collector server's certificate CA data")
 	cmd.Flags().StringVar(&co.ClientCert, "collector-client-cert-path", "", "Path to the collector client's certificate")
 	cmd.Flags().StringVar(&co.ClientKey, "collector-client-key-path", "", "Path to the collector client's private key")
