@@ -61,7 +61,7 @@ func TestInsecureSink(t *testing.T) {
 	hostUrl, _ := url.Parse("tcp://127.0.0.1:9090")
 	grpcutils.ListenAndServe(ctx, hostUrl, grpcServer)
 
-	sink, _ := New("127.0.0.1:9090", "", "", "", "", "")
+	sink, _ := NewCollector("127.0.0.1:9090", "", "", "", "", "")
 	if err := sink.Store(testValue, ctx); err != nil {
 		t.Errorf("failed to store attestation during test: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestTlsSink(t *testing.T) {
 	hostUrl, _ := url.Parse("tcp://127.0.0.1:9091")
 	grpcutils.ListenAndServe(ctx, hostUrl, grpcServer)
 
-	sink, _ := New("127.0.0.1:9091", filepath.Join("testdata", "ca-cert.pem"),
+	sink, _ := NewCollector("127.0.0.1:9091", filepath.Join("testdata", "ca-cert.pem"),
 		"", "", "", "")
 	if err := sink.Store(testValue, ctx); err != nil {
 		t.Errorf("failed to store attestation during test: %v", err)
