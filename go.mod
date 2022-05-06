@@ -44,6 +44,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/facebookincubator/nvdtools v0.1.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.0 // indirect
+	github.com/go-ini/ini v1.66.3 // indirect
 	github.com/go-restruct/restruct v1.2.0-alpha // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -57,6 +58,7 @@ require (
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
+	github.com/minio/minio-go v6.0.14+incompatible // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/networkservicemesh/api v1.3.1 // indirect

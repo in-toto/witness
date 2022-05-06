@@ -108,12 +108,18 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 			if err != nil {
 				return fmt.Errorf("failed requesting attestations by digest: %v", err)
 			}
-			for _, i := range resp {
-				log.Infof("output: %s", i)
+			for _, e := range resp {
+				var envelope dsse.Envelope
+				attBytes := []byte(e)
+				err := json.Unmarshal(attBytes, &envelope)
+				if err != nil {
+					return fmt.Errorf("failed to retrieve dsse for subject: %v", err)
+				}
+				fetchedEnvelopes = append(fetchedEnvelopes, witness.CollectionEnvelope{
+					Envelope:  envelope,
+					Reference: fmt.Sprintf("sha256:%x  %s", sha256.Sum256(attBytes), ""),
+				})
 			}
-			return nil
-			// todo: fix this
-			// fetchedEnvelopes = resp
 		}
 	} else {
 		fetchedEnvelopes, err = loadEnvelopesFromDisk(vo.AttestationFilePaths)
