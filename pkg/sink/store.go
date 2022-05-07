@@ -22,7 +22,6 @@ import (
 	"github.com/spiffe/go-spiffe/v2/spiffegrpc/grpccredentials"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
 	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
-	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
 	api "github.com/testifysec/archivist-api/pkg/api/archivist"
 	"google.golang.org/grpc"
@@ -82,21 +81,11 @@ func setDialOpts(caPath, clientCertPath, clientKeyPath, spiffeAddress, spiffeSer
 	dialOpts := make([]grpc.DialOption, 0)
 
 	if spiffeAddress != "" {
-		// todo: remove picker
-		picker := func(ids []*x509svid.SVID) *x509svid.SVID {
-			for _, id := range ids {
-				if id.ID.String() == "spiffe://witness.com/witness" {
-					return id
-				}
-			}
-			return nil
-		}
 		workloadOpts := []workloadapi.ClientOption{
 			workloadapi.WithAddr(spiffeAddress),
 		}
 		svidSource, err := workloadapi.NewX509Source(
 			context.Background(),
-			workloadapi.WithDefaultX509SVIDPicker(picker),
 			workloadapi.WithClientOptions(workloadOpts...),
 		)
 		if err != nil {

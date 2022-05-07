@@ -108,6 +108,7 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 			if err != nil {
 				return fmt.Errorf("failed requesting attestations by digest: %v", err)
 			}
+
 			for _, e := range resp {
 				var envelope dsse.Envelope
 				attBytes := []byte(e)
