@@ -47,7 +47,6 @@ var (
 	backRefs             = []string{
 		"https://witness.dev/attestations/gitlab/v0.1/pipelineurl",
 		"https://witness.dev/attestations/git/v0.1/commithash",
-		"https://witness.dev/attestations/product/v0.1/file",
 	}
 )
 
