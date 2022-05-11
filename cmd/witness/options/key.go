@@ -32,5 +32,4 @@ func (ko *KeyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&ko.FulcioURL, "fulcio", "", "Fulcio address to sign with")
 	cmd.Flags().StringVar(&ko.OIDCIssuer, "fulcio-oidc-issuer", "", "OIDC issuer to use for authentication")
 	cmd.Flags().StringVar(&ko.OIDCClientID, "fulcio-oidc-client-id", "", "OIDC client ID to use for authentication")
-	cmd.Flags().StringSliceVarP(&ko.IntermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root in the policy")
 }

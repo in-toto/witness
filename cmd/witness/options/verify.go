@@ -38,6 +38,5 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server from which to fetch attestations")
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
-	cmd.Flags().StringVarP(&vo.RekorServer, "rekor-server", "r", "", "Rekor server to fetch attestations from")
 	cmd.Flags().StringSliceVar(&vo.AttestationDigests, "attestation-digests", []string{}, "List of attestations in the form 'algorithm digest' for retrieval from archivist")
 }

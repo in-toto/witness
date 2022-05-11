@@ -13,10 +13,9 @@ witness verify [flags]
 ### Options
 
 ```
-<<<<<<< HEAD
-  -f, --artifactfile string    Path to the artifact to verify
-  -a, --attestations strings   Attestation files to test against the policy
+  -f, --artifactfile string                 Path to the artifact to verify
       --attestation-digests strings         List of attestations in the form 'algorithm digest' for retrieval from archivist
+  -a, --attestations strings                Attestation files to test against the policy
       --collector-ca-path string            Path to the collector server's certificate CA data
       --collector-client-cert-path string   Path to the collector client's certificate
       --collector-client-key-path string    Path to the collector client's private key
