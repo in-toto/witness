@@ -1,4 +1,3 @@
-#!/bin/sh
 # Copyright 2022 The Witness Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#!/bin/sh
 set -e
+
+DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+. "$DIR/../../test/common.sh"
+
+if ! checkprograms awk sha256sum docker tr jq ; then
+  exit 1
+fi
 
 printf "\nFinding artifacts with log4j 1.2.17...\n"
 LOG4JHASH=$(echo -n dependency:log4j/log4j@1.2.17 | sha256sum | awk '{print $1}')

@@ -1,4 +1,3 @@
-#!/bin/sh
 # Copyright 2022 The Witness Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#!/bin/sh
 set -e
+
+DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+. "$DIR/../../test/common.sh"
+
+if ! checkprograms docker ; then
+  exit 1
+fi
+
 
 printf "\nVerifying policy on nonvulnerable package...\n"
 docker run --rm -it --net host -v "$(pwd):/src" -w /src/nonvuln witness-log4shell-demo witness verify -c ../witness.yaml --artifactfile target/my-app-1.0-SNAPSHOT.jar
