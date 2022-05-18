@@ -21,6 +21,7 @@ import (
 	"os/exec"
 
 	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation/environment"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
@@ -62,8 +63,17 @@ func WithSilent(silent bool) Option {
 	}
 }
 
+func WithEnvironmentBlockList(blockList map[string]struct{}) Option {
+	return func(cr *CommandRun) {
+		cr.environmentBlockList = blockList
+	}
+}
+
 func New(opts ...Option) *CommandRun {
-	cr := &CommandRun{}
+	cr := &CommandRun{
+		environmentBlockList: environment.DefaultBlockList(),
+	}
+
 	for _, opt := range opts {
 		opt(cr)
 	}
@@ -91,9 +101,10 @@ type CommandRun struct {
 	ExitCode  int           `json:"exitcode"`
 	Processes []ProcessInfo `json:"processes,omitempty"`
 
-	silent        bool
-	materials     map[string]cryptoutil.DigestSet
-	enableTracing bool
+	silent               bool
+	materials            map[string]cryptoutil.DigestSet
+	enableTracing        bool
+	environmentBlockList map[string]struct{}
 }
 
 func (rc *CommandRun) Attest(ctx *attestation.AttestationContext) error {

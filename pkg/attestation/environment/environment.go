@@ -40,10 +40,28 @@ type Attestor struct {
 	Hostname  string            `json:"hostname"`
 	Username  string            `json:"username"`
 	Variables map[string]string `json:"variables,omitempty"`
+
+	blockList map[string]struct{}
 }
 
-func New() *Attestor {
-	return &Attestor{}
+type Option func(*Attestor)
+
+func WithBlockList(blockList map[string]struct{}) Option {
+	return func(a *Attestor) {
+		a.blockList = blockList
+	}
+}
+
+func New(opts ...Option) *Attestor {
+	attestor := &Attestor{
+		blockList: DefaultBlockList(),
+	}
+
+	for _, opt := range opts {
+		opt(attestor)
+	}
+
+	return attestor
 }
 
 func (a *Attestor) Name() string {
@@ -70,17 +88,21 @@ func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 		a.Username = user.Username
 	}
 
-	variables := os.Environ()
-	for _, v := range variables {
-		parts := strings.SplitN(v, "=", 2)
-		key := parts[0]
-		val := ""
-		if len(parts) > 1 {
-			val = parts[1]
-		}
-
+	FilterEnvironmentArray(os.Environ(), a.blockList, func(key, val, _ string) {
 		a.Variables[key] = val
-	}
+	})
 
 	return nil
+}
+
+// splitVariable splits a string representing an environment variable in the format of
+// "KEY=VAL" and returns the key and val separately.
+func splitVariable(v string) (key, val string) {
+	parts := strings.SplitN(v, "=", 2)
+	key = parts[0]
+	if len(parts) > 1 {
+		val = parts[1]
+	}
+
+	return
 }

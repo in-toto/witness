@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/testifysec/witness/pkg/attestation"
+	"github.com/testifysec/witness/pkg/attestation/environment"
 	"github.com/testifysec/witness/pkg/cryptoutil"
 	"github.com/testifysec/witness/pkg/log"
 	"golang.org/x/sys/unix"
@@ -37,11 +38,12 @@ const (
 )
 
 type ptraceContext struct {
-	parentPid   int
-	mainProgram string
-	processes   map[int]*ProcessInfo
-	exitCode    int
-	hash        []crypto.Hash
+	parentPid            int
+	mainProgram          string
+	processes            map[int]*ProcessInfo
+	exitCode             int
+	hash                 []crypto.Hash
+	environmentBlockList map[string]struct{}
 }
 
 func enableTracing(c *exec.Cmd) {
@@ -52,10 +54,11 @@ func enableTracing(c *exec.Cmd) {
 
 func (r *CommandRun) trace(c *exec.Cmd, actx *attestation.AttestationContext) ([]ProcessInfo, error) {
 	pctx := &ptraceContext{
-		parentPid:   c.Process.Pid,
-		mainProgram: c.Path,
-		processes:   make(map[int]*ProcessInfo),
-		hash:        actx.Hashes(),
+		parentPid:            c.Process.Pid,
+		mainProgram:          c.Path,
+		processes:            make(map[int]*ProcessInfo),
+		hash:                 actx.Hashes(),
+		environmentBlockList: r.environmentBlockList,
 	}
 
 	if err := pctx.runTrace(); err != nil {
@@ -175,7 +178,13 @@ func (p *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 
 		environ, err := os.ReadFile(envinLocation)
 		if err == nil {
-			procInfo.Environ = cleanString(string(environ))
+			allVars := strings.Split(string(environ), "\x00")
+			filteredEnviron := make([]string, 0)
+			environment.FilterEnvironmentArray(allVars, p.environmentBlockList, func(_, _, varStr string) {
+				filteredEnviron = append(filteredEnviron, varStr)
+			})
+
+			procInfo.Environ = strings.Join(filteredEnviron, " ")
 		}
 
 		cmdline, err := os.ReadFile(cmdlineLocation)
@@ -201,8 +210,8 @@ func (p *ptraceContext) handleSyscall(pid int, regs unix.PtraceRegs) error {
 		if err != nil {
 			return err
 		}
-		procInfo := p.getProcInfo(pid)
 
+		procInfo := p.getProcInfo(pid)
 		digestSet, err := cryptoutil.CalculateDigestSetFromFile(file, p.hash)
 		if err != nil {
 			return err
@@ -271,9 +280,7 @@ func cleanString(s string) string {
 
 func getPPIDFromStatus(status []byte) (int, error) {
 	statusStr := string(status)
-
 	lines := strings.Split(statusStr, "\n")
-
 	for _, line := range lines {
 		if strings.Contains(line, "PPid:") {
 			parts := strings.Split(line, ":")
@@ -281,14 +288,13 @@ func getPPIDFromStatus(status []byte) (int, error) {
 			return strconv.Atoi(ppid)
 		}
 	}
+
 	return 0, nil
 }
 
 func getSpecBypassIsVulnFromStatus(status []byte) bool {
 	statusStr := string(status)
-
 	lines := strings.Split(statusStr, "\n")
-
 	for _, line := range lines {
 		if strings.Contains(line, "Speculation_Store_Bypass:") {
 			parts := strings.Split(line, ":")
@@ -296,8 +302,8 @@ func getSpecBypassIsVulnFromStatus(status []byte) bool {
 			if strings.Contains(isVuln, "vulnerable") {
 				return true
 			}
-
 		}
 	}
+
 	return false
 }
