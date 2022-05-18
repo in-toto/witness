@@ -15,6 +15,13 @@
 #!/bin/sh
 set -e
 
+DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+. "$DIR/common.sh"
+
+if ! checkprograms make ko ; then
+  exit 1
+fi
+
 make -C ../ build
 rm -f out.tar
 KO_DOCKER_REPO=null ../bin/witness run -c test.yaml -a oci --trace=false -- ko publish --push=false --tarball out.tar .
