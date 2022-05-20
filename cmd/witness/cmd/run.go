@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
 	witness "github.com/testifysec/witness/pkg"
@@ -35,7 +36,7 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRun(o, args)
+			return RunRun(o, args)
 		},
 		Args: cobra.ArbitraryArgs,
 	}
@@ -44,15 +45,17 @@ func RunCmd() *cobra.Command {
 	return cmd
 }
 
-func runRun(ro options.RunOptions, args []string) error {
+func RunRun(ro options.RunOptions, args []string) error {
+	spew.Dump(args)
+	spew.Dump(ro)
 	ctx := context.Background()
-
 	signers, errors := loadSigners(ctx, ro.KeyOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
 			log.Error(err)
+
 		}
-		return fmt.Errorf("failed to load signers")
+		return fmt.Errorf("failed to load signers: %s", errors)
 	}
 
 	if len(signers) > 1 {

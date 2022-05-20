@@ -28,7 +28,7 @@ import (
 	"github.com/testifysec/witness/pkg/cryptoutil"
 )
 
-func Test_runRunRSAKeyPair(t *testing.T) {
+func Test_RunRunRSAKeyPair(t *testing.T) {
 
 	priv, _ := rsakeypair(t)
 	keyOptions := options.KeyOptions{
@@ -53,7 +53,7 @@ func Test_runRunRSAKeyPair(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := RunRun(runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -81,7 +81,7 @@ func Test_runRunRSAKeyPair(t *testing.T) {
 	}
 }
 
-func Test_runRunRSACA(t *testing.T) {
+func Test_RunRunRSACA(t *testing.T) {
 
 	_, intermediates, leafcert, leafkey := fullChain(t)
 
@@ -115,7 +115,7 @@ func Test_runRunRSACA(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := RunRun(runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

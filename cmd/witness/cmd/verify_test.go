@@ -78,7 +78,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = RunRun(s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,7 +99,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = RunRun(s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -212,7 +212,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = RunRun(s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -233,7 +233,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = RunRun(s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}

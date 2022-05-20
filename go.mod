@@ -3,6 +3,7 @@ module github.com/testifysec/witness
 go 1.17
 
 require (
+	github.com/InVisionApp/go-health/v2 v2.1.2
 	github.com/anchore/stereoscope v0.0.0-20220307154759-8a5a70c227d3
 	github.com/anchore/syft v0.41.0
 	github.com/davecgh/go-spew v1.1.1
@@ -29,7 +30,6 @@ require (
 	cloud.google.com/go/secretmanager v1.4.0 // indirect
 	github.com/CycloneDX/cyclonedx-go v0.4.0 // indirect
 	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
-	github.com/InVisionApp/go-health/v2 v2.1.2 // indirect
 	github.com/InVisionApp/go-logger v1.0.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
