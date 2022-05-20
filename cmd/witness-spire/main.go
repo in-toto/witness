@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/hcl/ast"
 	"github.com/spiffe/spire/pkg/agent"
@@ -31,7 +31,6 @@ const (
 )
 
 func main() {
-
 	if err := os.RemoveAll(SockAddr); err != nil {
 		fmt.Errorf("here %v", err)
 	}
@@ -40,14 +39,12 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		startSpire()
 	}()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		startWitness()
+		wg.Done()
 	}()
 
 	wg.Wait()
@@ -76,7 +73,19 @@ func startSpire() {
 }
 
 func startWitness() {
-	time.Sleep(time.Second * 2)
+
+	for {
+
+		if _, err := os.Stat("/tmp/echo.sock"); errors.Is(err, os.ErrNotExist) {
+			fmt.Println("Socket file not found")
+		} else {
+			fmt.Println("Socket file found")
+			break
+		}
+
+		time.Sleep(time.Second * 1)
+	}
+
 	ro := options.RunOptions{
 		KeyOptions: options.KeyOptions{
 			KeyPath:           "",
@@ -95,13 +104,13 @@ func startWitness() {
 		Tracing:      false,
 	}
 
-	args := []string{"echo", "hello"}
+	args := []string{"echo", "'it works!'"}
 
 	err := cmd.RunRun(ro, args)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
 	}
-
 }
 
 func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain string) (agent.Config, error) {
@@ -147,8 +156,6 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 	c.DataDir = "."
 	c.PluginConfigs = pluginConf
 	c.JoinToken = "9b586ac3-115d-45d4-b4a4-bf9993e8683d"
-
-	spew.Dump(c)
 	return c, nil
 }
 
