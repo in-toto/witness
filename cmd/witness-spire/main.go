@@ -20,7 +20,7 @@ import (
 const (
 	rekorServer    = "https://log.testifyse.io"
 	trust_domain   = "dev.testifysec.com"
-	server_address = "10.28.1.5"
+	server_address = "10.24.47.169"
 	server_port    = 8081
 
 	socket_path        = "/run/spire/sockets/agent.sock"
@@ -78,7 +78,7 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 	c := agent.Config{}
 
 	serverHostPort := net.JoinHostPort(serverAddr, strconv.Itoa(serverPort))
-	c.ServerAddress = fmt.Sprintf("dns:///%s", serverHostPort)
+	c.ServerAddress = fmt.Sprintf("%s", serverHostPort)
 
 	log, err := log.NewLogger()
 	if err != nil {
@@ -97,25 +97,23 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 		return c, err
 	}
 
-	conf := catalog.Config{
-		Log: log,
-		PluginConfig: catalog.HCLPluginConfigMap{
-			"KeyManager": {
-				"memory": {},
-			},
-			"NodeAttestor": {
-				"gcp_iit": {},
-			},
-			"WorkloadAttestor": {
-				"unix": {},
-			},
+	pluginConf := catalog.HCLPluginConfigMap{
+		"KeyManager": {
+			"memory": {},
+		},
+		"NodeAttestor": {
+			"join_token": {},
+		},
+		"WorkloadAttestor": {
+			"unix": {},
 		},
 	}
 
 	c.TrustDomain = td
 	c.BindAddress = bind
 	c.InsecureBootstrap = true
-	c.DataDir = "/tmp/spire-agent"
-	c.PluginConfigs = conf.PluginConfig
+	c.DataDir = "."
+	c.PluginConfigs = pluginConf
+	c.JoinToken = "d218ef72-d0de-49d7-9260-6a11d0811f4e"
 	return c, nil
 }
