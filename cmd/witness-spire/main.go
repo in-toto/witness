@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/hcl/hcl/ast"
 	"github.com/spiffe/spire/cmd/spire-agent/cli"
 	"github.com/spiffe/spire/pkg/agent"
 	"github.com/spiffe/spire/pkg/agent/catalog"
@@ -99,7 +101,9 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 
 	pluginConf := catalog.HCLPluginConfigMap{
 		"KeyManager": {
-			"memory": {},
+			"disk": {
+				PluginData: astPrintf(`directory = "%s"`, "."),
+			},
 		},
 		"NodeAttestor": {
 			"join_token": {},
@@ -114,6 +118,17 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 	c.InsecureBootstrap = true
 	c.DataDir = "."
 	c.PluginConfigs = pluginConf
-	c.JoinToken = "d218ef72-d0de-49d7-9260-6a11d0811f4e"
+	c.JoinToken = "9b586ac3-115d-45d4-b4a4-bf9993e8683d"
 	return c, nil
+}
+
+func astPrintf(format string, args ...interface{}) ast.Node {
+	var n ast.Node
+	err := hcl.Decode(&n, fmt.Sprintf(format, args...))
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		panic(err)
+	}
+
+	return n
 }
