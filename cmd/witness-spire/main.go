@@ -18,16 +18,19 @@ import (
 )
 
 const (
-	rekorServer    = "https://log.testifyse.io"
-	trust_domain   = "dev.testifysec.com"
-	server_address = "10.24.47.169"
-	server_port    = 8081
-
-	socket_path        = "/run/spire/sockets/agent.sock"
+	rekorServer        = "https://log.testifyse.io"
+	trust_domain       = "dev.testifysec.com"
+	server_address     = "10.24.47.169"
+	server_port        = 8081
+	sockAddr           = "/tmp/spire.sock"
 	insecure_bootstrap = true
 )
 
 func main() {
+
+	if err := os.RemoveAll(sockAddr); err != nil {
+		fmt.Errorf("%v", err)
+	}
 
 	new(cli.CLI).Run(os.Args)
 
@@ -51,7 +54,7 @@ func main() {
 
 func startSpire() {
 	for {
-		c, err := spireConfig(socket_path, server_address, server_port, trust_domain)
+		c, err := spireConfig(sockAddr, server_address, server_port, trust_domain)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			time.Sleep(time.Second * 5)
@@ -114,6 +117,6 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 	c.InsecureBootstrap = true
 	c.DataDir = "."
 	c.PluginConfigs = pluginConf
-	c.JoinToken = "d218ef72-d0de-49d7-9260-6a11d0811f4e"
+	c.JoinToken = "e2e97430-9245-426f-968e-d836e681239c"
 	return c, nil
 }
