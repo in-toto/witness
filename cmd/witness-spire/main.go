@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/hcl/ast"
+	"github.com/spf13/cobra"
 	"github.com/spiffe/spire/pkg/agent"
 	"github.com/spiffe/spire/pkg/agent/catalog"
 	common_cli "github.com/spiffe/spire/pkg/common/cli"
@@ -21,43 +21,87 @@ import (
 	"github.com/testifysec/witness/cmd/witness/options"
 )
 
+func New() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "witness-spire",
+		Short: "Runs witness with the embedded SPIRE agent",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+//Defaults
 const (
 	rekorServer        = "https://log.testifysec.io"
-	trust_domain       = "dev.testifysec.com"
-	server_address     = "10.24.47.169"
-	server_port        = 8081
-	SockAddr           = "/tmp/echo.sock"
+	trustDomain        = "dev.testifysec.io"
+	spireServerAddress = "https://spire.testifysec.io"
+	spireServerPort    = 443
+	trustBundleAddress = "https://bundle.testifysec.io"
+	trustBundlePort    = 443
+	sockAddr           = "/tmp/echo.sock"
+	tpmPath            = "/dev/tpmrm0"
+
 	insecure_bootstrap = true
 )
 
-func main() {
-	if err := os.RemoveAll(SockAddr); err != nil {
-		fmt.Errorf("here %v", err)
+type Options struct {
+	RekorServer        string
+	TrustDomain        string
+	SpireServerAddress string
+	SpireServerPort    int
+	TrustBundleAddress string
+	TrustBundlePort    int
+	TPMPath            string
+	SockAddr           string //internal socket address
+	Log                *log.Logger
+}
+
+func (o *Options) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&o.RekorServer, "rekor-server", rekorServer, "Rekor server address")
+	cmd.Flags().StringVar(&o.TrustDomain, "trust-domain", trustDomain, "Trust domain")
+	cmd.Flags().StringVar(&o.SpireServerAddress, "spire-server-address", spireServerAddress, "Spire server address")
+	cmd.Flags().IntVar(&o.SpireServerPort, "spire-server-port", spireServerPort, "Spire server port")
+	cmd.Flags().StringVar(&o.TrustBundleAddress, "trust-bundle-address", trustBundleAddress, "Trust bundle address")
+	cmd.Flags().IntVar(&o.TrustBundlePort, "trust-bundle-port", trustBundlePort, "Trust bundle port")
+	cmd.Flags().StringVar(&o.SockAddr, "sock-addr", sockAddr, "Socket address")
+	cmd.Flags().StringVar(&o.TPMPath, "tpm-path", tpmPath, "TPM path")
+	logger, err := log.NewLogger()
+	if err != nil {
+		panic(err)
 	}
 
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		startSpire()
-	}()
-
-	go func() {
-		startWitness()
-		wg.Done()
-	}()
-
-	wg.Wait()
+	o.Log = logger
 
 }
 
-func startSpire() {
-	for {
-		c, err := spireConfig(SockAddr, server_address, server_port, trust_domain)
+func RunE(cmd *cobra.Command, args []string) error {
+	return nil
+}
+
+func start(o Options) {
+	if err := os.RemoveAll(sockAddr); err != nil {
+		fmt.Errorf("here %v", err)
+	}
+
+	logger, err := log.NewLogger()
+	if err != nil {
+		panic(err)
+	}
+
+	startSpire(o)
+
+	startWitness(*logger)
+
+}
+
+func startSpire(o Options) {
+	go func(o Options) {
+		c, err := spireConfig(o.SockAddr, o.SpireServerAddress, o.SpireServerPort, o.TrustDomain, o.Log)
 		if err != nil {
-			fmt.Printf("Spiffee Error: %v\n", err)
-			time.Sleep(time.Second * 5)
-			continue
+			fmt.Printf("Spiffe Error: %v\n", err)
 		}
 
 		ctx := context.Background()
@@ -65,26 +109,29 @@ func startSpire() {
 		err = agent.New(&c).Run(ctx)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
-			time.Sleep(time.Second * 5)
-			continue
 		}
 
-	}
+	}(o)
 }
 
-func startWitness() {
+func startWitness(logger log.Logger) {
 
 	for {
 
 		if _, err := os.Stat("/tmp/echo.sock"); errors.Is(err, os.ErrNotExist) {
-			fmt.Println("Socket file not found")
 		} else {
-			fmt.Println("Socket file found")
 			break
 		}
 
 		time.Sleep(time.Second * 1)
 	}
+
+	rootOpt := options.RootOptions{
+		Config:   "",
+		LogLevel: "debug",
+	}
+
+	cmd.RunPreRoot(&rootOpt)
 
 	ro := options.RunOptions{
 		KeyOptions: options.KeyOptions{
@@ -101,10 +148,10 @@ func startWitness() {
 		OutFilePath:  "attestations.json",
 		StepName:     "test",
 		RekorServer:  rekorServer,
-		Tracing:      false,
+		Tracing:      true,
 	}
 
-	args := []string{"echo", "'it works!'"}
+	args := os.Args[1:]
 
 	err := cmd.RunRun(ro, args)
 	if err != nil {
@@ -113,18 +160,13 @@ func startWitness() {
 	}
 }
 
-func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain string) (agent.Config, error) {
+func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain string, logger *log.Logger) (agent.Config, error) {
 	c := agent.Config{}
 
 	serverHostPort := net.JoinHostPort(serverAddr, strconv.Itoa(serverPort))
 	c.ServerAddress = fmt.Sprintf("%s", serverHostPort)
 
-	log, err := log.NewLogger()
-	if err != nil {
-		return c, err
-	}
-
-	c.Log = log
+	c.Log = logger
 
 	bind, err := util.GetUnixAddrWithAbsPath(bindAddr)
 	if err != nil {
@@ -143,7 +185,7 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 			},
 		},
 		"NodeAttestor": {
-			"join_token": {},
+			"tpm": {},
 		},
 		"WorkloadAttestor": {
 			"unix": {},
@@ -152,10 +194,9 @@ func spireConfig(bindAddr string, serverAddr string, serverPort int, trustDomain
 
 	c.TrustDomain = td
 	c.BindAddress = bind
-	c.InsecureBootstrap = true
+	c.InsecureBootstrap = insecure_bootstrap
 	c.DataDir = "."
 	c.PluginConfigs = pluginConf
-	c.JoinToken = "9b586ac3-115d-45d4-b4a4-bf9993e8683d"
 	return c, nil
 }
 

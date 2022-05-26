@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/witness/cmd/witness/options"
 	witness "github.com/testifysec/witness/pkg"
@@ -46,8 +45,6 @@ func RunCmd() *cobra.Command {
 }
 
 func RunRun(ro options.RunOptions, args []string) error {
-	spew.Dump(args)
-	spew.Dump(ro)
 	ctx := context.Background()
 	signers, errors := loadSigners(ctx, ro.KeyOptions)
 	if len(errors) > 0 {
