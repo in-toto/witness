@@ -33,8 +33,6 @@ const (
 	spireServerPort    = 443
 	trustBundleAddress = "https://bundle.testifysec.io/"
 	logLevel           = "debug"
-
-	insecure_bootstrap = true
 )
 
 type Conf struct {
@@ -51,6 +49,7 @@ type Conf struct {
 	Trace              bool
 	Attestors          []string
 	StepName           string
+	NodeAttestor       string
 }
 
 func (o *Conf) DetectStepName() {
@@ -110,30 +109,40 @@ func (o *Conf) DetectStepName() {
 }
 
 func (o *Conf) DetectCloudEnv() {
-	//Check to see if we are running on GCP
-	if os.Getenv("GOOGLE_CLOUD_PROJECT") != "" {
-		o.Log.Infof("Detected GCP environment")
-		o.Attestors = append(o.Attestors, "gcp_iit")
-	}
+	if o.NodeAttestor != "tpm" {
+		//Check to see if we are running on GCP
+		if os.Getenv("GOOGLE_CLOUD_PROJECT") != "" {
+			o.Log.Infof("Detected GCP environment")
+			o.Attestors = append(o.Attestors, "gcp_iit")
+			o.NodeAttestor = "gcp_iit"
+			return
+		}
 
-	//Check to see if we are running on AWS
-	if os.Getenv("AWS_REGION") != "" {
-		o.Log.Infof("Detected AWS environment")
-		o.Attestors = append(o.Attestors, "aws_iid")
-	}
+		//Check to see if we are running on AWS
+		if os.Getenv("AWS_REGION") != "" {
+			o.Log.Infof("Detected AWS environment")
+			o.Attestors = append(o.Attestors, "aws_iid")
+			o.NodeAttestor = "aws_iid"
+			return
+		}
+	} else {
 
-	//Check to see if we have a tpm path
-	if o.TPMPath == "" {
-		o.TPMPath = "/dev/tpmrm0"
-	}
+		//Check to see if we have a tpm path
+		if o.TPMPath == "" {
+			o.TPMPath = "/dev/tpmrm0"
+		}
 
-	info, err := os.Stat(o.TPMPath)
-	if err != nil {
-		o.Log.Errorf("Error getting TPM info: %v", err)
-	}
+		info, err := os.Stat(o.TPMPath)
+		if err != nil {
+			o.Log.Errorf("Error getting TPM info: %v", err)
+		}
 
-	if info.Mode()&os.ModeDevice != 0 {
-		o.Log.Infof("Detected TPM device")
+		//Default to using the TPM if we find it
+		if info.Mode()&os.ModeDevice != 0 {
+			o.Log.Infof("Detected TPM device")
+			o.NodeAttestor = "tpm"
+			return
+		}
 	}
 
 }
@@ -151,6 +160,7 @@ func (o *Conf) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&o.Trace, "trace", false, "trace")
 	cmd.Flags().StringSliceVar(&o.Attestors, "attestors", []string{}, "attestors")
 	cmd.Flags().StringVar(&o.StepName, "step-name", "", "step name")
+	cmd.Flags().StringVar(&o.NodeAttestor, "node-attestor", "tpm", "node attestor")
 
 	logLevel := log.WithLevel(o.LogLevel)
 	logger, err := log.NewLogger(logLevel)
@@ -298,8 +308,6 @@ func startWitness(o Conf) {
 		Tracing:      o.Trace,
 	}
 
-	fmt.Printf("Args: %v\n", o.Args)
-
 	err = cmd.RunRun(ro, o.Args)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -348,19 +356,7 @@ func spireConfig(o Conf) (agent.Config, error) {
 
 	c.TrustDomain = td
 
-	pluginConf := catalog.HCLPluginConfigMap{
-		"KeyManager": {
-			"memory": {},
-		},
-		"NodeAttestor": {
-			"tpm": {},
-		},
-		"WorkloadAttestor": {
-			"unix":   {},
-			"docker": {},
-		},
-	}
-
+	pluginConf := o.getPluginConfig()
 	c.PluginConfigs = pluginConf
 	c.InsecureBootstrap = false
 
@@ -392,6 +388,23 @@ func downloadTrustBundle(trustBundleURL string) ([]*x509.Certificate, error) {
 	}
 
 	return bundle, nil
+}
+
+func (o Conf) getPluginConfig() catalog.HCLPluginConfigMap {
+	pluginConf := catalog.HCLPluginConfigMap{
+		"KeyManager": {
+			"memory": {},
+		},
+		"NodeAttestor": {
+			o.NodeAttestor: {},
+		},
+		"WorkloadAttestor": {
+			"unix":   {},
+			"docker": {},
+		},
+	}
+
+	return pluginConf
 }
 
 // astPrint impliments the ast.Visitor interface needed for creating the options struct for the spire agent
