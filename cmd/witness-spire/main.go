@@ -106,6 +106,7 @@ func (o *Conf) DetectStepName() {
 		os.Exit(1)
 	}
 
+
 }
 
 func (o *Conf) DetectCloudEnv() {
@@ -142,6 +143,10 @@ func (o *Conf) DetectCloudEnv() {
 			o.Log.Infof("Detected TPM device")
 			o.NodeAttestor = "tpm"
 			return
+		} else {
+			o.Log.Infof("No Identity Devices or Services Found - Make sure permissions are set correctly on the TPM device see README")
+			o.Log.Infof("If you are using a TPM device, make sure the device is not in use by another process")
+			
 		}
 	}
 
