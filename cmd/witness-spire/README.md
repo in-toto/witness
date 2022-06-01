@@ -35,16 +35,20 @@ scribe register-binary <path>
 
 ## Selecting Node Attestors
 
-Scribe can only use a single node attestor at a time and will try to selec the best one for the given environment.  The order of preference is:
+Scribe can only use a single node attestor at a time and will try to select the best one for the given environment.  The order of preference is:
 
 1. TPM Device
-2. Cloud Service (Currently Support )
+2. Cloud Service
 3. [WIP] Kubernetes Projected Service Account Token
 4. [WIP] Kubernetes Service Account
 
 ## Bare Metal Environment
 
-### Seting up the TPM Rules.
+### Seting up the TPM UDEV Rules.
+
+TPM devices generally are not readable without special permissions.  Setting up UDEV rules wil ensure that the device is accessible.
+
+```
 
 Add the following to `/etc/udev/rules.d/70-tpm.rules`:
 
