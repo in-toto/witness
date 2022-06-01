@@ -2,6 +2,10 @@
 
 Scribe is a tool that attests and records events in a build environment.
 
+## Running Scribe
+
+
+
 
 ## Registering Environments
 
@@ -10,7 +14,7 @@ Work in progress.
 Authorized environments can be registered using the `register-env` command.  Environments can also be registed by visiting the [`/register`](judge/testifysec.com/register) page.
 
 ```
-scribe register-env
+scribe --register-env
 ```
 
 This command will open a browser window and ask you to authenticate with Judge.
@@ -24,12 +28,13 @@ Users must register a builder with Judge before they can use it.
 The container can be specified using a tag but will be registered using the `IMAGEID` defined as the SHA256 hash of the image's JSON configuration object.
 
 ```
-scribe register-container <image>
+scribe --register-container <image>
 ```
 
 ### Register a binary
 ```
-scribe register-binary <path>
+scribe --register-binary <path>
+scribe --register-binary-sha256 <sha256 of binary>
 ```
 
 
