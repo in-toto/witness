@@ -3,23 +3,23 @@ module github.com/testifysec/witness
 go 1.17
 
 require (
-	github.com/anchore/stereoscope v0.0.0-20220307154759-8a5a70c227d3
-	github.com/anchore/syft v0.41.0
-	github.com/davecgh/go-spew v1.1.1
-	github.com/go-git/go-git/v5 v5.4.2
-	github.com/go-openapi/runtime v0.23.1
-	github.com/open-policy-agent/opa v0.40.0
-	github.com/owenrumney/go-sarif v1.1.1
-	github.com/sigstore/rekor v0.4.1-0.20220114213500-23f583409af3
+	github.com/anchore/stereoscope v0.0.0-20220307154759-8a5a70c227d3 // indirect
+	github.com/anchore/syft v0.41.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-git/go-git/v5 v5.4.2 // indirect
+	github.com/go-openapi/runtime v0.23.1 // indirect
+	github.com/open-policy-agent/opa v0.40.0 // indirect
+	github.com/owenrumney/go-sarif v1.1.1 // indirect
+	github.com/sigstore/rekor v0.4.1-0.20220114213500-23f583409af3 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/spiffe/go-spiffe/v2 v2.0.1-0.20220414143532-2ed460a8b9d3
+	github.com/spiffe/go-spiffe/v2 v2.0.1-0.20220414143532-2ed460a8b9d3 // indirect
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6
-	google.golang.org/grpc v1.46.2
-	gopkg.in/square/go-jose.v2 v2.6.0
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
+	google.golang.org/grpc v1.46.2 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
 
 require (
@@ -47,6 +47,7 @@ require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/armon/go-metrics v0.3.11 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/aws/aws-sdk-go v1.44.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.4 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.15.7 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.2 // indirect
@@ -113,6 +114,7 @@ require (
 	github.com/google/certificate-transparency-go v1.1.2 // indirect
 	github.com/google/go-attestation v0.4.4-0.20220404204839-8820d49b18d9 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-containerregistry v0.8.1-0.20220209165246-a44adc326839 // indirect
 	github.com/google/go-tpm v0.3.3 // indirect
 	github.com/google/go-tpm-tools v0.3.8 // indirect
 	github.com/google/go-tspi v0.2.1-0.20190423175329-115dea689aad // indirect
@@ -181,6 +183,8 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shibumi/go-pathspec v1.3.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.22.4 // indirect
+	github.com/sigstore/fulcio v0.2.0 // indirect
+	github.com/sigstore/sigstore v1.2.0 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spdx/tools-golang v0.2.0 // indirect
 	github.com/spf13/afero v1.8.0 // indirect
@@ -238,11 +242,8 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.0
-	github.com/google/go-containerregistry v0.8.1-0.20220209165246-a44adc326839
-	github.com/sigstore/fulcio v0.2.0
-	github.com/sigstore/sigstore v1.2.0
 	github.com/spiffe/spire v1.3.0
+	github.com/testifysec/go-witness v0.1.10
 )
 
 replace github.com/sigstore/rekor => github.com/testifysec/rekor v0.4.0-dsse-intermediates-2

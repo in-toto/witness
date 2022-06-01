@@ -12,20 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#! /bin/sh
 set -e
 
-DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-. "$DIR/common.sh"
-
-if ! checkprograms make ; then
-  exit 1
-fi
-
-
-
-make -C ../ build
-rm -f ./test-attestation.demo ./testapp ./policy-signed.json
-../bin/witness -c test.yaml run -- go build -o=testapp .
-../bin/witness -c test.yaml sign -f policy.json
-../bin/witness -c test.yaml verify
+# Verify that generated Markdown docs are up-to-date.
+tmpdir=$(mktemp -d)
+tmpdir2=$(mktemp -d)
+cp docs/witness*.md "$tmpdir2/"
+go run ./docgen --dir "$tmpdir"
+echo "###########################################"
+echo "If diffs are found, run: make docgen"
+echo "###########################################"
+diff -Nau "$tmpdir" "$tmpdir2"
+rm -rf "$tmpdir" "$tmpdir2"

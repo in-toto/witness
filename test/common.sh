@@ -1,4 +1,4 @@
-# Copyright 2021 The Witness Contributors
+# Copyright 2022 The Witness Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#! /bin/sh
-set -e
+#/bin/sh
+checkprograms() {
+  local result=0
+  for prog in "$@"
+  do
+    if ! command -v $prog > /dev/null; then
+      printf "$prog is required to run this script. please ensure if is installed and in your PATH\n"
+      result=1
+    fi
+  done
 
-DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-. "$DIR/common.sh"
-
-if ! checkprograms make ; then
-  exit 1
-fi
-
-
-
-make -C ../ build
-rm -f ./test-attestation.demo ./testapp ./policy-signed.json
-../bin/witness -c test.yaml run -- go build -o=testapp .
-../bin/witness -c test.yaml sign -f policy.json
-../bin/witness -c test.yaml verify
+  return $result
+}

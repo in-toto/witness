@@ -21,8 +21,8 @@ import (
 	"github.com/spiffe/spire/pkg/common/log"
 	"github.com/spiffe/spire/pkg/common/pemutil"
 	"github.com/spiffe/spire/pkg/common/util"
-	"github.com/testifysec/witness/cmd/witness/cmd"
-	"github.com/testifysec/witness/cmd/witness/options"
+	"github.com/testifysec/witness/cmd"
+	"github.com/testifysec/witness/options"
 )
 
 //Defaults
