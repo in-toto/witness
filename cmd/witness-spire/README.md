@@ -48,7 +48,6 @@ Scribe can only use a single node attestor at a time and will try to select the 
 
 TPM devices generally are not readable without special permissions.  Setting up UDEV rules wil ensure that the device is accessible.
 
-```
 
 Add the following to `/etc/udev/rules.d/70-tpm.rules`:
 
