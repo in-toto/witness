@@ -12,3 +12,5 @@ test/scorecard.json
 log
 sarif-report.json
 test/log
+scribe
+attestations.json
