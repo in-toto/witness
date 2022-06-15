@@ -112,7 +112,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/certificate-transparency-go v1.1.2 // indirect
-	github.com/google/go-attestation v0.4.4-0.20220404204839-8820d49b18d9 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-containerregistry v0.8.1-0.20220209165246-a44adc326839 // indirect
 	github.com/google/go-tpm v0.3.3 // indirect
@@ -160,7 +159,6 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -242,6 +240,8 @@ require (
 )
 
 require (
+	github.com/bloomberg/spire-tpm-plugin v0.0.0-20200522140002-58ddced23fcd
+	github.com/google/go-attestation v0.4.4-0.20220404204839-8820d49b18d9
 	github.com/spiffe/spire v1.3.0
 	github.com/testifysec/go-witness v0.1.10
 )

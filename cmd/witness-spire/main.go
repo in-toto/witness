@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/x509"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/go-attestation/attest"
 	"github.com/spf13/cobra"
 	"github.com/spiffe/spire/pkg/agent"
 	"github.com/spiffe/spire/pkg/agent/catalog"
@@ -197,6 +199,8 @@ func New() *cobra.Command {
 }
 
 func RunE(cmd *cobra.Command, args []string) {
+
+	getTpmPubHash()
 	newArgs := []string{}
 
 	for i, arg := range args {
@@ -409,6 +413,53 @@ func (o Conf) getPluginConfig() catalog.HCLPluginConfigMap {
 	}
 
 	return pluginConf
+}
+
+func getTpmPubHash() (string, error) {
+	tpm, err := attest.OpenTPM(&attest.OpenConfig{
+		TPMVersion: attest.TPMVersion20,
+	})
+	if err != nil {
+		return "", err
+	}
+	defer tpm.Close()
+
+	eks, err := tpm.EKs()
+	if err != nil {
+		return "", err
+	}
+
+	if len(eks) == 0 {
+		return "", errors.New("no EK available")
+	}
+
+	ak := &eks[0]
+	pubHash, err := GetPubHash(ak)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Printf("PubHash: %s\n", pubHash)
+
+	return pubHash, nil
+}
+
+func GetPubHash(ek *attest.EK) (string, error) {
+	data, err := pubBytes(ek)
+	if err != nil {
+		return "", err
+	}
+	pubHash := sha256.Sum256(data)
+	hashEncoded := fmt.Sprintf("%x", pubHash)
+	return hashEncoded, nil
+}
+
+func pubBytes(ek *attest.EK) ([]byte, error) {
+	data, err := x509.MarshalPKIXPublicKey(ek.Public)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling ec public key: %v", err)
+	}
+	return data, nil
 }
 
 // astPrint impliments the ast.Visitor interface needed for creating the options struct for the spire agent
