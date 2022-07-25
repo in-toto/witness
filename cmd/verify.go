@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"crypto"
 	"crypto/sha256"
 	"encoding/json"
@@ -41,7 +42,7 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runVerify(vo, args)
+			return runVerify(cmd.Context(), vo, args)
 		},
 	}
 	vo.AddFlags(cmd)
@@ -54,7 +55,7 @@ const (
 
 //todo: this logic should be broken out and moved to pkg/
 //we need to abstract where keys are coming from, etc
-func runVerify(vo options.VerifyOptions, args []string) error {
+func runVerify(ctx context.Context, vo options.VerifyOptions, args []string) error {
 	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
 		return fmt.Errorf("must suply public key or ca paths")
 	}

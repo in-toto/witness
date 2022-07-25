@@ -20,12 +20,17 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/testifysec/archivist-api/pkg/api/archivist"
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/attestation"
 	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/rekor"
 	"github.com/testifysec/witness/options"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
+
+const chunkSize = 64 * 1024
 
 func RunCmd() *cobra.Command {
 	o := options.RunOptions{}
@@ -35,7 +40,7 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRun(o, args)
+			return runRun(cmd.Context(), o, args)
 		},
 		Args: cobra.ArbitraryArgs,
 	}
@@ -44,9 +49,7 @@ func RunCmd() *cobra.Command {
 	return cmd
 }
 
-func runRun(ro options.RunOptions, args []string) error {
-	ctx := context.Background()
-
+func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 	signers, errors := loadSigners(ctx, ro.KeyOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
@@ -121,5 +124,45 @@ func runRun(ro options.RunOptions, args []string) error {
 		log.Infof("Rekor entry added at %v%v\n", rekorServer, resp.Location)
 	}
 
+	if ro.ArchivistOptions.Server != "" {
+		if gitoid, err := storeInArchivist(ctx, ro.ArchivistOptions, signedBytes); err != nil {
+			return fmt.Errorf("failed to store artifact in archivist: %w", err)
+		} else {
+			log.Infof("Stored in archivist as %v\n", gitoid)
+		}
+	}
+
 	return nil
+}
+
+func storeInArchivist(ctx context.Context, opts options.ArchivistOptions, signedBytes []byte) (string, error) {
+	conn, err := grpc.Dial(opts.Server, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return "", err
+	}
+
+	client := archivist.NewCollectorClient(conn)
+	size := len(signedBytes)
+	chunk := &archivist.Chunk{}
+	stream, err := client.Store(ctx)
+	for curr := 0; curr < size; curr += chunkSize {
+		var chunkBytes []byte
+		if curr+chunkSize >= size {
+			chunkBytes = signedBytes[curr:]
+		} else {
+			chunkBytes = signedBytes[curr : curr+chunkSize]
+		}
+
+		chunk.Chunk = chunkBytes
+		if err := stream.Send(chunk); err != nil {
+			return "", err
+		}
+	}
+
+	resp, err := stream.CloseAndRecv()
+	if err != nil {
+		return "", err
+	}
+
+	return resp.GetGitoid(), nil
 }
