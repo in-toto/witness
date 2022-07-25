@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -78,7 +79,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = runRun(context.Background(), s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,7 +100,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = runRun(context.Background(), s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -114,7 +115,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		EmailContstraints: []string{},
 	}
 
-	err = runVerify(vo, []string{})
+	err = runVerify(context.Background(), vo, []string{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -212,7 +213,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = runRun(context.Background(), s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -233,7 +234,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = runRun(context.Background(), s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}
@@ -246,7 +247,7 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		RekorServer:          "",
 	}
 
-	err = runVerify(vo, []string{})
+	err = runVerify(context.Background(), vo, []string{})
 	if err != nil {
 		t.Error(err)
 	}

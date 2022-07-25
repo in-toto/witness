@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -53,7 +54,7 @@ func Test_runRunRSAKeyPair(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := runRun(context.Background(), runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -115,7 +116,7 @@ func Test_runRunRSACA(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := runRun(context.Background(), runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
