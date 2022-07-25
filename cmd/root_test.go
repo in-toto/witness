@@ -137,7 +137,7 @@ func rsakeypair(t *testing.T) (privatePem *os.File, publicPem *os.File) {
 
 }
 
-//ref: https://jamielinux.com/docs/openssl-certificate-authority/appendix/intermediate-configuration-file.html
+// ref: https://jamielinux.com/docs/openssl-certificate-authority/appendix/intermediate-configuration-file.html
 func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafPem *os.File, leafkeyPem *os.File) {
 	workingDir := t.TempDir()
 

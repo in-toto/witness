@@ -13,13 +13,15 @@ witness verify [flags]
 ### Options
 
 ```
-  -f, --artifactfile string    Path to the artifact to verify
-  -a, --attestations strings   Attestation files to test against the policy
-  -h, --help                   help for verify
-  -p, --policy string          Path to the policy to verify
-      --policy-ca strings      Paths to CA certificates to use for verifying the policy
-  -k, --publickey string       Path to the policy signer's public key
-  -r, --rekor-server string    Rekor server from which to fetch attestations
+      --archivist-server string   URL of the Archivist server to store or retrieve attestations (default "https://archivist.testifysec.io")
+  -f, --artifactfile string       Path to the artifact to verify
+  -a, --attestations strings      Attestation files to test against the policy
+      --enable-archivist          Use Archivist to store or retrieve attestations
+  -h, --help                      help for verify
+  -p, --policy string             Path to the policy to verify
+      --policy-ca strings         Paths to CA certificates to use for verifying the policy
+  -k, --publickey string          Path to the policy signer's public key
+  -s, --subjects strings          Additional subjects to lookup attestations
 ```
 
 ### Options inherited from parent commands

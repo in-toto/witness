@@ -17,21 +17,31 @@ package options
 import "github.com/spf13/cobra"
 
 type RunOptions struct {
-	KeyOptions   KeyOptions
-	WorkingDir   string
-	Attestations []string
-	OutFilePath  string
-	StepName     string
-	RekorServer  string
-	Tracing      bool
+	KeyOptions       KeyOptions
+	ArchivistOptions ArchivistOptions
+	WorkingDir       string
+	Attestations     []string
+	OutFilePath      string
+	StepName         string
+	Tracing          bool
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	ro.KeyOptions.AddFlags(cmd)
+	ro.ArchivistOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
 	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
-	cmd.Flags().StringVarP(&ro.RekorServer, "rekor-server", "r", "", "Rekor server to store attestations")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
+}
+
+type ArchivistOptions struct {
+	Enable bool
+	Url    string
+}
+
+func (o *ArchivistOptions) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&o.Enable, "enable-archivist", false, "Use Archivist to store or retrieve attestations")
+	cmd.Flags().StringVar(&o.Url, "archivist-server", "https://archivist.testifysec.io", "URL of the Archivist server to store or retrieve attestations")
 }

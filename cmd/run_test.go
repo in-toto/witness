@@ -16,34 +16,36 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/testifysec/go-witness/cryptoutil"
+	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/witness/options"
 )
 
-func Test_runRunRSAKeyPair(t *testing.T) {
-
+func TestRunRSAKeyPair(t *testing.T) {
 	priv, _ := rsakeypair(t)
 	keyOptions := options.KeyOptions{
 		KeyPath: priv.Name(),
 	}
 
 	workingDir := t.TempDir()
-
+	attestationPath := filepath.Join(workingDir, "outfile.txt")
 	runOptions := options.RunOptions{
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  workingDir + "outfile.txt",
+		OutFilePath:  attestationPath,
 		StepName:     "teststep",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
@@ -53,40 +55,26 @@ func Test_runRunRSAKeyPair(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := runRun(context.Background(), runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	attestationBytes, err := os.ReadFile(workingDir + "outfile.txt")
+	attestationBytes, err := os.ReadFile(attestationPath)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(attestationBytes) < 1 {
-		t.Errorf("Unexpected output size")
-	}
-
-	envelopePaths := []string{
-		workingDir + "outfile.txt",
-	}
-
-	envelopes, err := loadEnvelopesFromDisk(envelopePaths)
-	if err != nil {
-		t.Errorf("Error loading envelopes from disk: err: %v", err)
-	}
-
-	if len(envelopes) != 1 {
-		t.Errorf("wrong number of envelopes")
+	env := dsse.Envelope{}
+	if err := json.Unmarshal(attestationBytes, &env); err != nil {
+		t.Error(err)
 	}
 }
 
 func Test_runRunRSACA(t *testing.T) {
-
 	_, intermediates, leafcert, leafkey := fullChain(t)
-
 	workingDir := t.TempDir()
-
+	attestationPath := filepath.Join(workingDir, "outfile.txt")
 	intermediateNames := []string{}
 	for _, intermediate := range intermediates {
 		intermediateNames = append(intermediateNames, intermediate.Name())
@@ -103,9 +91,8 @@ func Test_runRunRSACA(t *testing.T) {
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  workingDir + "outfile.txt",
+		OutFilePath:  attestationPath,
 		StepName:     "teststep",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
@@ -115,12 +102,12 @@ func Test_runRunRSACA(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(runOptions, args)
+	err := runRun(context.Background(), runOptions, args)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	attestationBytes, err := os.ReadFile(workingDir + "outfile.txt")
+	attestationBytes, err := os.ReadFile(attestationPath)
 	if err != nil {
 		t.Error(err)
 	}
@@ -129,17 +116,9 @@ func Test_runRunRSACA(t *testing.T) {
 		t.Errorf("Unexpected output size")
 	}
 
-	envelopePaths := []string{
-		workingDir + "outfile.txt",
-	}
-
-	envelopes, err := loadEnvelopesFromDisk(envelopePaths)
-	if err != nil {
-		t.Errorf("Error loading envelopes from disk: err: %v", err)
-	}
-
-	if len(envelopes) != 1 {
-		t.Errorf("wrong number of envelopes")
+	env := dsse.Envelope{}
+	if err := json.Unmarshal(attestationBytes, &env); err != nil {
+		t.Errorf("Error reading envelope: %v", err)
 	}
 
 	b, err := os.ReadFile(intermediateNames[0])
@@ -147,7 +126,7 @@ func Test_runRunRSACA(t *testing.T) {
 		t.Errorf("Error reading intermediate cert: %v", err)
 	}
 
-	if !bytes.Equal(b, envelopes[0].Envelope.Signatures[0].Intermediates[0]) {
+	if !bytes.Equal(b, env.Signatures[0].Intermediates[0]) {
 		t.Errorf("Intermediates do not match")
 	}
 
@@ -156,7 +135,7 @@ func Test_runRunRSACA(t *testing.T) {
 		t.Errorf("Error reading leaf cert: %v", err)
 	}
 
-	if !bytes.Equal(b, envelopes[0].Envelope.Signatures[0].Certificate) {
+	if !bytes.Equal(b, env.Signatures[0].Certificate) {
 		t.Errorf("Leaf cert does not match")
 	}
 
