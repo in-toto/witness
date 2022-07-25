@@ -9,6 +9,8 @@ witness run [cmd] [flags]
 ### Options
 
 ```
+      --archivist-graph string         Archivist graphql server to retrieve attestations
+      --archivist-grpc string          Archivist grpc server to store attestations
   -a, --attestations strings           Attestations to record (default [environment,git])
       --certificate string             Path to the signing key's certificate
       --fulcio string                  Fulcio address to sign with
@@ -18,7 +20,6 @@ witness run [cmd] [flags]
   -i, --intermediates strings          Intermediates that link trust back to a root of trust in the policy
   -k, --key string                     Path to the signing key
   -o, --outfile string                 File to which to write signed data.  Defaults to stdout
-  -r, --rekor-server string            Rekor server to store attestations
       --spiffe-socket string           Path to the SPIFFE Workload API socket
   -s, --step string                    Name of the step being run
       --trace                          Enable tracing for the command

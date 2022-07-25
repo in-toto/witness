@@ -21,9 +21,9 @@ import (
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
+	"github.com/testifysec/go-witness/archivist"
 	"github.com/testifysec/go-witness/attestation"
 	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/go-witness/rekor"
 	"github.com/testifysec/witness/options"
 )
 
@@ -35,7 +35,7 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRun(o, args)
+			return runRun(cmd.Context(), o, args)
 		},
 		Args: cobra.ArbitraryArgs,
 	}
@@ -44,9 +44,7 @@ func RunCmd() *cobra.Command {
 	return cmd
 }
 
-func runRun(ro options.RunOptions, args []string) error {
-	ctx := context.Background()
-
+func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 	signers, errors := loadSigners(ctx, ro.KeyOptions)
 	if len(errors) > 0 {
 		for _, err := range errors {
@@ -96,29 +94,13 @@ func runRun(ro options.RunOptions, args []string) error {
 		return fmt.Errorf("failed to write envelope to out file: %w", err)
 	}
 
-	rekorServer := ro.RekorServer
-	if rekorServer != "" {
-		verifier, err := signer.Verifier()
-		if err != nil {
-			return fmt.Errorf("failed to get verifier from signer: %w", err)
+	if ro.ArchivistOptions.Grpc != "" {
+		archivistClient := archivist.New("", ro.ArchivistOptions.Grpc)
+		if gitoid, err := archivistClient.Store(ctx, signedBytes); err != nil {
+			return fmt.Errorf("failed to store artifact in archivist: %w", err)
+		} else {
+			log.Infof("Stored in archivist as %v\n", gitoid)
 		}
-
-		pubKeyBytes, err := verifier.Bytes()
-		if err != nil {
-			return fmt.Errorf("failed to get bytes from verifier: %w", err)
-		}
-
-		rc, err := rekor.New(rekorServer)
-		if err != nil {
-			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
-		}
-
-		resp, err := rc.StoreArtifact(signedBytes, pubKeyBytes)
-		if err != nil {
-			return fmt.Errorf("failed to store artifact in rekor: %w", err)
-		}
-
-		log.Infof("Rekor entry added at %v%v\n", rekorServer, resp.Location)
 	}
 
 	return nil

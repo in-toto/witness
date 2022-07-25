@@ -15,19 +15,19 @@
 package cmd
 
 import (
+	"context"
 	"crypto"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
-	witness "github.com/testifysec/go-witness"
+	"github.com/testifysec/go-witness"
+	"github.com/testifysec/go-witness/archivist"
 	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/go-witness/rekor"
+	"github.com/testifysec/go-witness/source"
 	"github.com/testifysec/witness/options"
 )
 
@@ -41,7 +41,7 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runVerify(vo, args)
+			return runVerify(cmd.Context(), vo)
 		},
 	}
 	vo.AddFlags(cmd)
@@ -52,15 +52,14 @@ const (
 	MAX_DEPTH = 4
 )
 
-//todo: this logic should be broken out and moved to pkg/
-//we need to abstract where keys are coming from, etc
-func runVerify(vo options.VerifyOptions, args []string) error {
+// todo: this logic should be broken out and moved to pkg/
+// we need to abstract where keys are coming from, etc
+func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
 		return fmt.Errorf("must suply public key or ca paths")
 	}
 
 	var verifier cryptoutil.Verifier
-
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
@@ -87,84 +86,52 @@ func runVerify(vo options.VerifyOptions, args []string) error {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
-	diskEnvs, err := loadEnvelopesFromDisk(vo.AttestationFilePaths)
+	artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
 	if err != nil {
-		return fmt.Errorf("failed to load attestation files: %w", err)
+		return fmt.Errorf("failed to calculate artifact digest: %w", err)
 	}
 
-	verifiedEvidence := []witness.CollectionEnvelope{}
-
-	if vo.RekorServer != "" {
-
-		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
-		if err != nil {
-			return fmt.Errorf("failed to calculate artifact file's hash: %w", err)
-		}
-
-		rc, err := rekor.New(vo.RekorServer)
-		if err != nil {
-			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
-		}
-
-		digestSets := []cryptoutil.DigestSet{}
-		digestSets = append(digestSets, artifactDigestSet)
-
-		verifiers := []cryptoutil.Verifier{}
-		verifiers = append(verifiers, verifier)
-
-		evidence, err := rc.FindEvidence(digestSets, policyEnvelope, verifiers, diskEnvs, MAX_DEPTH)
-		if err != nil {
-			return fmt.Errorf("failed to find evidence: %w", err)
-		}
-
-		verifiedEvidence = append(verifiedEvidence, evidence...)
+	subjects := []cryptoutil.DigestSet{artifactDigestSet}
+	for _, subDigest := range vo.AdditionalSubjects {
+		subjects = append(subjects, cryptoutil.DigestSet{crypto.SHA256: subDigest})
 	}
 
-	if vo.RekorServer == "" {
-		verifiedEvidence, err = witness.Verify(policyEnvelope, []cryptoutil.Verifier{verifier}, witness.VerifyWithCollectionEnvelopes(diskEnvs))
-		if err != nil {
-			return fmt.Errorf("failed to verify policy: %w", err)
-
+	var collectionSource source.Sourcer
+	memSource := source.NewMemorySource()
+	for _, path := range vo.AttestationFilePaths {
+		if err := memSource.LoadFile(path); err != nil {
+			return fmt.Errorf("failed to load attestation file: %w", err)
 		}
+	}
+
+	collectionSource = memSource
+	if vo.ArchivistOptions.GraphQL != "" {
+		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivist.New(vo.ArchivistOptions.GraphQL, vo.ArchivistOptions.Grpc)))
+	}
+
+	verifiedEvidence, err := witness.Verify(
+		ctx,
+		policyEnvelope,
+		[]cryptoutil.Verifier{verifier},
+		witness.VerifyWithSubjectDigests(subjects),
+		witness.VerifyWithCollectionSource(collectionSource),
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to verify policy: %w", err)
+
 	}
 
 	log.Info("Verification succeeded")
 	log.Info("Evidence:")
-	for i, e := range verifiedEvidence {
-		log.Info(fmt.Sprintf("%d: %s", i, e.Reference))
+	num := 0
+	for _, stepEvidence := range verifiedEvidence {
+		for _, e := range stepEvidence {
+			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
+			num++
+		}
 	}
+
 	return nil
 
-}
-
-func loadEnvelopesFromDisk(paths []string) ([]witness.CollectionEnvelope, error) {
-	envelopes := make([]witness.CollectionEnvelope, 0)
-	for _, path := range paths {
-		file, err := os.Open(path)
-		if err != nil {
-			return nil, err
-		}
-
-		defer file.Close()
-		fileBytes, err := io.ReadAll(file)
-		if err != nil {
-			continue
-		}
-
-		env := dsse.Envelope{}
-		if err := json.Unmarshal(fileBytes, &env); err != nil {
-			continue
-		}
-
-		h := sha256.Sum256(fileBytes)
-
-		collectionEnv := witness.CollectionEnvelope{
-			Envelope:  env,
-			Reference: fmt.Sprintf("sha256:%x  %s", h, path),
-		}
-
-		envelopes = append(envelopes, collectionEnv)
-	}
-
-	return envelopes, nil
 }
