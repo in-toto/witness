@@ -16,8 +16,9 @@ package cmd
 
 import (
 	"bytes"
+	"context"
+	"crypto"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,12 +28,11 @@ import (
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/attestation/commandrun"
 	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/policy"
 	"github.com/testifysec/witness/options"
 )
 
-func Test_RunVerifyCA(t *testing.T) {
+func TestRunVerifyCA(t *testing.T) {
 	ca, intermediates, leafcert, leafkey := fullChain(t)
 
 	ko := options.KeyOptions{
@@ -43,7 +43,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		CertPath: leafcert.Name(),
 	}
 
-	caBytes, err := ioutil.ReadFile(ca.Name())
+	caBytes, err := os.ReadFile(ca.Name())
 	require.NoError(t, err)
 
 	policy := makepolicyCA(t, caBytes)
@@ -52,35 +52,48 @@ func Test_RunVerifyCA(t *testing.T) {
 	workingDir := t.TempDir()
 	attestationDir := t.TempDir()
 
-	err = os.WriteFile(filepath.Join(workingDir, "signed-policy.json"), signedPolicy, 0644)
+	policyFilePath := filepath.Join(workingDir, "signed-policy.json")
+	err = os.WriteFile(policyFilePath, signedPolicy, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(filepath.Join(workingDir, "policy-pub.pem"), pub, 0644)
+	policyPubFilePath := filepath.Join(workingDir, "policy-pub.pem")
+	err = os.WriteFile(policyPubFilePath, pub, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
+	artifactPath := filepath.Join(workingDir, "test.txt")
 	step1Args := []string{
 		"bash",
 		"-c",
 		"echo 'test01' > test.txt",
 	}
 
+	s1FilePath := filepath.Join(attestationDir, "step01.json")
 	s1RunOptions := options.RunOptions{
 		KeyOptions:   ko,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  filepath.Join(attestationDir, "step01.json"),
+		OutFilePath:  s1FilePath,
 		StepName:     "step01",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = runRun(context.Background(), s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
+	}
+
+	subjects := []string{}
+	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, digest := range artifactDigest {
+		subjects = append(subjects, digest)
 	}
 
 	step2Args := []string{
@@ -89,132 +102,93 @@ func Test_RunVerifyCA(t *testing.T) {
 		"echo 'test02' >> test.txt",
 	}
 
+	s2FilePath := filepath.Join(attestationDir, "step02.json")
 	s2RunOptions := options.RunOptions{
 		KeyOptions:   ko,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  filepath.Join(attestationDir, "step02.json"),
+		OutFilePath:  s2FilePath,
 		StepName:     "step02",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = runRun(context.Background(), s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}
 
 	vo := options.VerifyOptions{
-		KeyPath:              filepath.Join(workingDir, "policy-pub.pem"),
-		AttestationFilePaths: []string{filepath.Join(attestationDir, "step01.json"), filepath.Join(attestationDir, "step02.json")},
-		PolicyFilePath:       filepath.Join(workingDir, "signed-policy.json"),
+		KeyPath:              policyPubFilePath,
+		AttestationFilePaths: []string{s1FilePath, s2FilePath},
+		PolicyFilePath:       policyFilePath,
 		ArtifactFilePath:     filepath.Join(workingDir, "test.txt"),
-		RekorServer:          "",
-
-		EmailContstraints: []string{},
+		AdditionalSubjects:   subjects,
 	}
 
-	err = runVerify(vo, []string{})
+	err = runVerify(context.Background(), vo)
 	if err != nil {
 		t.Error(err)
 	}
 
 }
 
-func Test_loadEnvelopesFromDisk(t *testing.T) {
-	testPayload := []byte("test")
-
-	envelope := dsse.Envelope{
-		Payload:     testPayload,
-		PayloadType: "text",
-		Signatures:  []dsse.Signature{},
-	}
-
-	jsonEnvelope, err := json.Marshal(envelope)
-	if err != nil {
-		t.Error(err)
-	}
-
-	workingDir := t.TempDir()
-
-	err = os.MkdirAll(workingDir, 0755)
-	if err != nil {
-		t.Error(err)
-	}
-
-	err = os.WriteFile(filepath.Join(workingDir, "envelope.txt"), jsonEnvelope, 0644)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	envelopes, err := loadEnvelopesFromDisk([]string{filepath.Join(workingDir, "envelope.txt")})
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(envelopes) != 1 {
-		t.Errorf("expected 1 envelope, got %d", len(envelopes))
-	}
-
-	if string(envelopes[0].Envelope.Payload) != string(testPayload) {
-		t.Errorf("expected payload to be %s, got %s", string(testPayload), string(envelopes[0].Envelope.Payload))
-	}
-
-	if envelopes[0].Envelope.PayloadType != "text" {
-		t.Errorf("expected payload type to be text, got %s", envelopes[0].Envelope.PayloadType)
-	}
-
-	if len(envelopes[0].Envelope.Signatures) != 0 {
-		t.Errorf("expected 0 signatures, got %d", len(envelopes[0].Envelope.Signatures))
-	}
-}
-
-func Test_RunVerifyKeyPair(t *testing.T) {
+func TestRunVerifyKeyPair(t *testing.T) {
 	policy, funcPriv := makepolicyRSAPub(t)
 	signedPolicy, pub := signPolicyRSA(t, policy)
-
 	workingDir := t.TempDir()
 	attestationDir := t.TempDir()
-
-	err := os.WriteFile(filepath.Join(workingDir, "signed-policy.json"), signedPolicy, 0644)
+	policyFilePath := filepath.Join(workingDir, "signed-policy.json")
+	err := os.WriteFile(policyFilePath, signedPolicy, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(filepath.Join(workingDir, "policy-pub.pem"), pub, 0644)
+	policyPubFilePath := filepath.Join(workingDir, "policy-pub.pem")
+	err = os.WriteFile(policyPubFilePath, pub, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = os.WriteFile(filepath.Join(workingDir, "func-priv.pem"), funcPriv, 0644)
+	funcPrivFilepath := filepath.Join(workingDir, "func-priv.pem")
+	err = os.WriteFile(funcPrivFilepath, funcPriv, 0644)
 	if err != nil {
 		t.Error(err)
 	}
 
 	keyOptions := options.KeyOptions{
-		KeyPath: filepath.Join(workingDir, "func-priv.pem"),
+		KeyPath: funcPrivFilepath,
 	}
 
+	artifactPath := filepath.Join(workingDir, "test.txt")
 	step1Args := []string{
 		"bash",
 		"-c",
 		"echo 'test01' > test.txt",
 	}
 
+	s1FilePath := filepath.Join(attestationDir, "step01.json")
 	s1RunOptions := options.RunOptions{
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  filepath.Join(attestationDir, "step01.json"),
+		OutFilePath:  s1FilePath,
 		StepName:     "step01",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s1RunOptions, step1Args)
+	err = runRun(context.Background(), s1RunOptions, step1Args)
 	if err != nil {
 		t.Error(err)
+	}
+
+	subjects := []string{}
+	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, digest := range artifactDigest {
+		subjects = append(subjects, digest)
 	}
 
 	step2Args := []string{
@@ -223,30 +197,30 @@ func Test_RunVerifyKeyPair(t *testing.T) {
 		"echo 'test02' >> test.txt",
 	}
 
+	s2FilePath := filepath.Join(attestationDir, "step02.json")
 	s2RunOptions := options.RunOptions{
 		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
-		OutFilePath:  filepath.Join(attestationDir, "step02.json"),
+		OutFilePath:  s2FilePath,
 		StepName:     "step02",
-		RekorServer:  "",
 		Tracing:      false,
 	}
 
-	err = runRun(s2RunOptions, step2Args)
+	err = runRun(context.Background(), s2RunOptions, step2Args)
 	if err != nil {
 		t.Error(err)
 	}
 
 	vo := options.VerifyOptions{
-		KeyPath:              filepath.Join(workingDir, "policy-pub.pem"),
-		AttestationFilePaths: []string{filepath.Join(attestationDir, "step01.json"), filepath.Join(attestationDir, "step02.json")},
-		PolicyFilePath:       filepath.Join(workingDir, "signed-policy.json"),
-		ArtifactFilePath:     filepath.Join(workingDir, "test.txt"),
-		RekorServer:          "",
+		KeyPath:              policyPubFilePath,
+		AttestationFilePaths: []string{s1FilePath, s2FilePath},
+		PolicyFilePath:       policyFilePath,
+		ArtifactFilePath:     artifactPath,
+		AdditionalSubjects:   subjects,
 	}
 
-	err = runVerify(vo, []string{})
+	err = runVerify(context.Background(), vo)
 	if err != nil {
 		t.Error(err)
 	}
