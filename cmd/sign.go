@@ -43,8 +43,8 @@ func SignCmd() *cobra.Command {
 	return cmd
 }
 
-//todo: this logic should be broken out and moved to pkg/
-//we need to abstract where keys are coming from, etc
+// todo: this logic should be broken out and moved to pkg/
+// we need to abstract where keys are coming from, etc
 func runSign(so options.SignOptions) error {
 	ctx := context.Background()
 

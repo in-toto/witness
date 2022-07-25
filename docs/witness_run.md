@@ -9,8 +9,10 @@ witness run [cmd] [flags]
 ### Options
 
 ```
+      --archivist-server string        URL of the Archivist server to store or retrieve attestations (default "https://archivist.testifysec.io")
   -a, --attestations strings           Attestations to record (default [environment,git])
       --certificate string             Path to the signing key's certificate
+      --enable-archivist               Use Archivist to store or retrieve attestations
       --fulcio string                  Fulcio address to sign with
       --fulcio-oidc-client-id string   OIDC client ID to use for authentication
       --fulcio-oidc-issuer string      OIDC issuer to use for authentication
@@ -18,7 +20,6 @@ witness run [cmd] [flags]
   -i, --intermediates strings          Intermediates that link trust back to a root of trust in the policy
   -k, --key string                     Path to the signing key
   -o, --outfile string                 File to which to write signed data.  Defaults to stdout
-  -r, --rekor-server string            Rekor server to store attestations
       --spiffe-socket string           Path to the SPIFFE Workload API socket
   -s, --step string                    Name of the step being run
       --trace                          Enable tracing for the command
