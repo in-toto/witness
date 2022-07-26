@@ -116,7 +116,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 			return fmt.Errorf("failed to get initialize Rekor client: %w", err)
 		}
 
-		resp, err := rc.StoreArtifact(signedBytes, pubKeyBytes)
+		resp, err := rc.StoreArtifact(ctx, signedBytes, pubKeyBytes)
 		if err != nil {
 			return fmt.Errorf("failed to store artifact in rekor: %w", err)
 		}
