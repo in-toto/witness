@@ -14,7 +14,6 @@
 
 run:
     key: testkey.pem
-    outfile: test-attestation.json
     step: build
     trace: true
 sign:
@@ -22,7 +21,8 @@ sign:
     outfile: policy-signed.json
 verify:
     attestations: 
-        - "test-attestation.json"
+        - "build.attestation.json"
+        - "package.attestation.json"
     policy: policy-signed.json
     publickey: testpub.pem
     artifactfile: testapp
