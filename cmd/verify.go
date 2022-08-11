@@ -110,7 +110,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, args []string) err
 		digestSets = append(digestSets, artifactDigestSet)
 		verifiers := []cryptoutil.Verifier{}
 		verifiers = append(verifiers, verifier)
-		evidence, err := rc.FindEvidence(ctx, digestSets, policyEnvelope, verifiers, diskEnvs, MAX_DEPTH)
+		evidence, err := rc.FindEvidence(digestSets, policyEnvelope, verifiers, diskEnvs, MAX_DEPTH)
 		if err != nil {
 			return fmt.Errorf("failed to find evidence: %w", err)
 		}
