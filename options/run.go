@@ -25,11 +25,15 @@ type RunOptions struct {
 	StepName         string
 	RekorServer      string
 	Tracing          bool
+	TetragonAddress  string
+	WatchPrefix      []string
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	ro.KeyOptions.AddFlags(cmd)
 	ro.ArchivistOptions.AddFlags(cmd)
+	cmd.Flags().StringVarP(&ro.TetragonAddress, "tetragon-address", "t", "", "Tetragon address to store attestations")
+	cmd.Flags().StringSliceVarP(&ro.WatchPrefix, "watch-prefix", "w", []string{}, "Prefixes to watch for changes")
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
 	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")

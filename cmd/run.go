@@ -84,6 +84,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 		witness.RunWithCommand(args),
 		witness.RunWithAttestors(ro.Attestations),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
+		witness.RunWithTetragon(ro.TetragonAddress, ro.WatchPrefix),
 	)
 
 	if err != nil {
