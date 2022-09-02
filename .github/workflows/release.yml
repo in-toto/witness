@@ -52,7 +52,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     # needs: test
-    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
       - name: install witness
         uses: testifysec/witness-install-action@main
