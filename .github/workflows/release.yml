@@ -88,7 +88,7 @@ jobs:
           cosign-release: 'v1.4.1'
       - uses: anchore/sbom-action/download-syft@v0.6.0
       - name: Run GoReleaser
-        uses: testifysec/goreleaser-action@main
+        uses: testifysec/goreleaser-action@master
         with:
           distribution: goreleaser
           version: 'v1.2.5'
