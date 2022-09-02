@@ -11,11 +11,11 @@ builds:
       - "GOFLAGS=-mod=readonly -trimpath"
     goos:
       - linux
-      - windows
-      - darwin
+      # - windows
+      # - darwin
     goarch:
       - amd64
-      - arm64
+      # - arm64
     main: ./
 gomod:
   proxy: false
@@ -25,14 +25,14 @@ sboms:
   - artifacts: archive
   - id: source
     artifacts: source
-signs:
-  - cmd: cosign
-    env:
-      - COSIGN_EXPERIMENTAL=1
-    signature: "${artifact}.sig"
-    certificate: "${artifact}.pem"
-    args: ["sign-blob", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
-    artifacts: all
+# signs:
+#   - cmd: cosign
+#     env:
+#       - COSIGN_EXPERIMENTAL=1
+#     signature: "${artifact}.sig"
+#     certificate: "${artifact}.pem"
+#     args: ["sign-blob", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
+#     artifacts: all
 changelog:
   use: github
   groups:
