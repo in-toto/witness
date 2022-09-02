@@ -54,6 +54,18 @@ jobs:
     needs: test
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
+      - name: install witness
+        uses: testifysec/witness-install-action@main
+        with:
+          signing-key: |
+            -----BEGIN PRIVATE KEY-----
+            MC4CAQAwBQYDK2VwBCIEIN2GVZvD5a8M8ALX6ES0NV3zrNzi0ZwZ+DMJQykS92Lc
+            -----END PRIVATE KEY-----
+          attestors: git environment
+          trace-enable: "true"
+          step-name: "test"
+          archivist-grpc-server: "archivist-grpc.testifysec.io:443"
+          download-url: "https://github.com/testifysec/witness/releases/download/test-archivist-003/witness"
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -76,7 +88,7 @@ jobs:
           cosign-release: 'v1.4.1'
       - uses: anchore/sbom-action/download-syft@v0.6.0
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: testifysec/goreleaser-action@v0.0.1
         with:
           distribution: goreleaser
           version: 'v1.2.5'
