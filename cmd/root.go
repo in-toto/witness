@@ -32,7 +32,11 @@ func New() *cobra.Command {
 		Use:               "witness",
 		Short:             "Collect and verify attestations about your build environments",
 		DisableAutoGenTag: true,
+		SilenceErrors:     true,
 	}
+
+	logger := newLogger()
+	log.SetLogger(logger)
 
 	ro.AddFlags(cmd)
 	cmd.AddCommand(SignCmd())
@@ -40,7 +44,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
 	cmd.AddCommand(versionCmd())
-	cobra.OnInitialize(func() { preRoot(cmd, ro) })
+	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
 	return cmd
 }
 
@@ -51,9 +55,7 @@ func Execute() {
 	}
 }
 
-func preRoot(cmd *cobra.Command, ro *options.RootOptions) {
-	logger := newLogger()
-	log.SetLogger(logger)
+func preRoot(cmd *cobra.Command, ro *options.RootOptions, logger *logrusLogger) {
 	if err := logger.SetLevel(ro.LogLevel); err != nil {
 		logger.l.Fatal(err)
 	}
