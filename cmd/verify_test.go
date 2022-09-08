@@ -17,7 +17,6 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -43,7 +42,7 @@ func Test_RunVerifyCA(t *testing.T) {
 		CertPath: leafcert.Name(),
 	}
 
-	caBytes, err := ioutil.ReadFile(ca.Name())
+	caBytes, err := os.ReadFile(ca.Name())
 	require.NoError(t, err)
 
 	policy := makepolicyCA(t, caBytes)
