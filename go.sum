@@ -1319,6 +1319,8 @@ github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpP
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
 github.com/testifysec/archivist-api v0.0.0-20220719182744-ef1778aa0dba h1:TPJ+JyjlGYZcyHvkd8LJf+bJaLvDDKNQAfP4EGgfO58=
 github.com/testifysec/archivist-api v0.0.0-20220719182744-ef1778aa0dba/go.mod h1:HWpNFd8qFXCoU8gEF/xiuG10ni9EBFhPcpAFTcWDAmc=
+github.com/testifysec/go-witness v0.1.12-pre-release h1:iYTE1gwWlFIaEx81Ei34AUTkfKuX0nZy++uUvkCqq7A=
+github.com/testifysec/go-witness v0.1.12-pre-release/go.mod h1:2GHotLZYyHAmDfpMZbz8sEeSsSjAFP1/G6bRoviIdwo=
 github.com/testifysec/go-witness v0.1.13-0.20220901044134-ab7941b5a909 h1:7PldAAigVNc239SrKtsy2ic2PHyF7tO3Lmwo6kIyzZ4=
 github.com/testifysec/go-witness v0.1.13-0.20220901044134-ab7941b5a909/go.mod h1:YNp7jYMyEfu+9h6w+XmLJtwWygiutpRmLuD0wuk0YoY=
 github.com/testifysec/go-witness v0.1.13-0.20220901060804-f5a4f9277a30 h1:srML0SNJlOMcNKN1AQA7vKLkmfAbqSn4gHM1GUaTxtw=

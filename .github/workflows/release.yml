@@ -56,11 +56,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: install cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: 'v1.4.1'
-      - uses: anchore/sbom-action/download-syft@v0.6.0
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
@@ -70,9 +65,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-#      - uses: imjasonh/setup-ko@v0.4
-#      - name: build and release image
-#        run: cosign sign --oidc-issuer=https://token.actions.githubusercontent.com $(ko publish ./ --tags  ${{github.ref_name}})
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          COSIGN_EXPERIMENTAL: 1
