@@ -2,6 +2,10 @@
 
 [![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
 
+
+[![OpenSSF
+Scorecard](https://api.securityscorecards.dev/projects/github.com/witness/witness/badge)](https://api.securityscorecards.dev/projects/github.com/witness/witness)
+
 ## Witness is a pluggable framework for supply chain security
 
 Witness prevents tampering of build materials and verifies the integrity of the build process from source to target. It works by wrapping commands executed in a continuous integration process. Its attestation system is pluggable and offers support out of the box for most major CI and infrastructure providers. Verification of Witness metadata and a secure PKI distribution system will mitigate against many software supply chain attack vectors and can be used as a framework for automated governance.
