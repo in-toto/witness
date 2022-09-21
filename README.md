@@ -2,9 +2,8 @@
 
 [![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
 
-
 [![OpenSSF
-Scorecard](https://api.securityscorecards.dev/projects/github.com/witness/witness/badge)](https://api.securityscorecards.dev/projects/github.com/witness/witness)
+-Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
 
 ## Witness is a pluggable framework for supply chain security
 
