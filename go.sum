@@ -1360,6 +1360,8 @@ github.com/testifysec/archivist-api v0.0.0-20221012004029-f5ceac2d8a3b h1:HBEM8C
 github.com/testifysec/archivist-api v0.0.0-20221012004029-f5ceac2d8a3b/go.mod h1:4BAH0+DBqP7QQRfJuUw4Tm+LNrptYa0qOjJNcN0Lf7Q=
 github.com/testifysec/go-witness v0.1.14 h1:MEFXx/W8OgaIri3HfbAKpJfg3qkWaT04GaWYujZZhLE=
 github.com/testifysec/go-witness v0.1.14/go.mod h1:xBejEG5VrwCqJogmWxr//8sQKSwnR+9v70xMmwhOPzs=
+github.com/testifysec/go-witness v0.1.15 h1:FnD20gvWrQMxxbquzhxH7waf6Aiip3aPnvJtGk2i+TQ=
+github.com/testifysec/go-witness v0.1.15/go.mod h1:xBejEG5VrwCqJogmWxr//8sQKSwnR+9v70xMmwhOPzs=
 github.com/thales-e-security/pool v0.0.2 h1:RAPs4q2EbWsTit6tpzuvTFlgFRJ3S8Evf5gtvVDbmPg=
 github.com/thales-e-security/pool v0.0.2/go.mod h1:qtpMm2+thHtqhLzTwgDBj/OuNnMpupY8mv0Phz0gjhU=
 github.com/theupdateframework/go-tuf v0.0.0-20211203210025-7ded50136bf9/go.mod h1:n2n6wwC9BEnYS/C/APAtNln0eM5zYAYOkOTx6VEG/mA=

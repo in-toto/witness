@@ -21,7 +21,9 @@ import (
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
+	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/timestamp"
 	"github.com/testifysec/witness/options"
 )
 
@@ -71,7 +73,10 @@ func runSign(so options.SignOptions) error {
 		return fmt.Errorf("no signers found")
 	}
 
-	signer := signers[0]
+	timestampers := []dsse.Timestamper{}
+	for _, url := range so.TimestampServers {
+		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
+	}
 
 	inFile, err := os.Open(so.InFilePath)
 	if err != nil {
@@ -84,5 +89,5 @@ func runSign(so options.SignOptions) error {
 	}
 
 	defer outFile.Close()
-	return witness.Sign(inFile, so.DataType, outFile, signer)
+	return witness.Sign(inFile, so.DataType, outFile, dsse.SignWithSigners(signers[0]), dsse.SignWithTimestampers(timestampers...))
 }

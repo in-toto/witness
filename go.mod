@@ -8,7 +8,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
-	github.com/testifysec/go-witness v0.1.14
+	github.com/testifysec/go-witness v0.1.15
 )
 
 require (
