@@ -28,6 +28,7 @@ import (
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/attestation/commandrun"
 	"github.com/testifysec/go-witness/cryptoutil"
+	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/policy"
 	"github.com/testifysec/witness/options"
 )
@@ -238,7 +239,7 @@ func signPolicyRSA(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
 
 	writer := bytes.NewBuffer(outBytes)
 
-	err = witness.Sign(reader, "https://witness.testifysec.com/policy/v0.1", writer, sign)
+	err = witness.Sign(reader, "https://witness.testifysec.com/policy/v0.1", writer, dsse.SignWithSigners(sign))
 	if err != nil {
 		t.Error(err)
 	}

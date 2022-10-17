@@ -22,6 +22,7 @@ witness run [cmd] [flags]
   -o, --outfile string                 File to which to write signed data.  Defaults to stdout
       --spiffe-socket string           Path to the SPIFFE Workload API socket
   -s, --step string                    Name of the step being run
+      --timestamp-servers strings      Timestamp Authority Servers to use when signing envelope
       --trace                          Enable tracing for the command
   -d, --workingdir string              Directory from which commands will run
 ```

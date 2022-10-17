@@ -24,6 +24,7 @@ type RunOptions struct {
 	OutFilePath      string
 	StepName         string
 	Tracing          bool
+	TimestampServers []string
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
@@ -34,6 +35,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
+	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
 }
 
 type ArchivistOptions struct {

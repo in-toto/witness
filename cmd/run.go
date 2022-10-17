@@ -23,7 +23,9 @@ import (
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/archivist"
 	"github.com/testifysec/go-witness/attestation"
+	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/timestamp"
 	"github.com/testifysec/witness/options"
 )
 
@@ -63,22 +65,25 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 		return fmt.Errorf("no signers found")
 	}
 
-	signer := signers[0]
-
 	out, err := loadOutfile(ro.OutFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to open out file: %w", err)
 	}
 
-	defer out.Close()
+	timestampers := []dsse.Timestamper{}
+	for _, url := range ro.TimestampServers {
+		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
+	}
 
+	defer out.Close()
 	result, err := witness.Run(
 		ro.StepName,
-		signer,
+		signers[0],
 		witness.RunWithTracing(ro.Tracing),
 		witness.RunWithCommand(args),
 		witness.RunWithAttestors(ro.Attestations),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
+		witness.RunWithTimestampers(timestampers...),
 	)
 
 	if err != nil {

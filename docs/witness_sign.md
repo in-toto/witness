@@ -24,6 +24,7 @@ witness sign [file] [flags]
   -k, --key string                     Path to the signing key
   -o, --outfile string                 File to write signed data. Defaults to stdout
       --spiffe-socket string           Path to the SPIFFE Workload API socket
+      --timestamp-servers strings      Timestamp Authority Servers to use when signing envelope
 ```
 
 ### Options inherited from parent commands
