@@ -25,14 +25,6 @@ sboms:
   - artifacts: archive
   - id: source
     artifacts: source
-signs:
-  - cmd: cosign
-    env:
-      - COSIGN_EXPERIMENTAL=1
-    signature: "${artifact}.sig"
-    certificate: "${artifact}.pem"
-    args: ["sign-blob", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
-    artifacts: all
 changelog:
   use: github
   groups:
