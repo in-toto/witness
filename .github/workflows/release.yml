@@ -48,8 +48,8 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          go get github.com/mattn/goveralls
-          $GOPATH/bin/goveralls -coverprofile=profile.cov -service=github -repotoken $COVERALLS_TOKEN
+          GO111MODULE=off go get github.com/mattn/goveralls
+          $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v1
@@ -86,14 +86,9 @@ jobs:
       - name: Run GoReleaser
         uses: testifysec/testify-run-action@main
         with:
-          step-name: "release"
+          step-name: "build"
           attestors: "github sbom"
           command: goreleaser release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: sarif-results.json
