@@ -81,6 +81,9 @@ jobs:
 
       - name: Run GoReleaser
         uses: testifysec/testify-run-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
           step-name: "build"
           attestors: "github sbom"
