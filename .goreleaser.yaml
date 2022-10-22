@@ -21,10 +21,6 @@ gomod:
   proxy: false
 source:
   enabled: true
-sboms:
-  - artifacts: archive
-  - id: source
-    artifacts: source
 changelog:
   use: github
   groups:
