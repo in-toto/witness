@@ -1,3 +1,6 @@
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
 name: release
 on: [push, pull_request]
 jobs:
@@ -24,14 +27,31 @@ jobs:
             ${{ runner.os }}-go-
       - name: Format Unix
         run: test -z $(go fmt ./...)
+      - name: Install GoKart
+        run: go install github.com/praetorian-inc/gokart@latest
+
+      - name: Static Analysis
+        uses: testifysec/testify-run-action@main
+        with:
+          step-name: static-analysis
+          attestors: "github sarif"
+          command: gokart scan . -o sarif-results.json -s
+
       - name: Test
-        run: go test -covermode atomic -coverprofile='profile.cov' ./...
+        uses: testifysec/testify-run-action@main
+        with: 
+          step-name: "test"
+          attestors: "github"
+          command: go test -v -coverprofile=profile.cov -covermode=atomic ./...
+
       - name: Send coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           GO111MODULE=off go get github.com/mattn/goveralls
           $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
+
+      
   release:
     permissions:
       id-token: write
@@ -39,6 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,13 +77,15 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - uses: anchore/sbom-action/download-syft@v0.6.0
+      - name: Download GoReleaser
+        run: go install github.com/goreleaser/goreleaser@latest
+
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          distribution: goreleaser
-          version: 'v1.2.5'
-          args: release --rm-dist
+        uses: testifysec/testify-run-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        with:
+          step-name: "build"
+          attestors: "github sbom"
+          command: goreleaser release --rm-dist
