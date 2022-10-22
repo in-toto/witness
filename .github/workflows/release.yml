@@ -51,10 +51,6 @@ jobs:
           GO111MODULE=off go get github.com/mattn/goveralls
           $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
 
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: sarif-results.json
       
   release:
     permissions:
