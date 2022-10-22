@@ -1,3 +1,6 @@
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
 name: release
 on: [push, pull_request]
 jobs:
@@ -81,10 +84,14 @@ jobs:
         run: curl -sfL https://goreleaser.com/static/run | bash
 
       - name: Run GoReleaser
+        uses: testifysec/testify-run-action@main
+        with:
+          step-name: "release"
+          attestors: "github sbom"
+          command: goreleaser release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-        run: goreleaser release --rm-dist
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v1
