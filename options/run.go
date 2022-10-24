@@ -25,6 +25,8 @@ type RunOptions struct {
 	StepName         string
 	Tracing          bool
 	TimestampServers []string
+	TetragonAddress  string
+	WatchPrefix      []string
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
@@ -36,6 +38,8 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
+	cmd.Flags().StringVarP(&ro.TetragonAddress, "tetragon-address", "t", "", "Tetragon address to store attestations")
+	cmd.Flags().StringSliceVarP(&ro.WatchPrefix, "watch-prefix", "w", []string{}, "Path Prefixes to watch for changes (Tetragon)")
 }
 
 type ArchivistOptions struct {
