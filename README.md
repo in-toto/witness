@@ -95,7 +95,7 @@ verify:
 ### Record attestations for a build step
 
 > - The `-a {attestor}` flag allows you to define which attestors run
-> - ex. `-a maven -a was -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
+> - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
 > - Defining step names is important, these will be used in the policy.
 > - This should happen as a part of a CI step
 
