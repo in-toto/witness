@@ -257,7 +257,7 @@ Attestors define subjects that act as lookup indexes. The attestationCollection 
 
 A witness policy is a signed document that encodes the requirements for an artifact to be validated. A witness policy includes public keys for trusted functionaries, which attestations must be found, and rego policy to evaluate against the attestation meta-data.
 
-I witness policy allowers administrators trace the compliance status of an artifact at any point during it's lifecycle.
+A witness policy allows administrators to trace the compliance status of an artifact at any point during its lifecycle.
 
 ## Witness Verification
 
