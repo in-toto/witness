@@ -1,4 +1,6 @@
-![witness](/docs/assets/logo.png)
+<p align="center">
+  <img src="docs/assets/logo.png">
+</p>
 
 [![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
 
@@ -21,6 +23,7 @@ Witness is an implementation of the in-toto spec including [ITE-5](https://githu
 - Alpha support for tracing and process tampering prevention
 - Verifies file integrity between CI steps, and across air gap.
 - Experimental Windows and ARM Support
+- Capable of using [Archivist](https://github.com/testifysec/archivist) as an attestation store
 
 ## Usage
 
@@ -92,7 +95,7 @@ verify:
 ### Record attestations for a build step
 
 > - The `-a {attestor}` flag allows you to define which attestors run
-> - ex. `-a maven -a was -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
+> - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
 > - Defining step names is important, these will be used in the policy.
 > - This should happen as a part of a CI step
 
@@ -266,7 +269,7 @@ I witness policy allowers administrators trace the compliance status of an artif
 
 Witness can consume ephemeral keys from a [SPIRE](https://github.com/spiffe/spire) node agent. Configure witness with the flag `--spiffe-socket` to enable keyless signing.
 
-During the verification process witness will use the [Rekor](https://github.com/sigstore/rekor) integrated time to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for the attestation to be integrated into the Rekor log.
+During the verification process witness will use a source of trusted time such as a timestamp from a timestamp authority to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for a timestamp to be created.
 
 ## Witness Examples
 
