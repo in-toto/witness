@@ -1,29 +1,68 @@
+[![OpenSSF
+-Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
+
 <p align="center">
-  <img src="docs/assets/logo.png">
+  <img src="docs/assets/logo.png" width="250">
+  <br>
+  Witness is a pluggable framework for supply chain security
 </p>
 
 [![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
 
-[![OpenSSF
--Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
+# Witness - Secure Your Supply Chain
+
+Witness is a pluggable framework for supply chain security that creates an evidence trail of the entire software development life cycle (SDLC) to ensure the integrity of your software from source to target. It supports most major CI and infrastructure providers, and uses a secure PKI distribution system to enhance security and mitigate against software supply chain attack vectors.
+
+Witness works by wrapping commands executed in a continuous integration process, providing an evidence trail of every action in the software development life cycle (SDLC). This allows for a detailed and verifiable record of how the software was built, who built it, and what tools were used. This evidence can be used to evaluate policy compliance and detect any potential tampering or malicious activity and ensure only authorized users or machines completes a step of the process. Additionally, Witness's attestation system is pluggable and offers support for most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains. Furthermore, the use of a secure PKI distribution system and the ability to verify Witness metadata further enhances the security of the process and helps mitigate against many software supply chain attack vectors.
+
+## Witness enables you to:
+
+- Verify who built the software, how it was built and what tools were used
+- Detect any potential tampering or malicious activity
+- Ensure that only authorized users or machines complete each step of the process
+- Distribute attestations and policy across air gaps
 
 ## Witness is a pluggable framework for supply chain security
 
-Witness prevents tampering of build materials and verifies the integrity of the build process from source to target. It works by wrapping commands executed in a continuous integration process. Its attestation system is pluggable and offers support out of the box for most major CI and infrastructure providers. Verification of Witness metadata and a secure PKI distribution system will mitigate against many software supply chain attack vectors and can be used as a framework for automated governance.
+ - It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
+ - It is designed to run in both containerized and non-containerized environments and does not require elevated privileges.
+ - It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
+ - It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
 
-Witness is an implementation of the in-toto spec including [ITE-5](https://github.com/in-toto/ITE/tree/master/ITE/5), [ITE-6](https://github.com/in-toto/ITE/tree/master/ITE/6), [ITE-7](https://github.com/in-toto/ITE/tree/master/ITE/7) with an [embedded rego policy engine](https://www.openpolicyagent.org/docs/latest/integration/#integrating-with-the-go-api).
+## Key Features
+ - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
+ - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivist server.
+ - Experimental support for process tracing and process tampering prevention.
+ - Verifies file integrity between CI steps and across air gap.
+ - Support for Darwin, Windows, and ARM architectures.
+ - Can use Archivist as an attestation store.
+ - Integrations with GitLab, GitHub, AWS, and GCP.
 
-- Does **NOT** require elevated privileges.
-- Can run in a containerized or non-containerized environment
-- Records secure hashes of materials, artifacts, and events occurring during the CI process
-- Integrations with cloud identity services
-- Keyless signing with [SPIFFE/SPIRE](https://spiffe.io/)
-- Support for uploading attestation evidence to rekor server (sigstore)
-- Build policy enforcement with Open Policy Agent.
-- Alpha support for tracing and process tampering prevention
-- Verifies file integrity between CI steps, and across air gap.
-- Experimental Windows and ARM Support
-- Capable of using [Archivist](https://github.com/testifysec/archivist) as an attestation store
+## How it works
+- Witness wraps commands executed during a continuous integration process to create an evidence trail of the entire software development life cycle (SDLC)
+- It records secure hashes of materials, artifacts, and events that occur during the CI process
+- This evidence can be used to evaluate policy compliance, detect tampering or malicious activity, and ensure only authorized users or machines complete a step of the process
+- Witness's attestation system is pluggable and supports most major CI and infrastructure providers
+- It uses a secure PKI distribution system and can verify Witness metadata to enhance security and mitigate against many software supply chain attack vectors
+- Witness is an implementation of the in-toto specification, including ITE-5, ITE-6, and ITE-7, and includes an embedded rego policy engine for build policy enforcement with Open Policy Agent
+- It can run in both containerized and non-containerized environments without requiring elevated privileges
+- It supports keyless signing with Sigstore and SPIFFE/SPIRE and uploading attestation evidence to the [Archivista](https://github.com/testifysec/archivista) server
+- It offers experimental support for tracing and process tampering prevention and can verify file integrity between CI steps and across air gap
+- It supports Darwin, Windows, and ARM architectures and can use [Archivista](https://github.com/testifysec/archivista) as an attestation store
+- Overall, Witness acts as a comprehensive framework for automated governance, providing a robust solution for securing the software supply chain.
+
+
+## Witness Examples
+
+- [Verify an Artifact Policy](https://github.com/testifysec/witness-examples/blob/main/keypair/README.md)
+- [Using Fulcio as a Key Provider](https://github.com/testifysec/witness-examples/blob/main/keyless-fulcio/README.md)
+
+## Media
+
+- [Blog/Video - Generating and Verifying Attestations With Witness](https://www.testifysec.com/blog/attestations-with-witness/)
+- [Blog - What is a supply chain attestation, and why do I need it?](https://www.testifysec.com/blog/what-is-a-supply-chain-attestation/)
+- [Talk - Securing the Software Supply Chain with the in-toto & SPIRE projects](https://www.youtube.com/watch?v=4lFbdkB62QI)
+- [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
 
 ## Usage
 
@@ -33,6 +72,25 @@ Witness is an implementation of the in-toto spec including [ITE-5](https://githu
 
 ## TOC
 
+- [Witness - Secure Your Supply Chain](#witness---secure-your-supply-chain)
+  - [Witness enables you to:](#witness-enables-you-to)
+  - [Witness is a pluggable framework for supply chain security](#witness-is-a-pluggable-framework-for-supply-chain-security)
+  - [Key Features](#key-features)
+  - [How it works](#how-it-works)
+  - [Witness Examples](#witness-examples)
+  - [Media](#media)
+  - [Usage](#usage)
+  - [TOC](#toc)
+  - [Quick Start](#quick-start)
+    - [Download the Binary](#download-the-binary)
+    - [Create a Keypair](#create-a-keypair)
+    - [Create a Witness configuration](#create-a-witness-configuration)
+    - [Record attestations for a build step](#record-attestations-for-a-build-step)
+    - [View the attestation data in the signed DSSE Envelope](#view-the-attestation-data-in-the-signed-dsse-envelope)
+    - [Create a Policy File](#create-a-policy-file)
+    - [Replace the variables in the policy](#replace-the-variables-in-the-policy)
+    - [Sign The Policy File](#sign-the-policy-file)
+    - [Verify the Binary Meets Policy Requirements](#verify-the-binary-meets-policy-requirements)
 - [Witness Attestors](#witness-attestors)
   - [What is a witness attestor?](#what-is-a-witness-attestor)
   - [Attestor Security Model](#attestor-security-model)
@@ -49,19 +107,18 @@ Witness is an implementation of the in-toto spec including [ITE-5](https://githu
   - [Witness Verification](#witness-verification)
     - [Verification Lifecycle](#verification-lifecycle)
   - [Using SPIRE for Keyless Signing](#using-spire-for-keyless-signing)
-  - [Witness Examples](#witness-examples)
-  - [Media](#media)
-  - [Roadmap](#roadmap)
   - [Support](#support)
 
-## Getting Started
+## Quick Start
 
 ### Download the Binary
+Download from the releases page or use the install script to download the latest release.
+
 [Releases](https://github.com/testifysec/witness/releases)
 ```
-curl -LO https://github.com/testifysec/witness/releases/download/${VERSION}/witness_${VERSION}_${ARCH}.tar.gz
-tar -xzf witness_${VERSION}_${ARCH}.tar.gz
+bash <(curl -s https://raw.githubusercontent.com/testifysec/witness/main/install-witness.sh)
 ```
+
 
 ### Create a Keypair
 
@@ -105,7 +162,7 @@ witness run --step build -o test-att.json -- go build -o=testapp .
 
 ### View the attestation data in the signed DSSE Envelope
 
-> - This data can be stored and retrieved from rekor!
+> - This data can be stored and retrieved from Archivist
 > - This is the data that is evaluated against the Rego policy
 
 ```
@@ -271,32 +328,6 @@ Witness can consume ephemeral keys from a [SPIRE](https://github.com/spiffe/spir
 
 During the verification process witness will use a source of trusted time such as a timestamp from a timestamp authority to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for a timestamp to be created.
 
-## Witness Examples
-
-- [Using Witness To Prevent SolarWinds Type Attacks](examples/solarwinds/README.md)
-- [Using Witness To Find Artifacts With Hidden Vulnerable Log4j Dependencies](examples/log4shell/README.md)
-
-## Media
-
-- [Blog - What is a supply chain attestation, and why do I need it?](https://www.testifysec.com/blog/what-is-a-supply-chain-attestation/)
-- [Talk - Securing the Software Supply Chain with the in-toto & SPIRE projects](https://www.youtube.com/watch?v=4lFbdkB62QI)
-- [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
-
-## Roadmap
-
-- Attestors for all major platforms
-- CaC Card Attestor
-- GovCloud Attestor
-- OIDC Attestor
-- FIDO Attestor
-- Vault Key Provider
-- Cloud KMS Support
-- Kubernetes Admission Controller
-- SIEM Collection Agent 
-- Cosign Signature Validation
-- Notary v2 Signature Validation
-- [Zarf](https://github.com/defenseunicorns/zarf) Integration
-- IronBank Attestor
 
 ## Support
 
