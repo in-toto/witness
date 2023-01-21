@@ -23,34 +23,28 @@ Witness works by wrapping commands executed in a continuous integration process,
 - Distribute attestations and policy across air gaps
 
 ## Witness is a pluggable framework for supply chain security
-
- - It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
- - It is designed to run in both containerized and non-containerized environments and does not require elevated privileges.
- - It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
- - It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
+- It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
+- It is designed to run in both containerized and non-containerized environments without requiring elevated privileges.
+- It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
+- It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
 
 ## Key Features
- - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
- - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivist server.
- - Experimental support for process tracing and process tampering prevention.
- - Verifies file integrity between CI steps and across air gap.
- - Support for Darwin, Windows, and ARM architectures.
- - Can use Archivist as an attestation store.
- - Integrations with GitLab, GitHub, AWS, and GCP.
+- Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
+- Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivist server.
+- Experimental support for process tracing and process tampering prevention.
+- Verifies file integrity between CI steps and across air gap.
+- Support for Darwin, Windows, and ARM architectures.
+- Can use Archivist as an attestation store.
+- Integrations with GitLab, GitHub, AWS, and GCP.
 
 ## How it works
 - Witness wraps commands executed during a continuous integration process to create an evidence trail of the entire software development life cycle (SDLC)
 - It records secure hashes of materials, artifacts, and events that occur during the CI process
 - This evidence can be used to evaluate policy compliance, detect tampering or malicious activity, and ensure only authorized users or machines complete a step of the process
 - Witness's attestation system is pluggable and supports most major CI and infrastructure providers
-- It uses a secure PKI distribution system and can verify Witness metadata to enhance security and mitigate against many software supply chain attack vectors
-- Witness is an implementation of the in-toto specification, including ITE-5, ITE-6, and ITE-7, and includes an embedded rego policy engine for build policy enforcement with Open Policy Agent
-- It can run in both containerized and non-containerized environments without requiring elevated privileges
 - It supports keyless signing with Sigstore and SPIFFE/SPIRE and uploading attestation evidence to the [Archivista](https://github.com/testifysec/archivista) server
 - It offers experimental support for tracing and process tampering prevention and can verify file integrity between CI steps and across air gap
-- It supports Darwin, Windows, and ARM architectures and can use [Archivista](https://github.com/testifysec/archivista) as an attestation store
 - Overall, Witness acts as a comprehensive framework for automated governance, providing a robust solution for securing the software supply chain.
-
 
 ## Witness Examples
 
