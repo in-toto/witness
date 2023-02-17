@@ -148,7 +148,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/testifysec/archivist-api v0.0.0-20221012004029-f5ceac2d8a3b // indirect
-	github.com/theupdateframework/go-tuf v0.3.1 // indirect
+	github.com/theupdateframework/go-tuf v0.3.2 // indirect
 	github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399 // indirect
 	github.com/vbatts/go-mtree v0.5.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.7 // indirect
