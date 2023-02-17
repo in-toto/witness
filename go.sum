@@ -1358,15 +1358,13 @@ github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpP
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
 github.com/testifysec/archivist-api v0.0.0-20221012004029-f5ceac2d8a3b h1:HBEM8CWMd0/1JmwrKtKXbGy45WBtUVP3sgFpGw2gRgk=
 github.com/testifysec/archivist-api v0.0.0-20221012004029-f5ceac2d8a3b/go.mod h1:4BAH0+DBqP7QQRfJuUw4Tm+LNrptYa0qOjJNcN0Lf7Q=
-github.com/testifysec/go-witness v0.1.14 h1:MEFXx/W8OgaIri3HfbAKpJfg3qkWaT04GaWYujZZhLE=
-github.com/testifysec/go-witness v0.1.14/go.mod h1:xBejEG5VrwCqJogmWxr//8sQKSwnR+9v70xMmwhOPzs=
 github.com/testifysec/go-witness v0.1.15 h1:FnD20gvWrQMxxbquzhxH7waf6Aiip3aPnvJtGk2i+TQ=
 github.com/testifysec/go-witness v0.1.15/go.mod h1:xBejEG5VrwCqJogmWxr//8sQKSwnR+9v70xMmwhOPzs=
 github.com/thales-e-security/pool v0.0.2 h1:RAPs4q2EbWsTit6tpzuvTFlgFRJ3S8Evf5gtvVDbmPg=
 github.com/thales-e-security/pool v0.0.2/go.mod h1:qtpMm2+thHtqhLzTwgDBj/OuNnMpupY8mv0Phz0gjhU=
 github.com/theupdateframework/go-tuf v0.0.0-20211203210025-7ded50136bf9/go.mod h1:n2n6wwC9BEnYS/C/APAtNln0eM5zYAYOkOTx6VEG/mA=
-github.com/theupdateframework/go-tuf v0.3.1 h1:NkjMlCuLcDpHNtsWXY4lTmbbQQ5nOM7JSBbOKEEiI1c=
-github.com/theupdateframework/go-tuf v0.3.1/go.mod h1:lhHZ3Vt2pdAh15h0Cc6gWdlI+Okn2ZznD3q/cNjd5jw=
+github.com/theupdateframework/go-tuf v0.3.2 h1:fzjeUUEL3zZpKgWMn35OoksvuCMVMS4ZZ4o2ZcbUGOU=
+github.com/theupdateframework/go-tuf v0.3.2/go.mod h1:kfQTX2LhNeK/cp03OBiZHoua0Pp2l9w4ShRwFtc0oKg=
 github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399 h1:e/5i7d4oYZ+C1wj2THlRK+oAhjeS/TRQwMfkIuet3w0=
 github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399/go.mod h1:LdwHTNJT99C5fTAzDz0ud328OgXz+gierycbcIx2fRs=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
