@@ -24,7 +24,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/archivist"
+	"github.com/testifysec/go-witness/archivista"
 	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
@@ -98,7 +98,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	for _, subDigest := range vo.AdditionalSubjects {
-		subjects = append(subjects, cryptoutil.DigestSet{crypto.SHA256: subDigest})
+		subjects = append(subjects, cryptoutil.DigestSet{cryptoutil.DigestValue{Hash: crypto.SHA256, GitOID: false}: subDigest})
 	}
 
 	if len(subjects) == 0 {
@@ -115,7 +115,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 
 	collectionSource = memSource
 	if vo.ArchivistaOptions.Enable {
-		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivist.New(vo.ArchivistaOptions.Url)))
+		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivista.New(vo.ArchivistaOptions.Url)))
 	}
 
 	verifiedEvidence, err := witness.Verify(
