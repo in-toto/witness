@@ -16,6 +16,7 @@ witness run [cmd] [flags]
       --fulcio string                  Fulcio address to sign with
       --fulcio-oidc-client-id string   OIDC client ID to use for authentication
       --fulcio-oidc-issuer string      OIDC issuer to use for authentication
+      --fulcio-token string            Raw token to use for authentication
   -h, --help                           help for run
   -i, --intermediates strings          Intermediates that link trust back to a root of trust in the policy
   -k, --key string                     Path to the signing key
