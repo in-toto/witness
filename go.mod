@@ -14,6 +14,7 @@ require (
 require (
 	github.com/coreos/go-oidc/v3 v3.5.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
