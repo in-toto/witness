@@ -100,9 +100,11 @@ Witness works by wrapping commands executed in a continuous integration process,
   - [Attestor Life Cycle](#attestor-life-cycle)
     - [Attestation Lifecycle](#attestation-lifecycle)
   - [Attestor Types](#attestor-types)
-    - [Pre Run Attestors](#pre-run-attestors)
-    - [Internal Attestors](#internal-attestors)
-    - [Post Run Attestors](#post-run-attestors)
+    - [Pre-material Attestors](#pre-material-attestors)
+    - [Material Attestors](#material-attestors)
+    - [Execute Attestors](#execute-attestors)
+    - [Product Attestors](#product-attestors)
+    - [Post-product Attestors](#post-product-attestors)
     - [AttestationCollection](#attestationcollection)
     - [Attestor Subjects](#attestor-subjects)
   - [Witness Policy](#witness-policy)
@@ -267,13 +269,15 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 
 ## Attestor Life Cycle
 
-- **PreRun:** `PreRun` attestors run before the `material` attestor and `commandRun` attestors. These attestors generally collect information about the environment.
+- **Pre-material:** Pre-material attestors run before any other attestors. These attestors generally collect information about the environment.
 
-- **Material Attestor:** The `material` attestor is an internal attestor and runs immediately after
+- **Material:** Material attestors run after any prematerial attestors and prior to any execute attestors. Generally these collect information about state that may change after any execute attestors, such as file hashes.
 
-- **CommandRun Attestor:** The CommandRun attestor is an internal attestor. It has experimental tracing support that can be enabled with the `--trace` flag
+- **Execute:**: Execute attestors run after any material attestors and generally record information about some command or process that is to be executed.
 
-- **Product Attestor:** The Product attestor collects the products produced by the `commandRun` attestor and calculates the secure hash, and makes the file descriptor available to the `postRun` attestors.
+- **Product:** Product attestors run after any execute attestors and generally record information about what changed during the execute lifecycle step, such as changed or created files.
+
+- **Post-product:** Post-product attestors run after product attestors and generally record some additional information about specific products, such as OCI image information from a saved image tarball.
 
 ### Attestation Lifecycle
 
@@ -281,8 +285,7 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 
 ## Attestor Types
 
-### Pre Run Attestors
-
+### Pre-material Attestors
 - [AWS](docs/attestors/aws-iid.md) - Attestor for AWS Instance Metadata
 - [GCP](docs/attestors/gcp-iit.md) - Attestor for GCP Instance Identity Service
 - [GitLab](docs/attestors/gitlab.md) - Attestor for GitLab Pipelines
@@ -291,15 +294,16 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 - [Environment](docs/attestors/environment.md) - Attestor for environment variables (**_be careful with this - there is no way to mask values yet_**)
 - [JWT](docs/attestors/jwt.md) - Attestor for JWT Tokens
 
-### Internal Attestors
-
-- [CommandRun](docs/attestors/commandrun.md) - Records traces and metadata about the actual process being run
+### Material Attestors
 - [Material](docs/attestors/material.md) - Records secure hashes of files in current working directory
+
+### Execute Attestors
+- [CommandRun](docs/attestors/commandrun.md) - Records traces and metadata about the actual process being run
+
+### Product Attestors
 - [Product](docs/attestors/product.md) - Records secure hashes of files produced by commandrun attestor (only detects new files)
 
-### Post Run Attestors
-
-PostRun attestors collect have access to the files discovered by the product attestor. The purpose of PostRun attestors is to select metadata from the products. For example, in the OCI attestor the attestor examines the tar file and extracts OCI container meta-data.
+### Post-product Attestors
 
 - [OCI](docs/attestors/oci.md) - Attestor for tar'd OCI images
 

@@ -15,19 +15,23 @@
 package options
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/attestation"
 	"github.com/testifysec/go-witness/log"
 )
 
 type RunOptions struct {
-	KeyOptions        KeyOptions
-	ArchivistaOptions ArchivistaOptions
-	WorkingDir        string
-	Attestations      []string
-	OutFilePath       string
-	StepName          string
-	Tracing           bool
-	TimestampServers  []string
+	KeyOptions         KeyOptions
+	ArchivistaOptions  ArchivistaOptions
+	WorkingDir         string
+	Attestations       []string
+	OutFilePath        string
+	StepName           string
+	Tracing            bool
+	TimestampServers   []string
+	AttestorOptSetters map[string][]func(attestation.Attestor) (attestation.Attestor, error)
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
@@ -39,6 +43,42 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
+
+	attestationRegistrations := attestation.RegistrationEntries()
+	for _, registration := range attestationRegistrations {
+		for _, opt := range registration.Options {
+			name := fmt.Sprintf("%s-%s", registration.Name, opt.Name())
+			switch optT := opt.(type) {
+			case attestation.ConfigOption[int]:
+				{
+					val := cmd.Flags().Int(name, optT.DefaultVal(), opt.Description())
+					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case attestation.ConfigOption[string]:
+				{
+					val := cmd.Flags().String(name, optT.DefaultVal(), opt.Description())
+					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case attestation.ConfigOption[[]string]:
+				{
+					val := cmd.Flags().StringSlice(name, []string{}, opt.Description())
+					cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
+					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			default:
+				log.Debugf("unrecognized attestor option type: %T", optT)
+			}
+		}
+	}
 }
 
 type ArchivistaOptions struct {

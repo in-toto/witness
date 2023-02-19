@@ -21,8 +21,11 @@ import (
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/archivist"
+	"github.com/testifysec/go-witness/archivista"
 	"github.com/testifysec/go-witness/attestation"
+	"github.com/testifysec/go-witness/attestation/commandrun"
+	"github.com/testifysec/go-witness/attestation/material"
+	"github.com/testifysec/go-witness/attestation/product"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/timestamp"
@@ -30,7 +33,10 @@ import (
 )
 
 func RunCmd() *cobra.Command {
-	o := options.RunOptions{}
+	o := options.RunOptions{
+		AttestorOptSetters: make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),
+	}
+
 	cmd := &cobra.Command{
 		Use:           "run [cmd]",
 		Short:         "Runs the provided command and records attestations about the execution",
@@ -75,13 +81,36 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}
 
+	attestors := []attestation.Attestor{product.New(), material.New()}
+	if len(args) > 0 {
+		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
+	}
+
+	addtlAttestors, err := attestation.Attestors(ro.Attestations)
+	if err != nil {
+		return fmt.Errorf("failed to create attestors := %w", err)
+	}
+
+	attestors = append(attestors, addtlAttestors...)
+	for _, attestor := range attestors {
+		setters, ok := ro.AttestorOptSetters[attestor.Type()]
+		if !ok {
+			continue
+		}
+
+		for _, setter := range setters {
+			attestor, err = setter(attestor)
+			if err != nil {
+				return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
+			}
+		}
+	}
+
 	defer out.Close()
 	result, err := witness.Run(
 		ro.StepName,
 		signers[0],
-		witness.RunWithTracing(ro.Tracing),
-		witness.RunWithCommand(args),
-		witness.RunWithAttestors(ro.Attestations),
+		witness.RunWithAttestors(attestors),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
 		witness.RunWithTimestampers(timestampers...),
 	)
@@ -100,8 +129,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 	}
 
 	if ro.ArchivistaOptions.Enable {
-		archivistClient := archivist.New(ro.ArchivistaOptions.Url)
-		if gitoid, err := archivistClient.Store(ctx, result.SignedEnvelope); err != nil {
+		archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
+		if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
 			return fmt.Errorf("failed to store artifact in archivist: %w", err)
 		} else {
 			log.Infof("Stored in archivist as %v\n", gitoid)

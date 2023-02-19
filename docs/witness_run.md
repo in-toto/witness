@@ -20,6 +20,8 @@ witness run [cmd] [flags]
   -i, --intermediates strings          Intermediates that link trust back to a root of trust in the policy
   -k, --key string                     Path to the signing key
   -o, --outfile string                 File to which to write signed data.  Defaults to stdout
+      --product-excludeGlob string     Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
+      --product-includeGlob string     Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --spiffe-socket string           Path to the SPIFFE Workload API socket
   -s, --step string                    Name of the step being run
       --timestamp-servers strings      Timestamp Authority Servers to use when signing envelope
