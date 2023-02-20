@@ -32,6 +32,7 @@ Witness works by wrapping commands executed in a continuous integration process,
 ## Key Features
  - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
  - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivist server.
+ - Support for RFC3161 compatible timestamp authorities
  - Experimental support for process tracing and process tampering prevention.
  - Verifies file integrity between CI steps and across air gap.
  - Support for Darwin, Windows, and ARM architectures.
