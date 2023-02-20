@@ -31,12 +31,12 @@ Witness works by wrapping commands executed in a continuous integration process,
 
 ## Key Features
  - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
- - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivist server.
+ - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivista server.
  - Support for RFC3161 compatible timestamp authorities
  - Experimental support for process tracing and process tampering prevention.
  - Verifies file integrity between CI steps and across air gap.
  - Support for Darwin, Windows, and ARM architectures.
- - Can use Archivist as an attestation store.
+ - Can use Archivista as an attestation store.
  - Integrations with GitLab, GitHub, AWS, and GCP.
 
 ## How it works
@@ -163,7 +163,7 @@ witness run --step build -o test-att.json -- go build -o=testapp .
 
 ### View the attestation data in the signed DSSE Envelope
 
-> - This data can be stored and retrieved from Archivist
+> - This data can be stored and retrieved from Archivista
 > - This is the data that is evaluated against the Rego policy
 
 ```

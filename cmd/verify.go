@@ -114,8 +114,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	collectionSource = memSource
-	if vo.ArchivistOptions.Enable {
-		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivist.New(vo.ArchivistOptions.Url)))
+	if vo.ArchivistaOptions.Enable {
+		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivist.New(vo.ArchivistaOptions.Url)))
 	}
 
 	verifiedEvidence, err := witness.Verify(

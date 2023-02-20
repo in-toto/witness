@@ -17,7 +17,7 @@ package options
 import "github.com/spf13/cobra"
 
 type VerifyOptions struct {
-	ArchivistOptions     ArchivistOptions
+	ArchivistaOptions    ArchivistaOptions
 	KeyPath              string
 	AttestationFilePaths []string
 	PolicyFilePath       string
@@ -27,7 +27,7 @@ type VerifyOptions struct {
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
-	vo.ArchivistOptions.AddFlags(cmd)
+	vo.ArchivistaOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&vo.KeyPath, "publickey", "k", "", "Path to the policy signer's public key")
 	cmd.Flags().StringSliceVarP(&vo.AttestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
