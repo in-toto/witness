@@ -99,8 +99,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 		return fmt.Errorf("failed to write envelope to out file: %w", err)
 	}
 
-	if ro.ArchivistOptions.Enable {
-		archivistClient := archivist.New(ro.ArchivistOptions.Url)
+	if ro.ArchivistaOptions.Enable {
+		archivistClient := archivist.New(ro.ArchivistaOptions.Url)
 		if gitoid, err := archivistClient.Store(ctx, result.SignedEnvelope); err != nil {
 			return fmt.Errorf("failed to store artifact in archivist: %w", err)
 		} else {
