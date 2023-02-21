@@ -18,6 +18,7 @@ import (
 	"context"
 	"crypto"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -86,14 +87,22 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
 	}
 
-	artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
-	if err != nil {
-		return fmt.Errorf("failed to calculate artifact digest: %w", err)
+	subjects := []cryptoutil.DigestSet{}
+	if len(vo.ArtifactFilePath) > 0 {
+		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
+		if err != nil {
+			return fmt.Errorf("failed to calculate artifact digest: %w", err)
+		}
+
+		subjects = append(subjects, artifactDigestSet)
 	}
 
-	subjects := []cryptoutil.DigestSet{artifactDigestSet}
 	for _, subDigest := range vo.AdditionalSubjects {
 		subjects = append(subjects, cryptoutil.DigestSet{crypto.SHA256: subDigest})
+	}
+
+	if len(subjects) == 0 {
+		return errors.New("at least one subject is required, provide an artifact file or subject")
 	}
 
 	var collectionSource source.Sourcer
