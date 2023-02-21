@@ -54,16 +54,10 @@ func TestRunVerifyCA(t *testing.T) {
 	attestationDir := t.TempDir()
 
 	policyFilePath := filepath.Join(workingDir, "signed-policy.json")
-	err = os.WriteFile(policyFilePath, signedPolicy, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(policyFilePath, signedPolicy, 0644))
 
 	policyPubFilePath := filepath.Join(workingDir, "policy-pub.pem")
-	err = os.WriteFile(policyPubFilePath, pub, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(policyPubFilePath, pub, 0644))
 
 	artifactPath := filepath.Join(workingDir, "test.txt")
 	step1Args := []string{
@@ -82,16 +76,11 @@ func TestRunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(context.Background(), s1RunOptions, step1Args)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args))
 
 	subjects := []string{}
 	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	for _, digest := range artifactDigest {
 		subjects = append(subjects, digest)
@@ -113,24 +102,33 @@ func TestRunVerifyCA(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(context.Background(), s2RunOptions, step2Args)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, runRun(context.Background(), s2RunOptions, step2Args))
 
 	vo := options.VerifyOptions{
 		KeyPath:              policyPubFilePath,
 		AttestationFilePaths: []string{s1FilePath, s2FilePath},
 		PolicyFilePath:       policyFilePath,
-		ArtifactFilePath:     filepath.Join(workingDir, "test.txt"),
+		ArtifactFilePath:     artifactPath,
 		AdditionalSubjects:   subjects,
 	}
 
-	err = runVerify(context.Background(), vo)
-	if err != nil {
-		t.Error(err)
+	require.NoError(t, runVerify(context.Background(), vo))
+
+	// test that verify works without artifactfilepath but the subject of the modified articact also provided
+	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	require.NoError(t, err)
+	for _, digest := range artifactDigest {
+		subjects = append(subjects, digest)
 	}
 
+	vo = options.VerifyOptions{
+		KeyPath:              policyPubFilePath,
+		AttestationFilePaths: []string{s1FilePath, s2FilePath},
+		PolicyFilePath:       policyFilePath,
+		AdditionalSubjects:   subjects,
+	}
+
+	require.NoError(t, runVerify(context.Background(), vo))
 }
 
 func TestRunVerifyKeyPair(t *testing.T) {
@@ -139,22 +137,13 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	workingDir := t.TempDir()
 	attestationDir := t.TempDir()
 	policyFilePath := filepath.Join(workingDir, "signed-policy.json")
-	err := os.WriteFile(policyFilePath, signedPolicy, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(policyFilePath, signedPolicy, 0644))
 
 	policyPubFilePath := filepath.Join(workingDir, "policy-pub.pem")
-	err = os.WriteFile(policyPubFilePath, pub, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(policyPubFilePath, pub, 0644))
 
 	funcPrivFilepath := filepath.Join(workingDir, "func-priv.pem")
-	err = os.WriteFile(funcPrivFilepath, funcPriv, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(funcPrivFilepath, funcPriv, 0644))
 
 	keyOptions := options.KeyOptions{
 		KeyPath: funcPrivFilepath,
@@ -177,16 +166,11 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(context.Background(), s1RunOptions, step1Args)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args))
 
 	subjects := []string{}
 	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	for _, digest := range artifactDigest {
 		subjects = append(subjects, digest)
@@ -208,10 +192,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		Tracing:      false,
 	}
 
-	err = runRun(context.Background(), s2RunOptions, step2Args)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, runRun(context.Background(), s2RunOptions, step2Args))
 
 	vo := options.VerifyOptions{
 		KeyPath:              policyPubFilePath,
@@ -221,42 +202,41 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		AdditionalSubjects:   subjects,
 	}
 
-	err = runVerify(context.Background(), vo)
-	if err != nil {
-		t.Error(err)
+	require.NoError(t, runVerify(context.Background(), vo))
+
+	// test that verify works without artifactfilepath but the subject of the modified articact also provided
+	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	require.NoError(t, err)
+	for _, digest := range artifactDigest {
+		subjects = append(subjects, digest)
 	}
 
+	vo = options.VerifyOptions{
+		KeyPath:              policyPubFilePath,
+		AttestationFilePaths: []string{s1FilePath, s2FilePath},
+		PolicyFilePath:       policyFilePath,
+		AdditionalSubjects:   subjects,
+	}
+
+	require.NoError(t, runVerify(context.Background(), vo))
 }
 
 func signPolicyRSA(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
 	sign, _, pub, _, err := createTestRSAKey()
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, err)
 	reader := bytes.NewReader(p)
 	outBytes := []byte{}
-
 	writer := bytes.NewBuffer(outBytes)
-
-	err = witness.Sign(reader, "https://witness.testifysec.com/policy/v0.1", writer, dsse.SignWithSigners(sign))
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, witness.Sign(reader, "https://witness.testifysec.com/policy/v0.1", writer, dsse.SignWithSigners(sign)))
 	return writer.Bytes(), pub
 }
 
 func makepolicyCA(t *testing.T, ca []byte) []byte {
-
 	r := bytes.NewReader(ca)
-
 	verifier, err := cryptoutil.NewVerifierFromReader(r)
 	require.NoError(t, err)
-
 	keyID, err := verifier.KeyID()
 	require.NoError(t, err)
-
 	functionary := policy.Functionary{
 		Type: "root",
 		CertConstraint: policy.CertConstraint{
@@ -274,24 +254,16 @@ func makepolicyCA(t *testing.T, ca []byte) []byte {
 	}
 
 	roots := map[string]policy.Root{}
-
 	roots[keyID] = root
-
 	policy := makepolicy(t, functionary, policy.PublicKey{}, roots)
 	return policy
 }
 
 func makepolicyRSAPub(t *testing.T) ([]byte, []byte) {
 	_, ver, pub, fpriv, err := createTestRSAKey()
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, err)
 	keyID, err := ver.KeyID()
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, err)
 	functionary := policy.Functionary{
 		Type:        "PublicKey",
 		PublicKeyID: keyID,
@@ -341,9 +313,6 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	}
 
 	pb, err := json.MarshalIndent(p, "", "  ")
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, err)
 	return pb
 }
