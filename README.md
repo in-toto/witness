@@ -15,6 +15,8 @@ Witness is a pluggable framework for supply chain security that creates an evide
 
 Witness works by wrapping commands executed in a continuous integration process, providing an evidence trail of every action in the software development life cycle (SDLC). This allows for a detailed and verifiable record of how the software was built, who built it, and what tools were used. This evidence can be used to evaluate policy compliance and detect any potential tampering or malicious activity and ensure only authorized users or machines completes a step of the process. Additionally, Witness's attestation system is pluggable and offers support for most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains. Furthermore, the use of a secure PKI distribution system and the ability to verify Witness metadata further enhances the security of the process and helps mitigate against many software supply chain attack vectors.
 
+**NOTE:** the attestor code has been split into repo https://github.com/testifysec/go-witness
+
 ## Witness enables you to:
 
 - Verify who built the software, how it was built and what tools were used
