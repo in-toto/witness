@@ -60,7 +60,7 @@ OS=$(uname -s)
 OS=$(echo "$OS" | tr '[:upper:]' '[:lower:]')
 FILENAME="witness_${VERSION}_${OS}_${ARCH}.tar.gz"
 DOWNLOAD_URL="https://github.com/testifysec/witness/releases/download/v$VERSION/$FILENAME"
-EXPECTED_CHECKSUM="$(curl -L -s  https://github.com/testifysec/witness/releases/download/v$VERSION/witness_${VERSION}_checksums.txt | grep -w "witness_${VERSION}_${OS}_$ARCH.tar.gz$" | awk '{print $1}')"
+EXPECTED_CHECKSUM="$(curl -L -s  https://github.com/testifysec/witness/releases/download/v$VERSION/witness_${VERSION}-checksums.txt | grep -w "witness_${VERSION}-rc1_${OS}_$ARCH.tar.gz$" | awk '{print $1}')"
 readonly EXPECTED_CHECKSUM EXPECTED_CHECKSUM
 
 echo "Latest version of Witness is $VERSION"
