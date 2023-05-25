@@ -31,17 +31,19 @@ jobs:
         run: go install github.com/praetorian-inc/gokart@latest
 
       - name: Static Analysis
-        uses: testifysec/testify-run-action@main
+        uses: testifysec/witness-run-action@v0.1.2
         with:
+          enable-sigstore: true
+          enable-archivista: true
           step-name: static-analysis
-          attestors: "github sarif"
+          attestors: "git github sarif"
           command: gokart scan . -o sarif-results.json -s
 
       - name: Test
-        uses: testifysec/testify-run-action@main
+        uses: testifysec/witness-run-action@v0.1.2
         with: 
           step-name: "test"
-          attestors: "github"
+          attestors: "github git"
           command: go test -v -coverprofile=profile.cov -covermode=atomic ./...
 
       - name: Send coverage
@@ -81,11 +83,14 @@ jobs:
         run: go install github.com/goreleaser/goreleaser@latest
 
       - name: Run GoReleaser
-        uses: testifysec/testify-run-action@main
+        uses: testifysec/witness-run-action@v0.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
-          step-name: "build"
-          attestors: "github sbom"
+          enable-sigstore: true
+          enable-archivista: true
+          attestors: "github git"
+          trace: true
+          step-name: build
           command: goreleaser release --rm-dist
