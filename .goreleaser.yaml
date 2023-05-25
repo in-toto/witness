@@ -11,11 +11,11 @@ builds:
       - "GOFLAGS=-mod=readonly -trimpath"
     goos:
       - linux
-      - windows
-      - darwin
+      # - windows
+      # - darwin
     goarch:
       - amd64
-      - arm64
+      # - arm64
     main: ./
 gomod:
   proxy: false

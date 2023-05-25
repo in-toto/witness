@@ -1,6 +1,6 @@
 FROM scratch
 
-ADD witness /witness
+ARG BINARY_PATH
+ADD ${BINARY_PATH} /witness
 
 ENTRYPOINT ["/witness"]
-
