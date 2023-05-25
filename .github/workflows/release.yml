@@ -35,15 +35,15 @@ jobs:
         with:
           enable-sigstore: true
           enable-archivista: true
-          step-name: static-analysis
-          attestors: "git github sarif"
+          step: static-analysis
+          attestations: "git github sarif"
           command: gokart scan . -o sarif-results.json -s
 
       - name: Test
         uses: testifysec/witness-run-action@v0.1.2
         with: 
-          step-name: "test"
-          attestors: "github git"
+          step: "test"
+          attestations: "github git"
           command: go test -v -coverprofile=profile.cov -covermode=atomic ./...
 
       - name: Send coverage
@@ -90,7 +90,7 @@ jobs:
         with:
           enable-sigstore: true
           enable-archivista: true
-          attestors: "github git"
+          attestations: "github git"
           trace: true
-          step-name: build
+          step: build
           command: goreleaser release --rm-dist
