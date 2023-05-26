@@ -115,5 +115,4 @@ jobs:
             -- .
       - name: Push
         run: |
-          docker load -i /tmp/docker-build-push-${{ github.run_id }}/image.tar
           docker push ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }}
