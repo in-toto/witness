@@ -115,13 +115,13 @@ jobs:
           attestations: "github git"
           trace: false
           step: build
-          command: |
-            docker buildx build \
-              --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
-              --file ./Dockerfile \
-              --iidfile ./iidfile \
-              --platform linux/amd64 \
-              --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }} \
-              --metadata-file ./metadata-file \
-              --attest type=provenance,mode=max \
-              --push .
+          command: >
+            docker buildx build
+            --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness
+            --file ./Dockerfile
+            --iidfile ./iidfile
+            --platform linux/amd64
+            --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }}
+            --metadata-file ./metadata-file
+            --attest type=provenance,mode=max
+            --push .
