@@ -90,7 +90,7 @@ jobs:
           enable-sigstore: true
           enable-archivista: true
           attestations: "github git"
-          trace: true
+          trace: false
           step: build
           command: goreleaser release --rm-dist && ls -la && ls -la dist && echo $PWD
 
@@ -102,6 +102,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.AUTH_TOKEN }}
+      - name: Package
+
+      #/usr/bin/docker buildx build --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness --file ./Dockerfile --iidfile /tmp/docker-build-push-OkE6bK/iidfile --platform linux/amd64 --tag ghcr.io/testifysec/witness:v0.0.6-test --metadata-file /tmp/docker-build-push-OkE6bK/metadata-file --push .
+        run: |
+          docker buildx build \
+            --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
+            --file ./Dockerfile \
+            --iidfile /tmp/docker-build-push-${{ github.run_id }}/iidfile \
+            --platform linux/amd64 \
+            --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }} \
+            --metadata-file /tmp/docker-build-push-${{ github.run_id }}/metadata-file \
+            --push .
+
+
+
+
+
+
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
