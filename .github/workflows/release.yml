@@ -108,7 +108,6 @@ jobs:
           docker buildx build \
             --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
             --file ./Dockerfile \
-            --iidfile /tmp/docker-build-push-${{ github.run_id }}/iidfile \
             --platform linux/amd64 \
             --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }} \
             --metadata-file /tmp/docker-build-push-${{ github.run_id }}/metadata-file \
