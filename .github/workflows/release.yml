@@ -104,13 +104,22 @@ jobs:
           password: ${{ secrets.AUTH_TOKEN }}
       - name: Package
         run: |
-          mkdir -p /tmp/docker-build-push-${{ github.run_id }}
           docker buildx build \
             --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
             --file ./Dockerfile \
+            --iidfile /tmp/docker-build-push-${{ github.run_id }}/iidfile \
             --platform linux/amd64 \
             --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }} \
             --metadata-file /tmp/docker-build-push-${{ github.run_id }}/metadata-file \
-            --output type=tar,dest=/tmp/docker-build-push-${{ github.run_id }}/image.tar \
-            -- . && \
-          docker push ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }}
+            --push .
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }}
+          build-args: |
+            BINARY_PATH=./dist/witness_linux_amd64_v1/witness
