@@ -116,6 +116,7 @@ jobs:
           trace: false
           step: build
           command: |
+            mkdir -p ./tmp/docker-build-push-${{ github.run_id }}
             docker buildx build \
               --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
               --file ./Dockerfile \
