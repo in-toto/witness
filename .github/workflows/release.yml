@@ -104,6 +104,7 @@ jobs:
           password: ${{ secrets.AUTH_TOKEN }}
       - name: Package
         run: |
+          mkdir -p /tmp/docker-build-push-${{ github.run_id }}
           docker buildx build \
             --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness \
             --file ./Dockerfile \
@@ -111,6 +112,7 @@ jobs:
             --platform linux/amd64 \
             --tag ghcr.io/${{ github.repository_owner }}/witness:${{ github.ref_name }} \
             --metadata-file /tmp/docker-build-push-${{ github.run_id }}/metadata-file \
+            --output type=tar,dest=/tmp/docker-build-push-${{ github.run_id }}/image.tar \
             --push .
 
 
