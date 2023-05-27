@@ -1,6 +1,7 @@
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read  # This is required for actions/checkout
+
 name: release
 on: [push, pull_request]
 jobs:
@@ -81,6 +82,16 @@ jobs:
       - name: Download GoReleaser
         run: go install github.com/goreleaser/goreleaser@latest
 
+
+
+      - name: Install UPX
+        uses: crazy-max/ghaction-upx@v2
+        with:
+          install-only: true
+      - name: UPX version
+        run: upx --version
+
+
       - name: Run GoReleaser
         uses: testifysec/witness-run-action@v0.1.2
         env:
@@ -114,7 +125,7 @@ jobs:
           enable-archivista: true
           attestations: "github git"
           trace: false
-          step: build
+          step: package
           command: >
             docker buildx build
             --build-arg BINARY_PATH=./dist/witness_linux_amd64_v1/witness
