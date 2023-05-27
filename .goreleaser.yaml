@@ -36,6 +36,10 @@ changelog:
     - title: Others
       order: 999
 release:
+  draft: true
+  extra_files:
+    - name_template: witness_linux_amd64
+      glob: dist/witness_linux_amd64_v1/witness
   prerelease: auto
   github:
     owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
@@ -43,7 +47,7 @@ upx:
   -
     # Whether to enable it or not.
     enabled: true
-    
+
     # Compress argument.
     # Valid options are from '1' (faster) to '9' (better), and 'best'.
     compress: best
