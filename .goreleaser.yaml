@@ -39,3 +39,13 @@ release:
   prerelease: auto
   github:
     owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+kos:
+  - repository: ghcr.io/testifysec/witness
+    tags:
+    - '{{.Version}}'
+    bare: true
+    preserve_import_paths: false
+    creation_time: '{{.CommitTimestamp}}'
+    platforms:
+    - linux/amd64
+    - linux/arm64
