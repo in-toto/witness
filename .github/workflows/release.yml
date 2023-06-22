@@ -51,11 +51,11 @@ jobs:
           GO111MODULE=off go get github.com/mattn/goveralls
           $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
 
-      
   release:
     permissions:
       id-token: write
       contents: write
+      packages: write
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
@@ -65,10 +65,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: 1.19.x
       - uses: actions/cache@v2
         with:
           path: |
@@ -77,6 +78,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download GoReleaser
         run: go install github.com/goreleaser/goreleaser@latest
 
@@ -87,5 +96,5 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
           step: "build"
-          attestations: "github sbom"
-          command: goreleaser release --rm-dist
+          attestations: "github"
+          command: goreleaser release --clean
