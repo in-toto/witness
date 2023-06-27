@@ -31,7 +31,7 @@ func loadSigners(ctx context.Context, ko options.KeyOptions) ([]cryptoutil.Signe
 
 	//Load key from fulcio
 	if ko.FulcioURL != "" {
-		fulcioSigner, err := fulcio.Signer(ctx, ko.FulcioURL, ko.OIDCClientID, ko.OIDCIssuer, ko.Token)
+		fulcioSigner, err := fulcio.Signer(ctx, ko.FulcioURL, ko.OIDCIssuer, ko.OIDCClientID, ko.Token)
 		if err != nil {
 			err := fmt.Errorf("failed to create signer from Fulcio: %w", err)
 			errors = append(errors, err)
