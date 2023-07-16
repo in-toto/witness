@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/testifysec/go-witness/attestation"
 	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/registry"
 )
 
 type RunOptions struct {
@@ -49,27 +50,34 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 		for _, opt := range registration.Options {
 			name := fmt.Sprintf("%s-%s", registration.Name, opt.Name())
 			switch optT := opt.(type) {
-			case attestation.ConfigOption[int]:
+			case *registry.ConfigOption[attestation.Attestor, int]:
 				{
 					val := cmd.Flags().Int(name, optT.DefaultVal(), opt.Description())
-					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+					ro.AttestorOptSetters[registration.Name] = append(ro.AttestorOptSetters[registration.Name], func(a attestation.Attestor) (attestation.Attestor, error) {
 						return optT.Setter()(a, *val)
 					})
 				}
 
-			case attestation.ConfigOption[string]:
+			case *registry.ConfigOption[attestation.Attestor, string]:
 				{
 					val := cmd.Flags().String(name, optT.DefaultVal(), opt.Description())
-					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+					ro.AttestorOptSetters[registration.Name] = append(ro.AttestorOptSetters[registration.Name], func(a attestation.Attestor) (attestation.Attestor, error) {
 						return optT.Setter()(a, *val)
 					})
 				}
 
-			case attestation.ConfigOption[[]string]:
+			case *registry.ConfigOption[attestation.Attestor, []string]:
 				{
-					val := cmd.Flags().StringSlice(name, []string{}, opt.Description())
-					cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
-					ro.AttestorOptSetters[registration.Type] = append(ro.AttestorOptSetters[registration.Type], func(a attestation.Attestor) (attestation.Attestor, error) {
+					val := cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
+					ro.AttestorOptSetters[registration.Name] = append(ro.AttestorOptSetters[registration.Name], func(a attestation.Attestor) (attestation.Attestor, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case *registry.ConfigOption[attestation.Attestor, bool]:
+				{
+					val := cmd.Flags().Bool(name, optT.DefaultVal(), opt.Description())
+					ro.AttestorOptSetters[registration.Name] = append(ro.AttestorOptSetters[registration.Name], func(a attestation.Attestor) (attestation.Attestor, error) {
 						return optT.Setter()(a, *val)
 					})
 				}
