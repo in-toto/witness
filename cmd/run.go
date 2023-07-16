@@ -93,7 +93,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 
 	attestors = append(attestors, addtlAttestors...)
 	for _, attestor := range attestors {
-		setters, ok := ro.AttestorOptSetters[attestor.Type()]
+		setters, ok := ro.AttestorOptSetters[attestor.Name()]
 		if !ok {
 			continue
 		}
