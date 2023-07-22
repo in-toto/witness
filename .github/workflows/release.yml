@@ -31,14 +31,14 @@ jobs:
         run: go install github.com/praetorian-inc/gokart@latest
 
       - name: Static Analysis
-        uses: testifysec/witness-run-action@bdd82729b316d071606007cc9eecae326429caaf
+        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
         with:
           step: static-analysis
           attestations: "github sarif"
           command: gokart scan . -o sarif-results.json -s
 
       - name: Test
-        uses: testifysec/witness-run-action@bdd82729b316d071606007cc9eecae326429caaf
+        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
         with: 
           step: "test"
           attestations: "github"
@@ -69,7 +69,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
       - uses: actions/cache@v2
         with:
           path: |
@@ -90,7 +90,7 @@ jobs:
         run: go install github.com/goreleaser/goreleaser@latest
 
       - name: Run GoReleaser
-        uses: testifysec/witness-run-action@bdd82729b316d071606007cc9eecae326429caaf
+        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
