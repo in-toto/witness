@@ -17,50 +17,57 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/spf13/pflag"
 	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/signer/file"
-	"github.com/testifysec/go-witness/signer/fulcio"
-	"github.com/testifysec/go-witness/signer/spiffe"
+	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/signer"
 	"github.com/testifysec/witness/options"
 )
 
-func loadSigners(ctx context.Context, ko options.KeyOptions) ([]cryptoutil.Signer, []error) {
-	signers := []cryptoutil.Signer{}
-	errors := []error{}
-
-	//Load key from fulcio
-	if ko.FulcioURL != "" {
-		fulcioSigner, err := fulcio.Signer(ctx, ko.FulcioURL, ko.OIDCClientID, ko.OIDCIssuer, ko.Token)
-		if err != nil {
-			err := fmt.Errorf("failed to create signer from Fulcio: %w", err)
-			errors = append(errors, err)
-		} else {
-			signers = append(signers, fulcioSigner)
+// signerProvidersFromFlags looks at all flags that were set by the user to determine which signer providers we should use
+func signerProvidersFromFlags(flags *pflag.FlagSet) map[string]struct{} {
+	signerProviders := make(map[string]struct{})
+	flags.Visit(func(flag *pflag.Flag) {
+		if !strings.HasPrefix(flag.Name, "signer-") {
+			return
 		}
+
+		parts := strings.Split(flag.Name, "-")
+		if len(parts) < 2 {
+			return
+		}
+
+		signerProviders[parts[1]] = struct{}{}
+	})
+
+	return signerProviders
+}
+
+// loadSigners loads all signers that appear in the signerProviders set and creates their respective signers, using any options provided in so
+func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders map[string]struct{}) ([]cryptoutil.Signer, error) {
+	signers := make([]cryptoutil.Signer, 0)
+	for signerProvider := range signerProviders {
+		setters := so[signerProvider]
+		sp, err := signer.NewSignerProvider(signerProvider, setters...)
+		if err != nil {
+			log.Errorf("failed to create %v signer provider: %w", signerProvider, err)
+			continue
+		}
+
+		s, err := sp.Signer(ctx)
+		if err != nil {
+			log.Errorf("failed to create %v signer: %w", signerProvider, err)
+			continue
+		}
+
+		signers = append(signers, s)
 	}
 
-	//Load key from file
-	if ko.KeyPath != "" {
-		fileSigner, err := file.Signer(ctx, ko.KeyPath, ko.CertPath, ko.IntermediatePaths)
-		if err != nil {
-			err := fmt.Errorf("failed to create signer from file: %w", err)
-			errors = append(errors, err)
-		} else {
-			signers = append(signers, fileSigner)
-		}
+	if len(signers) == 0 {
+		return signers, fmt.Errorf("failed to load any signers")
 	}
 
-	//Load key from spire agent
-	if ko.SpiffePath != "" {
-		spiffeSigner, err := spiffe.Signer(ctx, ko.SpiffePath)
-		if err != nil {
-			err := fmt.Errorf("failed to create signer from spiffe: %w", err)
-			errors = append(errors, err)
-		} else {
-			signers = append(signers, spiffeSigner)
-		}
-	}
-
-	return signers, errors
+	return signers, nil
 }

@@ -15,33 +15,32 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
+	"github.com/testifysec/go-witness/signer"
+	"github.com/testifysec/go-witness/signer/file"
 	"github.com/testifysec/witness/options"
 )
 
 func TestRunRSAKeyPair(t *testing.T) {
-	priv, _ := rsakeypair(t)
-	keyOptions := options.KeyOptions{
-		KeyPath: priv.Name(),
-	}
+	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+	require.NoError(t, err)
+	signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
 
 	workingDir := t.TempDir()
 	attestationPath := filepath.Join(workingDir, "outfile.txt")
 	runOptions := options.RunOptions{
-		KeyOptions:   keyOptions,
 		WorkingDir:   workingDir,
 		Attestations: []string{},
 		OutFilePath:  attestationPath,
@@ -55,45 +54,42 @@ func TestRunRSAKeyPair(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(context.Background(), runOptions, args)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
+	require.NoError(t, runRun(context.Background(), runOptions, args, signer))
 	attestationBytes, err := os.ReadFile(attestationPath)
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, err)
 	env := dsse.Envelope{}
-	if err := json.Unmarshal(attestationBytes, &env); err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, json.Unmarshal(attestationBytes, &env))
 }
 
 func Test_runRunRSACA(t *testing.T) {
 	_, intermediates, leafcert, leafkey := fullChain(t)
+	signerOptions := options.SignerOptions{}
+	signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+		func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+			fsp := sp.(file.FileSignerProvider)
+			fsp.KeyPath = leafkey.Name()
+			fsp.IntermediatePaths = []string{intermediates[0].Name()}
+			for _, intermediate := range intermediates {
+				fsp.IntermediatePaths = append(fsp.IntermediatePaths, intermediate.Name())
+			}
+
+			fsp.CertPath = leafcert.Name()
+			return fsp, nil
+		},
+	}
+
+	signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+	require.NoError(t, err)
+
 	workingDir := t.TempDir()
 	attestationPath := filepath.Join(workingDir, "outfile.txt")
-	intermediateNames := []string{}
-	for _, intermediate := range intermediates {
-		intermediateNames = append(intermediateNames, intermediate.Name())
-	}
-
-	keyOptions := options.KeyOptions{
-		KeyPath:           leafkey.Name(),
-		CertPath:          leafcert.Name(),
-		IntermediatePaths: intermediateNames,
-		SpiffePath:        "",
-	}
-
 	runOptions := options.RunOptions{
-		KeyOptions:   keyOptions,
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  attestationPath,
-		StepName:     "teststep",
-		Tracing:      false,
+		SignerOptions: signerOptions,
+		WorkingDir:    workingDir,
+		Attestations:  []string{},
+		OutFilePath:   attestationPath,
+		StepName:      "teststep",
+		Tracing:       false,
 	}
 
 	args := []string{
@@ -102,67 +98,21 @@ func Test_runRunRSACA(t *testing.T) {
 		"echo 'test' > test.txt",
 	}
 
-	err := runRun(context.Background(), runOptions, args)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
+	require.NoError(t, runRun(context.Background(), runOptions, args, signers...))
 	attestationBytes, err := os.ReadFile(attestationPath)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(attestationBytes) < 1 {
-		t.Errorf("Unexpected output size")
-	}
+	require.NoError(t, err)
+	assert.True(t, len(attestationBytes) > 0)
 
 	env := dsse.Envelope{}
 	if err := json.Unmarshal(attestationBytes, &env); err != nil {
 		t.Errorf("Error reading envelope: %v", err)
 	}
 
-	b, err := os.ReadFile(intermediateNames[0])
-	if err != nil {
-		t.Errorf("Error reading intermediate cert: %v", err)
-	}
-
-	if !bytes.Equal(b, env.Signatures[0].Intermediates[0]) {
-		t.Errorf("Intermediates do not match")
-	}
+	b, err := os.ReadFile(intermediates[0].Name())
+	require.NoError(t, err)
+	assert.Equal(t, b, env.Signatures[0].Intermediates[0])
 
 	b, err = os.ReadFile(leafcert.Name())
-	if err != nil {
-		t.Errorf("Error reading leaf cert: %v", err)
-	}
-
-	if !bytes.Equal(b, env.Signatures[0].Certificate) {
-		t.Errorf("Leaf cert does not match")
-	}
-
-}
-
-func createTestRSAKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, []byte, error) {
-	privKey, err := rsa.GenerateKey(rand.Reader, keybits)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	signer := cryptoutil.NewRSASigner(privKey, crypto.SHA256)
-	verifier := cryptoutil.NewRSAVerifier(&privKey.PublicKey, crypto.SHA256)
-	keyBytes, err := x509.MarshalPKIXPublicKey(&privKey.PublicKey)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	privKeyBytes := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privKey)})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	return signer, verifier, pemBytes, privKeyBytes, nil
+	require.NoError(t, err)
+	assert.Equal(t, b, env.Signatures[0].Certificate)
 }

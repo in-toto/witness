@@ -14,26 +14,65 @@
 
 package options
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
 
-type KeyOptions struct {
-	KeyPath           string
-	CertPath          string
-	IntermediatePaths []string
-	SpiffePath        string
-	FulcioURL         string
-	OIDCIssuer        string
-	OIDCClientID      string
-	Token             string
-}
+	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/registry"
+	"github.com/testifysec/go-witness/signer"
+)
 
-func (ko *KeyOptions) AddFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&ko.Token, "fulcio-token", "", "Raw token to use for authentication")
-	cmd.Flags().StringVarP(&ko.KeyPath, "key", "k", "", "Path to the signing key")
-	cmd.Flags().StringVar(&ko.CertPath, "certificate", "", "Path to the signing key's certificate")
-	cmd.Flags().StringSliceVarP(&ko.IntermediatePaths, "intermediates", "i", []string{}, "Intermediates that link trust back to a root of trust in the policy")
-	cmd.Flags().StringVar(&ko.SpiffePath, "spiffe-socket", "", "Path to the SPIFFE Workload API socket")
-	cmd.Flags().StringVar(&ko.FulcioURL, "fulcio", "", "Fulcio address to sign with")
-	cmd.Flags().StringVar(&ko.OIDCIssuer, "fulcio-oidc-issuer", "", "OIDC issuer to use for authentication")
-	cmd.Flags().StringVar(&ko.OIDCClientID, "fulcio-oidc-client-id", "", "OIDC client ID to use for authentication")
+type SignerOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
+
+func (so SignerOptions) AddFlags(cmd *cobra.Command) {
+	signerRegistrations := signer.RegistryEntries()
+	for _, registration := range signerRegistrations {
+		for _, opt := range registration.Options {
+			name := fmt.Sprintf("signer-%s-%s", registration.Name, opt.Name())
+			switch optT := opt.(type) {
+			case *registry.ConfigOption[signer.SignerProvider, int]:
+				{
+					val := cmd.Flags().Int(name, optT.DefaultVal(), opt.Description())
+					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+						return optT.Setter()(sp, *val)
+					})
+				}
+
+			case *registry.ConfigOption[signer.SignerProvider, string]:
+				{
+					// this is kind of a hacky solution to maintain backward compatibility with the old "-k" flag
+					var val *string
+					if name == "signer-file-key-path" {
+						val = cmd.Flags().StringP(name, "k", optT.DefaultVal(), optT.Description())
+					} else {
+						val = cmd.Flags().String(name, optT.DefaultVal(), opt.Description())
+					}
+
+					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+						return optT.Setter()(sp, *val)
+					})
+				}
+
+			case *registry.ConfigOption[signer.SignerProvider, []string]:
+				{
+					val := cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
+					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+						return optT.Setter()(sp, *val)
+					})
+				}
+
+			case *registry.ConfigOption[signer.SignerProvider, bool]:
+				{
+					val := cmd.Flags().Bool(name, optT.DefaultVal(), opt.Description())
+					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+						return optT.Setter()(sp, *val)
+					})
+				}
+
+			default:
+				log.Debugf("unrecognized signer option type: %T", optT)
+			}
+		}
+	}
 }
