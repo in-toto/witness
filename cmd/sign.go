@@ -21,14 +21,17 @@ import (
 
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
+	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
-	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/timestamp"
 	"github.com/testifysec/witness/options"
 )
 
 func SignCmd() *cobra.Command {
-	so := options.SignOptions{}
+	so := options.SignOptions{
+		SignerOptions: options.SignerOptions{},
+	}
+
 	cmd := &cobra.Command{
 		Use:               "sign [file]",
 		Short:             "Signs a file",
@@ -37,7 +40,12 @@ func SignCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runSign(so)
+			signers, err := loadSigners(cmd.Context(), so.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
+			if err != nil {
+				return fmt.Errorf("failed to load signer: %v", err)
+			}
+
+			return runSign(cmd.Context(), so, signers...)
 		},
 	}
 
@@ -47,29 +55,12 @@ func SignCmd() *cobra.Command {
 
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
-func runSign(so options.SignOptions) error {
-	ctx := context.Background()
-
-	if so.KeyOptions.FulcioURL != "" {
-		err := fmt.Errorf("fulcio url is not supported for signing")
-		return err
-	}
-
-	signers, errors := loadSigners(ctx, so.KeyOptions)
-	if len(errors) > 0 {
-		for _, err := range errors {
-			log.Error(err)
-		}
-		return fmt.Errorf("failed to load signers")
-	}
-
+func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.Signer) error {
 	if len(signers) > 1 {
-		log.Error("only one signer is supported")
 		return fmt.Errorf("only one signer is supported")
 	}
 
 	if len(signers) == 0 {
-		log.Error("no signers found")
 		return fmt.Errorf("no signers found")
 	}
 

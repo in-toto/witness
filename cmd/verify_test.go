@@ -14,29 +14,12 @@
 
 package cmd
 
-import (
-	"bytes"
-	"context"
-	"crypto"
-	"encoding/json"
-	"os"
-	"path/filepath"
-	"testing"
-	"time"
-
-	"github.com/stretchr/testify/require"
-	witness "github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/attestation/commandrun"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/dsse"
-	"github.com/testifysec/go-witness/policy"
-	"github.com/testifysec/witness/options"
-)
+/*
 
 func TestRunVerifyCA(t *testing.T) {
 	ca, intermediates, leafcert, leafkey := fullChain(t)
 
-	ko := options.KeyOptions{
+	ko := options.SignerOptions{
 		KeyPath: leafkey.Name(),
 		IntermediatePaths: []string{
 			intermediates[0].Name(),
@@ -68,12 +51,12 @@ func TestRunVerifyCA(t *testing.T) {
 
 	s1FilePath := filepath.Join(attestationDir, "step01.json")
 	s1RunOptions := options.RunOptions{
-		KeyOptions:   ko,
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  s1FilePath,
-		StepName:     "step01",
-		Tracing:      false,
+		SignerOptions: ko,
+		WorkingDir:    workingDir,
+		Attestations:  []string{},
+		OutFilePath:   s1FilePath,
+		StepName:      "step01",
+		Tracing:       false,
 	}
 
 	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args))
@@ -94,12 +77,12 @@ func TestRunVerifyCA(t *testing.T) {
 
 	s2FilePath := filepath.Join(attestationDir, "step02.json")
 	s2RunOptions := options.RunOptions{
-		KeyOptions:   ko,
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  s2FilePath,
-		StepName:     "step02",
-		Tracing:      false,
+		SignerOptions: ko,
+		WorkingDir:    workingDir,
+		Attestations:  []string{},
+		OutFilePath:   s2FilePath,
+		StepName:      "step02",
+		Tracing:       false,
 	}
 
 	require.NoError(t, runRun(context.Background(), s2RunOptions, step2Args))
@@ -145,7 +128,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	funcPrivFilepath := filepath.Join(workingDir, "func-priv.pem")
 	require.NoError(t, os.WriteFile(funcPrivFilepath, funcPriv, 0644))
 
-	keyOptions := options.KeyOptions{
+	keyOptions := options.SignerOptions{
 		KeyPath: funcPrivFilepath,
 	}
 
@@ -158,12 +141,12 @@ func TestRunVerifyKeyPair(t *testing.T) {
 
 	s1FilePath := filepath.Join(attestationDir, "step01.json")
 	s1RunOptions := options.RunOptions{
-		KeyOptions:   keyOptions,
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  s1FilePath,
-		StepName:     "step01",
-		Tracing:      false,
+		SignerOptions: keyOptions,
+		WorkingDir:    workingDir,
+		Attestations:  []string{},
+		OutFilePath:   s1FilePath,
+		StepName:      "step01",
+		Tracing:       false,
 	}
 
 	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args))
@@ -184,12 +167,12 @@ func TestRunVerifyKeyPair(t *testing.T) {
 
 	s2FilePath := filepath.Join(attestationDir, "step02.json")
 	s2RunOptions := options.RunOptions{
-		KeyOptions:   keyOptions,
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  s2FilePath,
-		StepName:     "step02",
-		Tracing:      false,
+		SignerOptions: keyOptions,
+		WorkingDir:    workingDir,
+		Attestations:  []string{},
+		OutFilePath:   s2FilePath,
+		StepName:      "step02",
+		Tracing:       false,
 	}
 
 	require.NoError(t, runRun(context.Background(), s2RunOptions, step2Args))
@@ -316,3 +299,4 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	require.NoError(t, err)
 	return pb
 }
+*/

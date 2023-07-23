@@ -26,8 +26,10 @@ import (
 	"github.com/testifysec/go-witness/attestation/commandrun"
 	"github.com/testifysec/go-witness/attestation/material"
 	"github.com/testifysec/go-witness/attestation/product"
+	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/registry"
 	"github.com/testifysec/go-witness/timestamp"
 	"github.com/testifysec/witness/options"
 )
@@ -35,6 +37,7 @@ import (
 func RunCmd() *cobra.Command {
 	o := options.RunOptions{
 		AttestorOptSetters: make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),
+		SignerOptions:      options.SignerOptions{},
 	}
 
 	cmd := &cobra.Command{
@@ -43,7 +46,12 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRun(cmd.Context(), o, args)
+			signers, err := loadSigners(cmd.Context(), o.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
+			if err != nil {
+				return fmt.Errorf("failed to load signers")
+			}
+
+			return runRun(cmd.Context(), o, args, signers...)
 		},
 		Args: cobra.ArbitraryArgs,
 	}
@@ -52,22 +60,12 @@ func RunCmd() *cobra.Command {
 	return cmd
 }
 
-func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
-	signers, errors := loadSigners(ctx, ro.KeyOptions)
-	if len(errors) > 0 {
-		for _, err := range errors {
-			log.Error(err)
-		}
-		return fmt.Errorf("failed to load signers")
-	}
-
+func runRun(ctx context.Context, ro options.RunOptions, args []string, signers ...cryptoutil.Signer) error {
 	if len(signers) > 1 {
-		log.Error("only one signer is supported")
 		return fmt.Errorf("only one signer is supported")
 	}
 
 	if len(signers) == 0 {
-		log.Error("no signers found")
 		return fmt.Errorf("no signers found")
 	}
 
@@ -98,11 +96,9 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string) error {
 			continue
 		}
 
-		for _, setter := range setters {
-			attestor, err = setter(attestor)
-			if err != nil {
-				return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
-			}
+		attestor, err = registry.SetOptions(attestor, setters...)
+		if err != nil {
+			return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
 		}
 	}
 

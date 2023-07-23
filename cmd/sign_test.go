@@ -15,47 +15,36 @@
 package cmd
 
 import (
+	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/witness/options"
 )
 
 func Test_runSignPolicyRSA(t *testing.T) {
-	priv, _ := rsakeypair(t)
-
-	keyOptions := options.KeyOptions{
-		KeyPath: priv.Name(),
-	}
+	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+	require.NoError(t, err)
+	signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
 
 	workingDir := t.TempDir()
-
 	testdata := []byte("test")
-
-	err := os.WriteFile(workingDir+"test.txt", testdata, 0644)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, os.WriteFile(workingDir+"test.txt", testdata, 0644))
 
 	signOptions := options.SignOptions{
-		KeyOptions:  keyOptions,
 		DataType:    "text",
 		OutFilePath: workingDir + "outfile.txt",
 		InFilePath:  workingDir + "test.txt",
 	}
 
-	err = runSign(signOptions)
-	if err != nil {
-		t.Error(err)
-	}
-
+	require.NoError(t, runSign(context.Background(), signOptions, signer))
 	signedBytes, err := os.ReadFile(workingDir + "outfile.txt")
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(signedBytes) < 1 {
-		t.Errorf("Unexpected output size")
-	}
-
+	require.NoError(t, err)
+	assert.True(t, len(signedBytes) > 0)
 }

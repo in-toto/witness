@@ -26,6 +26,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/testifysec/go-witness/cryptoutil"
+	"github.com/testifysec/go-witness/signer"
+	"github.com/testifysec/go-witness/signer/file"
 	"github.com/testifysec/witness/options"
 )
 
@@ -47,48 +52,57 @@ func Test_loadOutfile(t *testing.T) {
 }
 
 func Test_loadSignersKeyPair(t *testing.T) {
-	privatePem, _ := rsakeypair(t)
+	t.Run("success", func(t *testing.T) {
+		privatePem, _ := rsakeypair(t)
+		signerOptions := options.SignerOptions{}
+		signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+			func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+				fsp := sp.(file.FileSignerProvider)
+				fsp.KeyPath = privatePem.Name()
+				return fsp, nil
+			},
+		}
 
-	keyOptions := options.KeyOptions{
-		KeyPath: privatePem.Name(),
-	}
+		signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+		require.NoError(t, err)
+		require.Len(t, signers, 1)
+		assert.IsType(t, &cryptoutil.RSASigner{}, signers[0])
+	})
 
-	_, errors := loadSigners(context.Background(), keyOptions)
-	if len(errors) != 0 {
-		t.Errorf("unexpected errors: %v", errors)
-	}
+	t.Run("failure", func(t *testing.T) {
+		signerOptions := options.SignerOptions{}
+		signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+			func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+				fsp := sp.(file.FileSignerProvider)
+				fsp.KeyPath = "not-a-file"
+				return fsp, nil
+			},
+		}
 
-	keyOptions.KeyPath = "not-a-file"
-	_, errors = loadSigners(context.Background(), keyOptions)
-	if len(errors) != 1 {
-		t.Errorf("expected 1 error, got %d", len(errors))
-	}
+		signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+		require.Error(t, err)
+		require.Len(t, signers, 0)
+	})
 }
 
 func Test_loadSignersCertificate(t *testing.T) {
 	_, intermediates, leafcert, leafkey := fullChain(t)
 
-	keyOptions := options.KeyOptions{
-		KeyPath: leafkey.Name(),
-		IntermediatePaths: []string{
-			intermediates[0].Name(),
+	signerOptions := options.SignerOptions{}
+	signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+		func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+			fsp := sp.(file.FileSignerProvider)
+			fsp.KeyPath = leafkey.Name()
+			fsp.IntermediatePaths = []string{intermediates[0].Name()}
+			fsp.CertPath = leafcert.Name()
+			return fsp, nil
 		},
-		CertPath: leafcert.Name(),
 	}
 
-	signers, errors := loadSigners(context.Background(), keyOptions)
-	if len(errors) != 0 {
-		t.Errorf("unexpected errors: %v", errors)
-	}
-
-	_, err := signers[0].Verifier()
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
-	if len(signers) != 1 {
-		t.Errorf("expected 1 signer, got %d", len(signers))
-	}
+	signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+	require.NoError(t, err)
+	require.Len(t, signers, 1)
+	require.IsType(t, &cryptoutil.X509Signer{}, signers[0])
 }
 
 func rsakeypair(t *testing.T) (privatePem *os.File, publicPem *os.File) {

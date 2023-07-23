@@ -24,7 +24,7 @@ import (
 )
 
 type RunOptions struct {
-	KeyOptions         KeyOptions
+	SignerOptions      SignerOptions
 	ArchivistaOptions  ArchivistaOptions
 	WorkingDir         string
 	Attestations       []string
@@ -36,7 +36,7 @@ type RunOptions struct {
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
-	ro.KeyOptions.AddFlags(cmd)
+	ro.SignerOptions.AddFlags(cmd)
 	ro.ArchivistaOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
@@ -48,7 +48,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	attestationRegistrations := attestation.RegistrationEntries()
 	for _, registration := range attestationRegistrations {
 		for _, opt := range registration.Options {
-			name := fmt.Sprintf("%s-%s", registration.Name, opt.Name())
+			name := fmt.Sprintf("attestor-%s-%s", registration.Name, opt.Name())
 			switch optT := opt.(type) {
 			case *registry.ConfigOption[attestation.Attestor, int]:
 				{
