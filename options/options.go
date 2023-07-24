@@ -14,9 +14,79 @@
 
 package options
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/registry"
+)
 
 type Interface interface {
 	// AddFlags adds this options' flags to the cobra command.
 	AddFlags(cmd *cobra.Command)
+}
+
+func addFlagsFromRegistry[T any](prefix string, registrationEntries []registry.Entry[T], cmd *cobra.Command) map[string][]func(T) (T, error) {
+	optSettersByName := make(map[string][]func(T) (T, error))
+
+	for _, registration := range registrationEntries {
+		for _, opt := range registration.Options {
+			name := fmt.Sprintf("%s-%s-%s", prefix, registration.Name, opt.Name())
+			switch optT := opt.(type) {
+			case *registry.ConfigOption[T, int]:
+				{
+					val := cmd.Flags().Int(name, optT.DefaultVal(), opt.Description())
+					optSettersByName[registration.Name] = append(optSettersByName[registration.Name], func(a T) (T, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case *registry.ConfigOption[T, string]:
+				{
+					// this is kind of a hacky solution to maintain backward compatibility with the old "-k" flag
+					var val *string
+					if name == "signer-file-key-path" {
+						val = cmd.Flags().StringP(name, "k", optT.DefaultVal(), optT.Description())
+					} else {
+						val = cmd.Flags().String(name, optT.DefaultVal(), opt.Description())
+					}
+
+					optSettersByName[registration.Name] = append(optSettersByName[registration.Name], func(a T) (T, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case *registry.ConfigOption[T, []string]:
+				{
+					val := cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
+					optSettersByName[registration.Name] = append(optSettersByName[registration.Name], func(a T) (T, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case *registry.ConfigOption[T, bool]:
+				{
+					val := cmd.Flags().Bool(name, optT.DefaultVal(), opt.Description())
+					optSettersByName[registration.Name] = append(optSettersByName[registration.Name], func(a T) (T, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			case *registry.ConfigOption[T, time.Duration]:
+				{
+					val := cmd.Flags().Duration(name, optT.DefaultVal(), opt.Description())
+					optSettersByName[registration.Name] = append(optSettersByName[registration.Name], func(a T) (T, error) {
+						return optT.Setter()(a, *val)
+					})
+				}
+
+			default:
+				log.Debugf("unrecognized attestor option type: %T", optT)
+			}
+		}
+	}
+
+	return optSettersByName
 }
