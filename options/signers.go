@@ -15,64 +15,13 @@
 package options
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
-	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/go-witness/registry"
 	"github.com/testifysec/go-witness/signer"
 )
 
 type SignerOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
 
-func (so SignerOptions) AddFlags(cmd *cobra.Command) {
+func (so *SignerOptions) AddFlags(cmd *cobra.Command) {
 	signerRegistrations := signer.RegistryEntries()
-	for _, registration := range signerRegistrations {
-		for _, opt := range registration.Options {
-			name := fmt.Sprintf("signer-%s-%s", registration.Name, opt.Name())
-			switch optT := opt.(type) {
-			case *registry.ConfigOption[signer.SignerProvider, int]:
-				{
-					val := cmd.Flags().Int(name, optT.DefaultVal(), opt.Description())
-					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
-						return optT.Setter()(sp, *val)
-					})
-				}
-
-			case *registry.ConfigOption[signer.SignerProvider, string]:
-				{
-					// this is kind of a hacky solution to maintain backward compatibility with the old "-k" flag
-					var val *string
-					if name == "signer-file-key-path" {
-						val = cmd.Flags().StringP(name, "k", optT.DefaultVal(), optT.Description())
-					} else {
-						val = cmd.Flags().String(name, optT.DefaultVal(), opt.Description())
-					}
-
-					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
-						return optT.Setter()(sp, *val)
-					})
-				}
-
-			case *registry.ConfigOption[signer.SignerProvider, []string]:
-				{
-					val := cmd.Flags().StringSlice(name, optT.DefaultVal(), opt.Description())
-					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
-						return optT.Setter()(sp, *val)
-					})
-				}
-
-			case *registry.ConfigOption[signer.SignerProvider, bool]:
-				{
-					val := cmd.Flags().Bool(name, optT.DefaultVal(), opt.Description())
-					so[registration.Name] = append(so[registration.Name], func(sp signer.SignerProvider) (signer.SignerProvider, error) {
-						return optT.Setter()(sp, *val)
-					})
-				}
-
-			default:
-				log.Debugf("unrecognized signer option type: %T", optT)
-			}
-		}
-	}
+	*so = addFlagsFromRegistry("signer", signerRegistrations, cmd)
 }
