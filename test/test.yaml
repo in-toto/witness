@@ -13,11 +13,14 @@
 # limitations under the License.
 
 run:
-    key: testkey.pem
+    signer-file-key-path: testkey.pem
     step: build
     trace: true
+    attestations:
+        - environment
+        - git
 sign:
-    key: testkey.pem
+    signer-file-key-path: testkey.pem
     outfile: policy-signed.json
 verify:
     attestations: 
