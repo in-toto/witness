@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -61,16 +62,15 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 				if f.Value.Type() == "stringSlice" {
 					configValue := v.GetStringSlice(configKey)
 					if len(configValue) > 0 {
-						for _, v := range configValue {
-							if err := f.Value.Set(v); err != nil {
-								log.Errorf("failed to set config value: %s", err)
-							}
+						configValueStr := strings.Join(configValue, ",")
+						if err := flags.Set(f.Name, configValueStr); err != nil {
+							log.Errorf("failed to set config value: %s", err)
 						}
 					}
 				} else {
 					configValue := v.GetString(configKey)
 					if configValue != "" {
-						if err := f.Value.Set(configValue); err != nil {
+						if err := flags.Set(f.Name, configValue); err != nil {
 							log.Errorf("failed to set config value: %s", err)
 						}
 					}
