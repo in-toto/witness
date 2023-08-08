@@ -25,6 +25,6 @@ jobs:
         run: make build
 
       - name: Test
-        run: ./bin/witness run -l debug -s test -a github --enable-archivist -o test.json --fulcio https://fulcio.sigstore.dev --fulcio-oidc-client-id https://oauth2.sigstore.dev/auth --fulcio-oidc-issuer sigstore --timestamp-servers https://freetsa.org/tsr -- echo "hello" > test.txt
+        run: ./bin/witness run -l debug -s test -a github --enable-archivist -o test.json --signer-fulcio-url https://fulcio.sigstore.dev --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth --signer-fulcio-oidc-client-id sigstore --timestamp-servers https://freetsa.org/tsr -- echo "hello" > test.txt
       - name: log output
         run: cat test.json

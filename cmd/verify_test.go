@@ -167,6 +167,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	}
 
 	signers, err := loadSigners(context.Background(), so, map[string]struct{}{"file": {}})
+	require.NoError(t, err)
 
 	artifactPath := filepath.Join(workingDir, "test.txt")
 	step1Args := []string{
