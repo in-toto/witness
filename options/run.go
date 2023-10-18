@@ -25,6 +25,7 @@ type RunOptions struct {
 	ArchivistaOptions  ArchivistaOptions
 	WorkingDir         string
 	Attestations       []string
+	Hashes             []string
 	OutFilePath        string
 	StepName           string
 	Tracing            bool
@@ -37,6 +38,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	ro.ArchivistaOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
+	cmd.Flags().StringSliceVar(&ro.Hashes, "hashes", []string{"sha256"}, "Hashes selected for digest calculation. Defaults to SHA256")
 	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")

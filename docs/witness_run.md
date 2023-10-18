@@ -14,6 +14,7 @@ witness run [cmd] [flags]
       --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --enable-archivista                             Use Archivista to store or retrieve attestations
+      --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
   -o, --outfile string                                File to which to write signed data.  Defaults to stdout
       --signer-file-cert-path string                  Path to the file containing the certificate for the private key
