@@ -145,7 +145,7 @@ openssl pkey -in testkey.pem -pubout > testpub.pem
 ## .witness.yaml
 
 run:
-    key: testkey.pem
+    signer-file-key-path: testkey.pem
     trace: false
 verify:
     attestations:
