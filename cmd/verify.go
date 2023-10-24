@@ -134,11 +134,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	log.Info("Verification succeeded")
 	log.Info("Evidence:")
 	num := 0
-	for _, stepEvidence := range verifiedEvidence {
-		for _, e := range stepEvidence {
-			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
-			num++
-		}
+	for _, stepEvidence := range verifiedEvidence.VerificationSummary.InputAttestations {
+		log.Info(fmt.Sprintf("%d: %s", num, stepEvidence.URI))
+		num++
 	}
 
 	return nil
