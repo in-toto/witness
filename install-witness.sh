@@ -34,7 +34,7 @@ if [ ! -d $INSTALL_DIR ]; then
 fi
 
 # Get the latest version of Witness
-VERSION=$(curl -s https://api.github.com/repos/testifysec/witness/releases/latest | grep -o '"tag_name": *"[^"]*"' | sed 's/"//g' | sed 's/tag_name: *//')
+VERSION=$(curl -L -s https://api.github.com/repos/testifysec/witness/releases/latest | grep -o '"tag_name": *"[^"]*"' | sed 's/"//g' | sed 's/tag_name: *//')
 
 #remove the 'v' from the version
 readonly VERSION=${VERSION:1}
