@@ -34,7 +34,7 @@ if [ ! -d $INSTALL_DIR ]; then
 fi
 
 # Get the latest version of Witness
-VERSION=$(curl -s https://api.github.com/repos/testifysec/witness/releases/latest | grep -o '"tag_name": *"[^"]*"' | sed 's/"//g' | sed 's/tag_name: *//')
+VERSION=$(curl -s https://api.github.com/repos/in-toto/witness/releases/latest | grep -o '"tag_name": *"[^"]*"' | sed 's/"//g' | sed 's/tag_name: *//')
 
 #remove the 'v' from the version
 readonly VERSION=${VERSION:1}
@@ -59,8 +59,8 @@ OS=$(uname -s)
 ## change to lowercase
 OS=$(echo "$OS" | tr '[:upper:]' '[:lower:]')
 FILENAME="witness_${VERSION}_${OS}_${ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/testifysec/witness/releases/download/v$VERSION/$FILENAME"
-EXPECTED_CHECKSUM="$(curl -L -s  https://github.com/testifysec/witness/releases/download/v$VERSION/witness_${VERSION}_checksums.txt | grep -w "witness_${VERSION}_${OS}_$ARCH.tar.gz$" | awk '{print $1}')"
+DOWNLOAD_URL="https://github.com/in-toto/witness/releases/download/v$VERSION/$FILENAME"
+EXPECTED_CHECKSUM="$(curl -L -s  https://github.com/in-toto/witness/releases/download/v$VERSION/witness_${VERSION}_checksums.txt | grep -w "witness_${VERSION}_${OS}_$ARCH.tar.gz$" | awk '{print $1}')"
 readonly EXPECTED_CHECKSUM EXPECTED_CHECKSUM
 
 echo "Latest version of Witness is $VERSION"
