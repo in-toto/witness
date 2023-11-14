@@ -4,52 +4,36 @@ permissions:
 name: release
 on: [push, pull_request]
 jobs:
-  test:
-    strategy:
-      matrix:
-        go-version: [ 1.19.x ]
-        os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-         path: |
-           ~/go/pkg/mod
-           ~/.cache/go-build
-         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-         restore-keys: |
-            ${{ runner.os }}-go-
-      - name: Format Unix
-        run: test -z $(go fmt ./...)
-      - name: Install GoKart
-        run: go install github.com/praetorian-inc/gokart@latest
+  fmt:
+    uses: ./.github/workflows/witness.yml
+    with:
+      pull_request: ${{ github.event_name == 'pull_request' }}
+      step: fmt
+      attestations: "git github environment"
+      command: go fmt ./...
 
-      - name: Static Analysis
-        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
-        with:
-          step: static-analysis
-          attestations: "github sarif"
-          command: gokart scan . -o sarif-results.json -s
+  sast:
+    needs: [fmt]
+    uses: ./.github/workflows/witness.yml
+    with:
+      pull_request: ${{ github.event_name == 'pull_request' }}
+      step: sast
+      attestations: "git github environment"
+      pre-command: go install github.com/praetorian-inc/gokart@latest
+      command: gokart scan . -o gokart-results.json -s
+      artifact-upload-name: gokart-results.json
+      artifact-upload-path: gokart-results.json
 
-      - name: Test
-        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
-        with: 
-          step: "test"
-          attestations: "github"
-          command: go test -v -coverprofile=profile.cov -covermode=atomic ./...
-
-      - name: Send coverage
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          GO111MODULE=off go get github.com/mattn/goveralls
-          $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
+  unit-test:
+    needs: [fmt]
+    uses: ./.github/workflows/witness.yml
+    with:
+      pull_request: ${{ github.event_name == 'pull_request' }}
+      step: unit-test
+      attestations: "git github environment"
+      command: go test -v -coverprofile=profile.cov -covermode=atomic ./...
+      artifact-upload-name: profile.cov
+      artifact-upload-path: profile.cov
 
   release:
     permissions:
@@ -57,7 +41,7 @@ jobs:
       contents: write
       packages: write
     runs-on: ubuntu-latest
-    needs: test
+    needs: [sast, unit-test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     
     steps:
