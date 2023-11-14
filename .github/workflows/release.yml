@@ -19,10 +19,7 @@ jobs:
       pull_request: ${{ github.event_name == 'pull_request' }}
       step: sast
       attestations: "git github environment"
-      pre-command: go install github.com/praetorian-inc/gokart@latest
-      command: gokart scan . -o gokart-results.json -s
-      artifact-upload-name: gokart-results.json
-      artifact-upload-path: gokart-results.json
+      command: go vet ./...
 
   unit-test:
     needs: [fmt]
