@@ -1,0 +1,80 @@
+# Copyright 2023 The Witness Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+on:
+    workflow_call:
+        inputs:
+            pull_request: 
+                required: true
+                type: boolean
+            artifact-download:
+                required: false
+                type: string
+            artifact-upload-name:
+                required: false
+                type: string
+            artifact-upload-path:
+                required: false
+                type: string
+            pre-command:
+                required: false
+                type: string
+            command:
+                required: true
+                type: string
+            step:
+                required: true
+                type: string
+            attestations:
+                required: true
+                type: string
+            
+jobs:
+    witness:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-go@v4
+            with:
+              go-version: 1.21.x
+
+          - if: ${{ inputs.artifact-download != '' }}
+            uses: actions/download-artifact@v3
+            with:
+              name: ${{ inputs.artifact-download }}
+              path: /tmp
+
+          - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
+            uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
+            with:
+              step: pre-${{ inputs.step }}
+              attestations: ${{ inputs.attestations }}
+              command: /bin/sh -c "${{ inputs.pre-command }}"
+          - if: ${{ inputs.pre-command != '' && inputs.pull_request == true }}
+            run: ${{ inputs.pre-command }}
+
+          - if: ${{ inputs.pull_request == false }}
+            uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
+            with:
+              step: ${{ inputs.step }}
+              attestations: ${{ inputs.attestations }}
+              command: /bin/sh -c "${{ inputs.command }}"
+          - if: ${{ inputs.pull_request == true }}
+            run: ${{ inputs.command }}
+
+          - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
+            uses: actions/upload-artifact@v3
+            with:
+              name: ${{ inputs.artifact-upload-name }}
+              path: ${{ inputs.artifact-upload-path }}
