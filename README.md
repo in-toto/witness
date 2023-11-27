@@ -121,7 +121,7 @@ Download from the releases page or use the install script to download the latest
 
 [Releases](https://github.com/testifysec/witness/releases)
 ```
-bash <(curl -s https://raw.githubusercontent.com/testifysec/witness/main/install-witness.sh)
+bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)
 ```
 
 
