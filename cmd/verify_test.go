@@ -37,6 +37,7 @@ import (
 	"github.com/testifysec/go-witness/signer"
 	"github.com/testifysec/go-witness/signer/file"
 	"github.com/testifysec/witness/options"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestRunVerifyCA(t *testing.T) {
@@ -313,7 +314,7 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	}
 
 	p := policy.Policy{
-		Expires:    time.Now().Add(1 * time.Hour),
+		Expires:    metav1.Time{Time: time.Now().Add(1 * time.Hour)},
 		PublicKeys: map[string]policy.PublicKey{},
 		Steps:      map[string]policy.Step{},
 	}
