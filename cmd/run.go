@@ -127,9 +127,9 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	if ro.ArchivistaOptions.Enable {
 		archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
 		if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
-			return fmt.Errorf("failed to store artifact in archivist: %w", err)
+			return fmt.Errorf("failed to store artifact in archivista: %w", err)
 		} else {
-			log.Infof("Stored in archivist as %v\n", gitoid)
+			log.Infof("Stored in archivista as %v\n", gitoid)
 		}
 	}
 
