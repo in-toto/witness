@@ -15,6 +15,7 @@
 package options
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/go-witness/attestation"
 	"github.com/testifysec/go-witness/log"
@@ -55,12 +56,14 @@ func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&o.Enable, "enable-archivista", false, "Use Archivista to store or retrieve attestations")
 	cmd.Flags().BoolVar(&o.Enable, "enable-archivist", false, "Use Archivist to store or retrieve attestations (deprecated)")
 	if err := cmd.Flags().MarkHidden("enable-archivist"); err != nil {
-		log.Debugf("failed to hide enable-archivist flag: %v", err)
+		err := fmt.Errorf("failed to hide enable-archivist flag: %v", err)
+		log.Debug(err)
 	}
 
 	cmd.Flags().StringVar(&o.Url, "archivista-server", "https://archivista.testifysec.io", "URL of the Archivista server to store or retrieve attestations")
 	cmd.Flags().StringVar(&o.Url, "archivist-server", "https://archivista.testifysec.io", "URL of the Archivista server to store or retrieve attestations (deprecated)")
 	if err := cmd.Flags().MarkHidden("archivist-server"); err != nil {
-		log.Debugf("failed to hide archivist-server flag: %v", err)
+		err := fmt.Errorf("failed to hide archivist-server flag: %v", err)
+		log.Debug(err)
 	}
 }

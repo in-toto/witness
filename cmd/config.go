@@ -44,7 +44,7 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 	}
 
 	if err := v.ReadInConfig(); err != nil {
-		return fmt.Errorf("failed to read config file: %s", err)
+		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	//Currently we do not accept configuration for root commands
@@ -64,14 +64,16 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 					if len(configValue) > 0 {
 						configValueStr := strings.Join(configValue, ",")
 						if err := flags.Set(f.Name, configValueStr); err != nil {
-							log.Errorf("failed to set config value: %s", err)
+							err := fmt.Errorf("failed to set config value: %w", err)
+							log.Error(err)
 						}
 					}
 				} else {
 					configValue := v.GetString(configKey)
 					if configValue != "" {
 						if err := flags.Set(f.Name, configValue); err != nil {
-							log.Errorf("failed to set config value: %s", err)
+							err := fmt.Errorf("failed to set config value: %w", err)
+							log.Error(err)
 						}
 					}
 				}
