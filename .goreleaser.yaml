@@ -4,7 +4,7 @@ builds:
       - "-s -w"
       - "-extldflags=-zrelro"
       - "-extldflags=-znow"
-      - "-extldflags -w -X 'github.com/testifysec/witness/cmd.Version={{.Tag}}-{{.ShortCommit}}'"
+      - "-extldflags -w -X 'github.com/in-toto/witness/cmd.Version={{.Tag}}-{{.ShortCommit}}'"
     env:
       - "CGO_ENABLED=0"
       - "GO111MODULE=on"
@@ -40,7 +40,7 @@ release:
   github:
     owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
 kos:
-  - repository: ghcr.io/testifysec/witness
+  - repository: ghcr.io/in-toto/witness
     tags:
     - '{{.Version}}'
     bare: true
