@@ -15,7 +15,7 @@
 on:
     workflow_call:
         inputs:
-            pull_request: 
+            pull_request:
                 required: true
                 type: boolean
             artifact-download:
@@ -39,7 +39,7 @@ on:
             attestations:
                 required: true
                 type: string
-            
+
 jobs:
     witness:
         runs-on: ubuntu-latest
