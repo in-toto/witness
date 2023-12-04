@@ -44,13 +44,13 @@ jobs:
     witness:
         runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@v4
-          - uses: actions/setup-go@v4
+          - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+          - uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
             with:
               go-version: 1.21.x
 
           - if: ${{ inputs.artifact-download != '' }}
-            uses: actions/download-artifact@v3
+            uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
             with:
               name: ${{ inputs.artifact-download }}
               path: /tmp
@@ -74,7 +74,7 @@ jobs:
             run: ${{ inputs.command }}
 
           - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
             with:
               name: ${{ inputs.artifact-upload-name }}
               path: ${{ inputs.artifact-upload-path }}
