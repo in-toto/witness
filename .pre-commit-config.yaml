@@ -16,3 +16,4 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
+    exclude: docs/[0-9a-z]*.md
