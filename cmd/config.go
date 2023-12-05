@@ -64,16 +64,14 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 					if len(configValue) > 0 {
 						configValueStr := strings.Join(configValue, ",")
 						if err := flags.Set(f.Name, configValueStr); err != nil {
-							err := fmt.Errorf("failed to set config value: %w", err)
-							log.Error(err)
+							log.Errorf("failed to set config value: %w", err)
 						}
 					}
 				} else {
 					configValue := v.GetString(configKey)
 					if configValue != "" {
 						if err := flags.Set(f.Name, configValue); err != nil {
-							err := fmt.Errorf("failed to set config value: %w", err)
-							log.Error(err)
+							log.Errorf("failed to set config value: %w", err)
 						}
 					}
 				}

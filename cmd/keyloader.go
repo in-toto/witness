@@ -52,15 +52,13 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 		setters := so[signerProvider]
 		sp, err := signer.NewSignerProvider(signerProvider, setters...)
 		if err != nil {
-			err := fmt.Errorf("failed to create %v signer provider: %w", signerProvider, err)
-			log.Error(err)
+			log.Errorf("failed to create %v signer provider: %w", signerProvider, err)
 			continue
 		}
 
 		s, err := sp.Signer(ctx)
 		if err != nil {
-			err := fmt.Errorf("failed to create %v signer: %w", signerProvider, err)
-			log.Error(err)
+			log.Errorf("failed to create %v signer: %w", signerProvider, err)
 			continue
 		}
 
