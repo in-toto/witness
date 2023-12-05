@@ -116,3 +116,58 @@ func Test_runRunRSACA(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, b, env.Signatures[0].Certificate)
 }
+
+func TestRunHashesOptions(t *testing.T) {
+	tests := []struct {
+		name         string
+		hashesOption []string
+		expectErr    bool
+	}{
+		{
+			name:         "Valid RSA key pair",
+			hashesOption: []string{"sha256"},
+			expectErr:    false,
+		},
+		{
+			name:         "Invalid hashes option",
+			hashesOption: []string{"invalidHash"},
+			expectErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+			require.NoError(t, err)
+			signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+
+			workingDir := t.TempDir()
+			attestationPath := filepath.Join(workingDir, "outfile.txt")
+			runOptions := options.RunOptions{
+				WorkingDir:   workingDir,
+				Attestations: []string{},
+				Hashes:       tt.hashesOption,
+				OutFilePath:  attestationPath,
+				StepName:     "teststep",
+				Tracing:      false,
+			}
+
+			args := []string{
+				"bash",
+				"-c",
+				"echo 'test' > test.txt",
+			}
+
+			err = runRun(context.Background(), runOptions, args, signer)
+			if tt.expectErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				attestationBytes, err := os.ReadFile(attestationPath)
+				require.NoError(t, err)
+				env := dsse.Envelope{}
+				require.NoError(t, json.Unmarshal(attestationBytes, &env))
+			}
+		})
+	}
+}

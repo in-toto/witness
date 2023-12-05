@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"context"
+	"crypto"
 	"encoding/json"
 	"fmt"
 
@@ -102,12 +103,21 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 	}
 
+	var roHashes []crypto.Hash
+	for _, hashStr := range ro.Hashes {
+		hash, err := cryptoutil.HashFromString(hashStr)
+		if err != nil {
+			return fmt.Errorf("failed to parse hash: %w", err)
+		}
+		roHashes = append(roHashes, hash)
+	}
+
 	defer out.Close()
 	result, err := witness.Run(
 		ro.StepName,
 		signers[0],
 		witness.RunWithAttestors(attestors),
-		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir)),
+		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
 	)
 
