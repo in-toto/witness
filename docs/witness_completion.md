@@ -50,3 +50,4 @@ witness completion [bash|zsh|fish|powershell]
 ### SEE ALSO
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
+

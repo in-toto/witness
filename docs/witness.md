@@ -17,3 +17,4 @@ Collect and verify attestations about your build environments
 * [witness sign](witness_sign.md)	 - Signs a file
 * [witness verify](witness_verify.md)	 - Verifies a witness policy
 * [witness version](witness_version.md)	 - Prints out the witness version
+
