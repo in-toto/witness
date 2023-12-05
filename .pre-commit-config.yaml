@@ -15,6 +15,6 @@ repos:
   rev: v4.4.0
   hooks:
   - id: end-of-file-fixer
-    exclude_files: ^docs/
+    exclude: ^docs/
     exclude_types: [file, markdown]
   - id: trailing-whitespace
