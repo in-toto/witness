@@ -1,11 +1,11 @@
 # Policies
 
 TestifySec Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
-Examples of when a policy could be enforced include 
+Examples of when a policy could be enforced include
 
 - within a [Kubernetes admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - at the end of a CI/CD pipeline
-- prior to image promotion, or 
+- prior to image promotion, or
 - before deployment to an execution environment.
 
 Policies help you ensure that all expected attestations are within a collection and support embedded
@@ -35,7 +35,7 @@ Evaluating a Witness policy involves a few different steps:
 
 ## Schema
 
-Policies are JSON documents that are signed and wrapped in [DSSE envelopes](https://github.com/secure-systems-lab/dsse). The DSSE payload type will be 
+Policies are JSON documents that are signed and wrapped in [DSSE envelopes](https://github.com/secure-systems-lab/dsse). The DSSE payload type will be
 `https://witness.testifysec.com/policy/v0.1`.
 
 ### `policy` Object
@@ -135,7 +135,7 @@ Example of a constraint that would allow use of any certificate, as long as it b
 
 Rego modules are expected to output a data with the name of `deny` in the case of a rego policy evaluation failure.
 `deny` can be a string or an array of strings and should be populated with a human-readable string describing why the
-policy was denied. Any other data output by the module will be ignored. 
+policy was denied. Any other data output by the module will be ignored.
 
 Following is an example output for a valid rego policy:
 

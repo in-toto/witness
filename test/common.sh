@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Copyright 2022 The Witness Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#/bin/sh
 checkprograms() {
-  local result=0
+  result=0
   for prog in "$@"
   do
-    if ! command -v $prog > /dev/null; then
-      printf "$prog is required to run this script. please ensure if is installed and in your PATH\n"
+    if ! command -v "$prog" > /dev/null; then
+      printf "%s is required to run this script. please ensure if is installed and in your PATH\n" "$prog"
       result=1
     fi
   done

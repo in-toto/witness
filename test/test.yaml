@@ -23,7 +23,7 @@ sign:
     signer-file-key-path: testkey.pem
     outfile: policy-signed.json
 verify:
-    attestations: 
+    attestations:
         - "build.attestation.json"
         - "package.attestation.json"
     policy: policy-signed.json
