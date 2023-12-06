@@ -71,7 +71,7 @@ func loadOutfile(outFilePath string) (*os.File, error) {
 	if outFilePath != "" {
 		out, err = os.Create(outFilePath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create output file: %v", err)
+			return nil, fmt.Errorf("failed to create output file: %w", err)
 		}
 	}
 

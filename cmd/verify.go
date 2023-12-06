@@ -77,7 +77,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 
 	inFile, err := os.Open(vo.PolicyFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to open file to sign: %v", err)
+		return fmt.Errorf("failed to open file to sign: %w", err)
 	}
 
 	defer inFile.Close()
