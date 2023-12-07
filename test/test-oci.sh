@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Copyright 2022 The Witness Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/sh
 set -e
 
 DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
