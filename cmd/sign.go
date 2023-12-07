@@ -42,7 +42,7 @@ func SignCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			signers, err := loadSigners(cmd.Context(), so.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
 			if err != nil {
-				return fmt.Errorf("failed to load signer: %v", err)
+				return fmt.Errorf("failed to load signer: %w", err)
 			}
 
 			return runSign(cmd.Context(), so, signers...)
@@ -71,7 +71,7 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 
 	inFile, err := os.Open(so.InFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to open file to sign: %v", err)
+		return fmt.Errorf("failed to open file to sign: %w", err)
 	}
 
 	outFile, err := loadOutfile(so.OutFilePath)

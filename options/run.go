@@ -55,14 +55,14 @@ type ArchivistaOptions struct {
 
 func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&o.Enable, "enable-archivista", false, "Use Archivista to store or retrieve attestations")
-	cmd.Flags().BoolVar(&o.Enable, "enable-archivist", false, "Use Archivist to store or retrieve attestations (deprecated)")
+	cmd.Flags().BoolVar(&o.Enable, "enable-archivist", false, "Use Archivista to store or retrieve attestations (deprecated)")
 	if err := cmd.Flags().MarkHidden("enable-archivist"); err != nil {
-		log.Debugf("failed to hide enable-archivist flag: %v", err)
+		log.Errorf("failed to hide enable-archivist flag: %w", err)
 	}
 
 	cmd.Flags().StringVar(&o.Url, "archivista-server", "https://archivista.testifysec.io", "URL of the Archivista server to store or retrieve attestations")
 	cmd.Flags().StringVar(&o.Url, "archivist-server", "https://archivista.testifysec.io", "URL of the Archivista server to store or retrieve attestations (deprecated)")
 	if err := cmd.Flags().MarkHidden("archivist-server"); err != nil {
-		log.Debugf("failed to hide archivist-server flag: %v", err)
+		log.Debugf("failed to hide archivist-server flag: %w", err)
 	}
 }
