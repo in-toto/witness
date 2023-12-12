@@ -1,47 +1,54 @@
-[![OpenSSF
--Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
+## Witness [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness)
 
-<p align="center">
-  <img src="docs/assets/logo.png" width="250">
-  <br>
-  Witness is a pluggable framework for supply chain security
-</p>
+<div align="center" >
+   
+**[DOCS](https://github.com/chroline/well_app#-project-philosophy) • 
+[CONTRIBUTING](https://github.com/chroline/well_app#%EF%B8%8F-contributing) • 
+[LICENSE](https://github.com/chroline/well_app#%EF%B8%8F-license)**  
+<span style="font-size:0.9em;"> **Get Started Now 👇** </span><br>
+<span style="font-size:0.85em;">`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span><br><br>
+</div>
 
-[![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
+<img src="docs/assets/logo.png" align="right"
+     alt="Witness project logo" width="150">
 
-# Witness - Secure Your Supply Chain
+#### What does Witness do?<br>
+✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
+**🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can ensure that your software was handled safely from source to deployment.</span>
 
-Witness is a pluggable framework for supply chain security that creates an evidence trail of the entire software development life cycle (SDLC) to ensure the integrity of your software from source to target. It supports most major CI and infrastructure providers, and uses a secure PKI distribution system to enhance security and mitigate against software supply chain attack vectors.
-
-Witness works by wrapping commands executed in a continuous integration process, providing an evidence trail of every action in the software development life cycle (SDLC). This allows for a detailed and verifiable record of how the software was built, who built it, and what tools were used. This evidence can be used to evaluate policy compliance and detect any potential tampering or malicious activity and ensure only authorized users or machines completes a step of the process. Additionally, Witness's attestation system is pluggable and offers support for most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains. Furthermore, the use of a secure PKI distribution system and the ability to verify Witness metadata further enhances the security of the process and helps mitigate against many software supply chain attack vectors.
-
-**NOTE:** the attestor code has been split into repo https://github.com/testifysec/go-witness
-
-## Witness enables you to:
-
-- Verify who built the software, how it was built and what tools were used
-- Detect any potential tampering or malicious activity
-- Ensure that only authorized users or machines complete each step of the process
+#### What can you do with Witness?
+- Verify how your software was produced and what tools were used
+- Ensure that each step of the supply chain was completed by authorized users and machines
+- Detect potential tampering or malicious activity
 - Distribute attestations and policy across air gaps
 
-## Witness is a pluggable framework for supply chain security
-
- - It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
- - It is designed to run in both containerized and non-containerized environments and does not require elevated privileges.
- - It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
- - It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
-
-## Key Features
- - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
- - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivista server.
- - Support for RFC3161 compatible timestamp authorities
- - Experimental support for process tracing and process tampering prevention.
- - Verifies file integrity between CI steps and across air gap.
- - Support for Darwin, Windows, and ARM architectures.
- - Can use Archivista as an attestation store.
+#### Key Features
  - Integrations with GitLab, GitHub, AWS, and GCP.
+ - Designed to run in both containerized and non-containerized environments **without** elevated privileges.
+ - Implements the in-toto specification (including ITE-5, ITE-6 and ITE-7)
+ - An embedded OPA Rego policy engine for policy enforcement
+ - Keyless signing with Sigstore and SPIFFE/SPIRE
+ - Integration with RFC3161 compatible timestamp authorities
+ - Process tracing and process tampering prevention (Experimental)
+- Attestation storage with [Archivista](https://github.com/in-toto/archivista)
 
-## How it works
+#### Demo
+![Demo][demo]
+
+### Get Started with a Tutorial
+###### [Verify an Artifact Policy](https://github.com/testifysec/witness-examples/blob/main/keypair/README.md)
+###### [Using Fulcio as a Key Provider](https://github.com/testifysec/witness-examples/blob/main/keyless-fulcio/README.md)
+
+## How does Witness work?
+### Signing
+Witness is able to observe your software development life-cycle (SDLC) by wrapping around commands executed within them. By passing any command to Witness as an argument, the tool is able to understand what was executed but also on what infrastructure, by what user or service account and more. The information that Witness gathers while the command is running is down to which [Attestors](docs/attestor.md) are used. Attestors are implementations of an interface that find and assert facts about the system Witness is running on (e.g., [AWS Attestor](docs/attestors/aws-iid.md)). Finally, Witness can compile this information into an [in-toto attestation](https://github.com/in-toto/attestation), place it in a [DSSE Envelope](https://github.com/secure-systems-lab/dsse) and sign that envelope with the key that was supplied by the user. 
+
+### Storing
+For storage, the Witness project can upload signed attestations to an [Archivista](https://github.com/in-toto/archivista) server, a graph and storage service for in-toto attestations. This enables the discovery and retrieval of attestations for verification of software artifacts.
+
+### Verifying
+Witness is able to verify 
+
 - Witness wraps commands executed during a continuous integration process to create an evidence trail of the entire software development life cycle (SDLC)
 - It records secure hashes of materials, artifacts, and events that occur during the CI process
 - This evidence can be used to evaluate policy compliance, detect tampering or malicious activity, and ensure only authorized users or machines complete a step of the process
@@ -57,8 +64,6 @@ Witness works by wrapping commands executed in a continuous integration process,
 
 ## Witness Examples
 
-- [Verify an Artifact Policy](https://github.com/testifysec/witness-examples/blob/main/keypair/README.md)
-- [Using Fulcio as a Key Provider](https://github.com/testifysec/witness-examples/blob/main/keyless-fulcio/README.md)
 
 ## Media
 
@@ -340,3 +345,5 @@ During the verification process witness will use a source of trusted time such a
 
 [TestifySec](https://testifysec.com) Provides support for witness and other CI security tools.
 [Contact Us](mailto:info@testifysec.com)
+
+[demo]: docs/assets/demo.gif "Demo"
