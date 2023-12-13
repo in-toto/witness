@@ -203,7 +203,7 @@ Check out some of the content out in the wild that gives more detail on how the 
 - [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
 
 # Get Involved with the Community!
-- Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
+Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
 [demo]: docs/assets/demo.gif "Demo"
