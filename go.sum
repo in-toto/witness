@@ -331,7 +331,7 @@ github.com/tchap/go-patricia/v2 v2.3.1 h1:6rQp39lgIYZ+MHmdEq4xzuk1t7OdC35z/xm0BG
 github.com/tchap/go-patricia/v2 v2.3.1/go.mod h1:VZRHKAb53DLaG+nA9EaYYiaEx6YztwDlLElMsnSHD4k=
 github.com/in-toto/archivista-api v0.0.0-20230220215059-632b84b82b76 h1:GAUgHyg4ss2DDTIYG9RuVxap2smkAGtzpXcOvNxlLic=
 github.com/in-toto/archivista-api v0.0.0-20230220215059-632b84b82b76/go.mod h1:6OYeTa1OOoVuqo9i8t6GAHtwg0CgofZVfwgVt7DgrwI=
-github.com/in-toto/go-witness v0.1.17 h1:4saMtJJBfFd0CiZqBljysHawhFh/5MjqwQZPxMU9nNA=
+github.com/in-toto/go-witness v0.1.17 h1:T8GX9ejQVCioPgORH4Nr1Zc7+Nlx1SIk8YZYftNlw+M=
 github.com/in-toto/go-witness v0.1.17/go.mod h1:ljKDAQFb949IQMmch/B7kb1pYz1tJ10sSNjqM+HNijQ=
 github.com/theupdateframework/go-tuf v0.5.2-0.20220930112810-3890c1e7ace4 h1:1i/Afw3rmaR1gF3sfVkG2X6ldkikQwA9zY380LrR5YI=
 github.com/theupdateframework/go-tuf v0.5.2-0.20220930112810-3890c1e7ace4/go.mod h1:vAqWV3zEs89byeFsAYoh/Q14vJTgJkHwnnRCWBBBINY=
