@@ -14,6 +14,7 @@
 
 ### What does Witness do?<br>
 ✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
+
 **🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can ensure that your software was handled safely from source to deployment.</span>
 
 ### What can you do with Witness?
