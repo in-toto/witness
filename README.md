@@ -1,4 +1,4 @@
-## Witness [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness)
+# Witness [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness)
 
 <div align="center" >
    
