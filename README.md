@@ -3,7 +3,7 @@
 <div align="center" >
    
 **[DOCS](https://witness.dev) • 
-[CONTRIBUTING](./CONTRIBUTING.md) • 
+[CONTRIBUTING](./CONTRIBUTORS.md) • 
 [LICENSE](./LICENSE)**  
 <span style="font-size:0.9em;"> **Get Started Now 👇** </span><br>
 <span style="font-size:0.85em;">`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span><br><br>
