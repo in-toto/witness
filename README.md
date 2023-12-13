@@ -181,8 +181,8 @@ witness verify -f testapp -a test-att.json -p policy-signed.json -k testpub.pem
 ```
 
 ### Check out our other tutorials
-###### [Verify an Artifact Policy](https://github.com/testifysec/witness-examples/blob/main/keypair/README.md)
-###### [Using Fulcio as a Key Provider](https://github.com/testifysec/witness-examples/blob/main/keyless-fulcio/README.md)
+##### [Verify an Artifact Policy](https://github.com/testifysec/witness-examples/blob/main/keypair/README.md)
+##### [Using Fulcio as a Key Provider](https://github.com/testifysec/witness-examples/blob/main/keyless-fulcio/README.md)
 
 ## How does Witness work?
 ### Signing
@@ -197,10 +197,10 @@ Witness allows users to verify the attestations that they generate by providing 
 # Media
 Check out some of the content out in the wild that gives more detail on how the project can be used.
 
-- [Blog/Video - Generating and Verifying Attestations With Witness](https://www.testifysec.com/blog/attestations-with-witness/)
-- [Blog - What is a supply chain attestation, and why do I need it?](https://www.testifysec.com/blog/what-is-a-supply-chain-attestation/)
-- [Talk - Securing the Software Supply Chain with the in-toto & SPIRE projects](https://www.youtube.com/watch?v=4lFbdkB62QI)
-- [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
+##### [Blog/Video - Generating and Verifying Attestations With Witness](https://www.testifysec.com/blog/attestations-with-witness/)
+##### [Blog - What is a supply chain attestation, and why do I need it?](https://www.testifysec.com/blog/what-is-a-supply-chain-attestation/)
+##### [Talk - Securing the Software Supply Chain with the in-toto & SPIRE projects](https://www.youtube.com/watch?v=4lFbdkB62QI)
+##### [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
 
 # Get Involved with the Community!
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
