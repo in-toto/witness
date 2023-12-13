@@ -38,10 +38,6 @@ the development process:
 * Go v1.19: Witness is written in [Go](https://golang.org/), so you 
  will need this installed in order to compile and run the source code.
 
-* jq: It is a lightweight and flexible command-line JSON processor. It is
- used to parse JSON files. You can install it by following the instructions
- [here](https://stedolan.github.io/jq/download/).
-
 #### Getting the Witness source code
 
 [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo>) the repository on GitHub and
