@@ -1,4 +1,4 @@
-module github.com/testifysec/witness
+module github.com/in-toto/witness
 
 go 1.19
 
@@ -8,7 +8,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
-	github.com/testifysec/go-witness v0.1.17
+	github.com/in-toto/go-witness v0.1.17
 )
 
 require (

@@ -28,15 +28,15 @@ import (
 	"testing"
 	"time"
 
+	witness "github.com/in-toto/go-witness"
+	"github.com/in-toto/go-witness/attestation/commandrun"
+	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/policy"
+	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/file"
+	"github.com/in-toto/witness/options"
 	"github.com/stretchr/testify/require"
-	witness "github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/attestation/commandrun"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/dsse"
-	"github.com/testifysec/go-witness/policy"
-	"github.com/testifysec/go-witness/signer"
-	"github.com/testifysec/go-witness/signer/file"
-	"github.com/testifysec/witness/options"
 )
 
 func TestRunVerifyCA(t *testing.T) {
