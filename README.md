@@ -13,9 +13,11 @@
      alt="Witness project logo" width="150">
 
 ### What does Witness do?<br>
-✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
+✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
+ audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
 
-**🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can ensure that your software was handled safely from source to deployment.</span>
+**🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can
+  ensure that your software was handled safely from source to deployment.</span>
 
 ### What can you do with Witness?
 - Verify how your software was produced and what tools were used
@@ -170,9 +172,9 @@ witness sign -f policy.json --signer-file-key-path testkey.pem --outfile policy-
 
 8. Verify the Binary Meets Policy Requirements
 
-> This process works across air-gap as long as you have the signed policy file, correct binary, and public key or certificate authority corresponding to the private key that signed the policy.
-> `witness verify` will return a `non-zero` exit and reason in the case of failure. Success will be silent with a `0` exit status
-> for policies that require multiple steps, multiple attestations are required.
+This process works across air-gap as long as you have the signed policy file, correct binary, and public key or certificate authority corresponding to the private 
+key that signed the policy. `witness verify` will return a `non-zero` exit and reason in the case of failure. Success will be silent with a `0` exit status for
+policies that require multiple steps, multiple attestations are required.
 
 ```
 witness verify -f testapp -a test-att.json -p policy-signed.json -k testpub.pem
@@ -199,5 +201,9 @@ Check out some of the content out in the wild that gives more detail on how the 
 - [Blog - What is a supply chain attestation, and why do I need it?](https://www.testifysec.com/blog/what-is-a-supply-chain-attestation/)
 - [Talk - Securing the Software Supply Chain with the in-toto & SPIRE projects](https://www.youtube.com/watch?v=4lFbdkB62QI)
 - [Talk - Securing the Software Supply Chain with SBOM and Attestation](https://www.youtube.com/watch?v=wX6aTZfpJv0)
+
+# Get Involved with the Community!
+- Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
+the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
 [demo]: docs/assets/demo.gif "Demo"
