@@ -1,12 +1,7 @@
+
 # Policies
-
-TestifySec Witness policies allow users to make assertions and test attestation collections generated during a `Witness run`.
-Examples of when a policy could be enforced include
-
-- within a [Kubernetes admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
-- at the end of a CI/CD pipeline
-- prior to image promotion, or
-- before deployment to an execution environment.
+## What is a witness policy?
+A witness policy is a signed document that encodes the requirements for an artifact to be validated. A witness policy includes public keys for trusted functionaries, which attestations must be found, and rego policy to evaluate against the attestation meta-data. This allows users to make assertions and test attestation collections generated during a `witness run`, allowing administrators to trace the compliance status of an artifact at any point during its lifecycle.
 
 Policies help you ensure that all expected attestations are within a collection and support embedded
 [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) policies to make determinations about the content
@@ -27,11 +22,18 @@ Evaluating a Witness policy involves a few different steps:
 
 1. Verify signatures on collections against public keys and trust roots within the policy. Any collections that fail signature
    verification will not be used.
-1. Verify the signer of each collection maps to a trusted functionary for the corresponding step in the policy.
-1. Verify that a signature is optionally timestamped by a trusted timestamp authority defined by the policy.
-1. Verify that materials recorded in each collection are consistent with the artifacts (materials + products) of other
+2. Verify the signer of each collection maps to a trusted functionary for the corresponding step in the policy.
+3. Verify that a signature is optionally timestamped by a trusted timestamp authority defined by the policy.
+4. Verify that materials recorded in each collection are consistent with the artifacts (materials + products) of other
    collections as configured by the policy.
-1. Verify all rego policies embedded in the policy evaluate successfully against collections.
+5. Verify all rego policies embedded in the policy evaluate successfully against collections.
+
+## Use Cases
+Examples of when a policy could be verified include:
+- within a [Kubernetes admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
+- at the end of a CI/CD pipeline
+- prior to image promotion, or
+- before deployment to an execution environment.
 
 ## Schema
 

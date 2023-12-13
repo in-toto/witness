@@ -47,3 +47,10 @@ witness sign [file] [flags]
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
 
+
+## Using [SPIRE](https://github.com/spiffe/spire) for Keyless Signing
+
+Witness can consume ephemeral keys from a [SPIRE](https://github.com/spiffe/spire) node agent. Configure witness with the flag `--spiffe-socket` to enable keyless signing.
+
+During the verification process witness will use a source of trusted time such as a timestamp from a timestamp authority to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for a timestamp to be created.
+
