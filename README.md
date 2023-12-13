@@ -12,17 +12,17 @@
 <img src="docs/assets/logo.png" align="right"
      alt="Witness project logo" width="150">
 
-#### What does Witness do?<br>
+### What does Witness do?<br>
 ✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
 **🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can ensure that your software was handled safely from source to deployment.</span>
 
-#### What can you do with Witness?
+### What can you do with Witness?
 - Verify how your software was produced and what tools were used
 - Ensure that each step of the supply chain was completed by authorized users and machines
 - Detect potential tampering or malicious activity
 - Distribute attestations and policy across air gaps
 
-#### Key Features
+### Key Features
  - Integrations with GitLab, GitHub, AWS, and GCP.
  - Designed to run in both containerized and non-containerized environments **without** elevated privileges.
  - Implements the in-toto specification (including ITE-5, ITE-6 and ITE-7)
@@ -32,7 +32,7 @@
  - Process tracing and process tampering prevention (Experimental)
 - Attestation storage with [Archivista](https://github.com/in-toto/archivista)
 
-#### Demo
+### Demo
 ![Demo][demo]
 
 ## Quick Start
