@@ -207,3 +207,6 @@ Check out some of the content out in the wild that gives more detail on how the 
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
 [demo]: docs/assets/demo.gif "Demo"
+
+# Background
+This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
