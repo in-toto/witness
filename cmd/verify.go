@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/archivista"
@@ -30,6 +31,7 @@ import (
 	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/source"
 	"github.com/testifysec/witness/options"
+	"github.com/testifysec/witness/report"
 )
 
 func VerifyCmd() *cobra.Command {
@@ -125,6 +127,22 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
 	)
+
+	if vo.GenerateReport {
+		// Load the report configuration
+		reportConfig, err := report.LoadReportConfig(vo.ReportConfigPath)
+		if err != nil {
+			return fmt.Errorf("failed to load report config: %w", err)
+		}
+
+		// Process the verified evidence
+		reportData, err := report.ProcessVerifiedEvidence(verifiedEvidence, reportConfig)
+		if err != nil {
+			return fmt.Errorf("failed to process verified evidence for report: %w", err)
+		}
+
+		spew.Dump(reportData)
+	}
 
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)

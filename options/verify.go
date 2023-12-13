@@ -24,6 +24,11 @@ type VerifyOptions struct {
 	ArtifactFilePath     string
 	AdditionalSubjects   []string
 	CAPaths              []string
+
+	// New fields for report generation
+	GenerateReport   bool
+	ReportConfigPath string
+	ReportOutputPath string
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
@@ -35,4 +40,8 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&vo.AdditionalSubjects, "subjects", "s", []string{}, "Additional subjects to lookup attestations")
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
 
+	// New flags for report generation
+	cmd.Flags().BoolVar(&vo.GenerateReport, "generate-report", false, "Generate a human-readable report from the verification output")
+	cmd.Flags().StringVar(&vo.ReportConfigPath, "fields-config", "", "Path to the YAML file specifying the fields for the report")
+	cmd.Flags().StringVar(&vo.ReportOutputPath, "report-output", "", "Path to the output report file (PDF format)")
 }

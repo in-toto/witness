@@ -3,12 +3,14 @@ module github.com/testifysec/witness
 go 1.19
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testifysec/go-witness v0.1.17
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -33,7 +35,6 @@ require (
 	github.com/aws/aws-sdk-go v1.44.334 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/digitorus/pkcs7 v0.0.0-20230220124406-51331ccfc40f // indirect
 	github.com/digitorus/timestamp v0.0.0-20230220124323-d542479a2425 // indirect
 	github.com/edwarnicke/gitoid v0.0.0-20220710194850-1be5bfda1f9d // indirect
@@ -94,7 +95,6 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
