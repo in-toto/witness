@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/in-toto/go-witness/log"
-	"github.com/in-toto/go-witness/registry"
 	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/log"
+	"github.com/testifysec/go-witness/registry"
 )
 
 type Interface interface {

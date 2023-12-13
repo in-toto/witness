@@ -15,9 +15,9 @@
 package options
 
 import (
-	"github.com/in-toto/go-witness/attestation"
-	"github.com/in-toto/go-witness/log"
 	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/attestation"
+	"github.com/testifysec/go-witness/log"
 )
 
 type RunOptions struct {

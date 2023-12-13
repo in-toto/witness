@@ -26,12 +26,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/signer"
-	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/witness/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/testifysec/go-witness/cryptoutil"
+	"github.com/testifysec/go-witness/signer"
+	"github.com/testifysec/go-witness/signer/file"
 )
 
 const (

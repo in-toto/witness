@@ -15,8 +15,8 @@
 package options
 
 import (
-	"github.com/in-toto/go-witness/signer"
 	"github.com/spf13/cobra"
+	"github.com/testifysec/go-witness/signer"
 )
 
 type SignerOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
