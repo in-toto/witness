@@ -1,0 +1,13 @@
+site_name: Witness
+theme:
+  name: material
+  logo: assets/logo.png
+index_page: "README.md"
+nav:
+  - Home: "README.md"
+  - About:
+      - "How Witness Works": "about/how-witness-works.md"
+  - Tutorials:
+      - "Getting Started": "tutorials/getting-started.md"
+      - "Verifying an Artifact with a Witness Policy": "tutorials/artifact-policy.md"
+      - "Using a Fulcio Key Provider": "tutorials/fulcio-key-provider.md"
