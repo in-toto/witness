@@ -28,15 +28,16 @@ import (
 	"testing"
 	"time"
 
+	witness "github.com/in-toto/go-witness"
+	"github.com/in-toto/go-witness/attestation/commandrun"
+	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/policy"
+	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/witness/options"
 	"github.com/stretchr/testify/require"
-	witness "github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/attestation/commandrun"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/dsse"
-	"github.com/testifysec/go-witness/policy"
-	"github.com/testifysec/go-witness/signer"
-	"github.com/testifysec/go-witness/signer/file"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestRunVerifyCA(t *testing.T) {
@@ -313,7 +314,7 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	}
 
 	p := policy.Policy{
-		Expires:    time.Now().Add(1 * time.Hour),
+		Expires:    metav1.Time{Time: time.Now().Add(1 * time.Hour)},
 		PublicKeys: map[string]policy.PublicKey{},
 		Steps:      map[string]policy.Step{},
 	}
@@ -351,14 +352,8 @@ func createTestRSAKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, []byte,
 	}
 
 	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
 
 	privKeyBytes := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privKey)})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
 
 	return signer, verifier, pemBytes, privKeyBytes, nil
 }
