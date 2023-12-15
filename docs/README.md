@@ -67,7 +67,7 @@ Check out some of the content out in the wild that gives more detail on how the 
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
-[demo]: docs/assets/demo.gif "Demo"
+[demo]: assets/demo.gif "Demo"
 
 ## Background
 This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
