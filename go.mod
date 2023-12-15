@@ -1,4 +1,4 @@
-module github.com/testifysec/witness
+module github.com/in-toto/witness
 
 go 1.19
 

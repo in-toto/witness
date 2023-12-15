@@ -20,11 +20,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/witness/options"
 )
 
 func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error {
