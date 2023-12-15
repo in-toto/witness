@@ -352,14 +352,8 @@ func createTestRSAKey() (cryptoutil.Signer, cryptoutil.Verifier, []byte, []byte,
 	}
 
 	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: keyBytes})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
 
 	privKeyBytes := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privKey)})
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
 
 	return signer, verifier, pemBytes, privKeyBytes, nil
 }
