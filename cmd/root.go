@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
-	"github.com/testifysec/go-witness/log"
 )
 
 var ro = &options.RootOptions{}
