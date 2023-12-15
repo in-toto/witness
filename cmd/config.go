@@ -20,11 +20,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/testifysec/go-witness/log"
 )
 
 func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error {
@@ -47,10 +47,10 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	//Currently we do not accept configuration for root commands
+	// Currently we do not accept configuration for root commands
 	commands := rootCmd.Commands()
 	for _, cm := range commands {
-		//Check which command we are running
+		// Check which command we are running
 		if !contains(os.Args, cm.Name()) {
 			continue
 		}

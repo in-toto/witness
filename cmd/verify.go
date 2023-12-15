@@ -22,14 +22,14 @@ import (
 	"fmt"
 	"os"
 
+	witness "github.com/in-toto/go-witness"
+	"github.com/in-toto/go-witness/archivista"
+	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
+	"github.com/in-toto/go-witness/source"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
-	witness "github.com/testifysec/go-witness"
-	"github.com/testifysec/go-witness/archivista"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/dsse"
-	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/go-witness/source"
 )
 
 func VerifyCmd() *cobra.Command {
@@ -125,10 +125,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
 	)
-
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)
-
 	}
 
 	log.Info("Verification succeeded")
@@ -142,5 +140,4 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	return nil
-
 }

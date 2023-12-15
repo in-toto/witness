@@ -26,12 +26,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/witness/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/signer"
-	"github.com/testifysec/go-witness/signer/file"
 )
 
 const (
@@ -148,7 +148,6 @@ func rsakeypair(t *testing.T) (privatePem *os.File, publicPem *os.File) {
 	}
 
 	return privatePem, publicPem
-
 }
 
 // ref: https://jamielinux.com/docs/openssl-certificate-authority/appendix/intermediate-configuration-file.html
@@ -189,7 +188,7 @@ func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafP
 		t.Fatal(err)
 	}
 
-	//common name must be different than the CA name
+	// common name must be different than the CA name
 	intermediate := &x509.Certificate{
 		SerialNumber: big.NewInt(43),
 		Subject: pkix.Name{
@@ -272,5 +271,4 @@ func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafP
 	}
 
 	return caPem, intermediatePems, leafPem, leafkeyPem
-
 }
