@@ -85,12 +85,22 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
 
-	addtlAttestors, err := attestation.Attestors(ro.Attestations)
-	if err != nil {
-		return fmt.Errorf("failed to create attestors := %w", err)
+	for _, a := range ro.Attestations {
+		for _, att := range attestors {
+			if a == att.Name() {
+				log.Warnf("Attestator %s already declared, skipping", a)
+				break
+			} else {
+				attestor, err := attestation.AddAttestor(a)
+				if err != nil {
+					return fmt.Errorf("failed to create attestor: %w", err)
+				}
+				attestors = append(attestors, attestor)
+				break
+			}
+		}
 	}
 
-	attestors = append(attestors, addtlAttestors...)
 	for _, attestor := range attestors {
 		setters, ok := ro.AttestorOptSetters[attestor.Name()]
 		if !ok {
