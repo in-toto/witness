@@ -18,8 +18,8 @@ import (
 	"flag"
 	"log"
 
+	"github.com/in-toto/witness/cmd"
 	"github.com/spf13/cobra/doc"
-	"github.com/testifysec/witness/cmd"
 )
 
 var directory string

@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/archivista"
@@ -32,7 +33,6 @@ import (
 	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/registry"
 	"github.com/testifysec/go-witness/timestamp"
-	"github.com/testifysec/witness/options"
 )
 
 func RunCmd() *cobra.Command {

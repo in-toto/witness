@@ -22,14 +22,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
-	"github.com/testifysec/go-witness"
+	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/archivista"
 	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/log"
 	"github.com/testifysec/go-witness/source"
-	"github.com/testifysec/witness/options"
 )
 
 func VerifyCmd() *cobra.Command {

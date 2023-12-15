@@ -19,12 +19,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/cryptoutil"
 	"github.com/testifysec/go-witness/dsse"
 	"github.com/testifysec/go-witness/timestamp"
-	"github.com/testifysec/witness/options"
 )
 
 func SignCmd() *cobra.Command {

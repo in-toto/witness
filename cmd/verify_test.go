@@ -28,6 +28,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/in-toto/witness/options"
 	"github.com/stretchr/testify/require"
 	witness "github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/attestation/commandrun"
@@ -36,7 +37,6 @@ import (
 	"github.com/testifysec/go-witness/policy"
 	"github.com/testifysec/go-witness/signer"
 	"github.com/testifysec/go-witness/signer/file"
-	"github.com/testifysec/witness/options"
 )
 
 func TestRunVerifyCA(t *testing.T) {
