@@ -1,7 +1,9 @@
 package report
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -18,6 +20,16 @@ type StepData struct {
 	StartTime time.Time              `json:"startTime"`
 	EndTime   time.Time              `json:"endTime"`
 	Data      map[string]interface{} `json:"data"`
+	Signers   []Functionary          `json:"signers"`
+}
+
+type Functionary struct {
+	//Important fields from the certificate
+	CommonName    string    `json:"commonName"`
+	Email         string    `json:"email"`
+	URI           string    `json:"uri"`
+	CACommonName  string    `json:"caCommonName"`
+	TimeStampedAt time.Time `json:"timeStampedAt"`
 }
 
 type ReportConfig struct {
@@ -41,8 +53,46 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 		stepData.Data = make(map[string]interface{})
 
 		for _, collection := range collections {
-			// Extract the DSSE Envelope
+			// Extract the DSSE Envelope and process signers
 			envelope := collection.Envelope
+
+			signers := collection.Envelope.Signatures
+			// var signers []dsse.Signature
+
+			for _, signer := range signers {
+				// Decode the PEM certificate
+				block, _ := pem.Decode(signer.Certificate)
+				if block == nil {
+					return nil, fmt.Errorf("failed to decode PEM block containing the certificate")
+				}
+
+				// Parse the certificate
+				cert, err := x509.ParseCertificate(block.Bytes)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse certificate: %w", err)
+				}
+				var functionary Functionary
+
+				functionary.CACommonName = cert.Issuer.CommonName
+				functionary.CommonName = cert.Subject.CommonName
+
+				// Check if the EmailAddresses slice is not empty
+				if len(cert.EmailAddresses) > 0 {
+					functionary.Email = cert.EmailAddresses[0]
+				} else {
+					functionary.Email = "N/A" // Or any default value you deem appropriate
+				}
+
+				// Check if the URIs slice is not empty
+				if len(cert.URIs) > 0 {
+					functionary.URI = cert.URIs[0].String()
+				} else {
+					functionary.URI = "N/A" // Or any default value you deem appropriate
+				}
+
+				stepData.Signers = append(stepData.Signers, functionary)
+
+			}
 
 			// Unmarshal the payload into an intoto.Statement
 			payload := &intoto.Statement{}
@@ -50,9 +100,7 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 				return nil, fmt.Errorf("failed to unmarshal intoto.Statement: %w", err)
 			}
 
-			// Set the StartTime and EndTime for stepData (assumes you have a way to get these)
-			// stepData.StartTime = ...
-			// stepData.EndTime = ...
+			//parse attestation data into attestationData struct
 
 			// Unmarshal the predicate into a parsedCollection
 			parsedCollection := &parsedCollection{}
@@ -61,22 +109,33 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 			}
 
 			for _, attestation := range parsedCollection.Attestations {
-				attestationType := attestation.Type
 				var itemData map[string]interface{}
-				err := json.Unmarshal(attestation.Attestation, &itemData)
-				if err != nil {
-					return nil, fmt.Errorf("failed to unmarshal attestation data for type %s: %w", attestationType, err)
+				if err := json.Unmarshal(attestation.Attestation, &itemData); err != nil {
+					return nil, fmt.Errorf("failed to unmarshal attestation data for type %s: %w", attestation.Type, err)
 				}
 
+				startTime, err := time.Parse(time.RFC3339Nano, attestation.StartTime)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse attestation start time: %w", err)
+				}
+
+				endTime, err := time.Parse(time.RFC3339Nano, attestation.EndTime)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse attestation end time: %w", err)
+				}
+
+				// Process attestation data based on attestation type
+				attestationType := attestation.Type
 				if keys, ok := getRelevantKeys(attestationType, reportConfig); ok {
 					attestationMap := make(map[string]interface{})
 					for _, key := range keys {
 						if value, ok := getNestedValue(itemData, key); ok {
 							attestationMap[key] = value
 						}
-						// Missing keys are skipped
 					}
 					stepData.Data[attestationType] = attestationMap
+					stepData.StartTime = startTime
+					stepData.EndTime = endTime
 				}
 			}
 		}
@@ -91,12 +150,9 @@ type parsedCollection struct {
 	Attestations []struct {
 		Type        string          `json:"type"`
 		Attestation json.RawMessage `json:"attestation"`
+		StartTime   string          `json:"starttime"`
+		EndTime     string          `json:"endtime"`
 	} `json:"attestations"`
-}
-
-type attestationData struct {
-	Type string
-	Data []byte // Replace with the actual data field
 }
 
 func getNestedValue(data map[string]interface{}, key string) (interface{}, bool) {
@@ -168,6 +224,7 @@ func GeneratePDFReport(stepWiseData map[string]StepData, filename string) error 
 	for stepName, stepData := range stepWiseData {
 		renderStepHeader(pdf, stepName)
 		renderTimeFrame(pdf, stepData.StartTime, stepData.EndTime)
+		renderFunctionaries(pdf, stepData.Signers)
 
 		for attestationType, attestationData := range stepData.Data {
 			renderAttestationHeader(pdf, attestationType)
@@ -262,4 +319,46 @@ func formatValue(value interface{}) string {
 	default:
 		return fmt.Sprintf("%v", v) // Fallback for other types
 	}
+}
+
+func renderFunctionaries(pdf *gofpdf.Fpdf, signers []Functionary) {
+	if len(signers) == 0 {
+		return
+	}
+
+	pdf.SetFont("Arial", "B", 10)
+	pdf.CellFormat(0, 10, "Functionaries:", "", 1, "L", false, 0, "")
+	pdf.SetFont("Arial", "", 10)
+
+	for _, signer := range signers {
+		pdf.CellFormat(0, 6, fmt.Sprintf("Common Name: %s", signer.CommonName), "", 1, "L", false, 0, "")
+		pdf.CellFormat(0, 6, fmt.Sprintf("Email: %s", signer.Email), "", 1, "L", false, 0, "")
+		pdf.CellFormat(0, 6, fmt.Sprintf("URI: %s", signer.URI), "", 1, "L", false, 0, "")
+		pdf.CellFormat(0, 6, fmt.Sprintf("CA Common Name: %s", signer.CACommonName), "", 1, "L", false, 0, "")
+		pdf.CellFormat(0, 6, fmt.Sprintf("Timestamp: %s", signer.TimeStampedAt.Format(time.RFC3339)), "", 1, "L", false, 0, "")
+		pdf.Ln(4) // Extra space after each functionary
+	}
+
+	pdf.Ln(6) // Space after all functionaries
+}
+
+// Helper function to process attestation times
+func processAttestationTimes(itemData map[string]interface{}, stepData StepData) StepData {
+	if startTimeStr, ok := itemData["starttime"].(string); ok {
+		if startTime, err := time.Parse(time.RFC3339Nano, startTimeStr); err == nil {
+			if stepData.StartTime.IsZero() || startTime.Before(stepData.StartTime) {
+				stepData.StartTime = startTime
+			}
+		}
+	}
+
+	if endTimeStr, ok := itemData["endtime"].(string); ok {
+		if endTime, err := time.Parse(time.RFC3339Nano, endTimeStr); err == nil {
+			if stepData.EndTime.IsZero() || endTime.After(stepData.EndTime) {
+				stepData.EndTime = endTime
+			}
+		}
+	}
+
+	return stepData
 }
