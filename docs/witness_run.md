@@ -22,7 +22,8 @@ witness run [cmd] [flags]
   -k, --signer-file-key-path string                   Path to the file containing the private key
       --signer-fulcio-oidc-client-id string           OIDC client ID to use for authentication
       --signer-fulcio-oidc-issuer string              OIDC issuer to use for authentication
-      --signer-fulcio-token string                    Raw token to use for authentication
+      --signer-fulcio-token string                    Raw token string to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token-path)
+      --signer-fulcio-token-path string               Path to the file containing a raw token to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token)
       --signer-fulcio-url string                      Fulcio address to sign with
       --signer-spiffe-socket-path string              Path to the SPIFFE Workload API Socket
       --signer-vault-altnames strings                 Alt names to use for the generated certificate. All alt names must be allowed by the vault role policy

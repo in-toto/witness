@@ -19,11 +19,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/log"
+	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/witness/options"
 	"github.com/spf13/pflag"
-	"github.com/testifysec/go-witness/cryptoutil"
-	"github.com/testifysec/go-witness/log"
-	"github.com/testifysec/go-witness/signer"
-	"github.com/testifysec/witness/options"
 )
 
 // signerProvidersFromFlags looks at all flags that were set by the user to determine which signer providers we should use

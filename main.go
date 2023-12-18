@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/testifysec/witness/cmd"
+	"github.com/in-toto/witness/cmd"
 )
 
 func main() {

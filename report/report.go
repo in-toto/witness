@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/testifysec/go-witness/intoto"
-	"github.com/testifysec/go-witness/source"
+	"github.com/in-toto/go-witness/intoto"
+	"github.com/in-toto/go-witness/source"
 
 	"github.com/jung-kurt/gofpdf"
 	"gopkg.in/yaml.v2"
