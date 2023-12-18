@@ -5,11 +5,20 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/testifysec/go-witness/intoto"
 	"github.com/testifysec/go-witness/source"
+
+	"github.com/jung-kurt/gofpdf"
 	"gopkg.in/yaml.v2"
 )
+
+type StepData struct {
+	StartTime time.Time              `json:"startTime"`
+	EndTime   time.Time              `json:"endTime"`
+	Data      map[string]interface{} `json:"data"`
+}
 
 type ReportConfig struct {
 	Title        string            `yaml:"title"`
@@ -24,10 +33,13 @@ type AttestationInfo struct {
 	Fields []string `yaml:"fields"`
 }
 
-func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollection, reportConfig ReportConfig) (map[string]map[string]interface{}, error) {
-	keyValuePairs := make(map[string]map[string]interface{})
+func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollection, reportConfig ReportConfig) (map[string]StepData, error) {
+	stepWiseData := make(map[string]StepData)
 
-	for _, collections := range verifiedEvidence {
+	for step, collections := range verifiedEvidence {
+		var stepData StepData
+		stepData.Data = make(map[string]interface{})
+
 		for _, collection := range collections {
 			// Extract the DSSE Envelope
 			envelope := collection.Envelope
@@ -38,6 +50,10 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 				return nil, fmt.Errorf("failed to unmarshal intoto.Statement: %w", err)
 			}
 
+			// Set the StartTime and EndTime for stepData (assumes you have a way to get these)
+			// stepData.StartTime = ...
+			// stepData.EndTime = ...
+
 			// Unmarshal the predicate into a parsedCollection
 			parsedCollection := &parsedCollection{}
 			if err := json.Unmarshal(payload.Predicate, parsedCollection); err != nil {
@@ -46,31 +62,28 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 
 			for _, attestation := range parsedCollection.Attestations {
 				attestationType := attestation.Type
-				// Unmarshal the attestation data into a generic map
 				var itemData map[string]interface{}
 				err := json.Unmarshal(attestation.Attestation, &itemData)
 				if err != nil {
 					return nil, fmt.Errorf("failed to unmarshal attestation data for type %s: %w", attestationType, err)
 				}
 
-				// Process the attestation data based on the report configuration
 				if keys, ok := getRelevantKeys(attestationType, reportConfig); ok {
-					if _, exists := keyValuePairs[attestationType]; !exists {
-						keyValuePairs[attestationType] = make(map[string]interface{})
-					}
+					attestationMap := make(map[string]interface{})
 					for _, key := range keys {
-						value, ok := getNestedValue(itemData, key)
-						if !ok {
-							return nil, fmt.Errorf("key %s not found in attestation type %s", key, attestationType)
+						if value, ok := getNestedValue(itemData, key); ok {
+							attestationMap[key] = value
 						}
-						keyValuePairs[attestationType][key] = value
+						// Missing keys are skipped
 					}
+					stepData.Data[attestationType] = attestationMap
 				}
 			}
 		}
+		stepWiseData[step] = stepData
 	}
 
-	return keyValuePairs, nil
+	return stepWiseData, nil
 }
 
 // Ensure parsedCollection struct is defined to match your attestation structure
@@ -137,4 +150,86 @@ func LoadReportConfig(filePath string) (ReportConfig, error) {
 	}
 
 	return config, nil
+}
+
+func GeneratePDFReport(stepWiseData map[string]StepData, filename string) error {
+	const (
+		keyWidth     = 40.0
+		valueWidth   = 140.0
+		lineHeight   = 6.0
+		bottomMargin = 10.0
+	)
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetAutoPageBreak(false, bottomMargin)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 10)
+
+	for stepName, stepData := range stepWiseData {
+		// Step Header
+		pdf.SetFont("Arial", "B", 12)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Step: %s", stepName), "B", 1, "L", false, 0, "")
+		pdf.Ln(8)
+
+		// Time Frame
+		startTime := stepData.StartTime.Format(time.RFC3339)
+		endTime := stepData.EndTime.Format(time.RFC3339)
+		pdf.SetFont("Arial", "I", 10)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Time Frame: %s - %s", startTime, endTime), "", 1, "L", false, 0, "")
+		pdf.Ln(8)
+
+		// Attestations
+		for attestationType, attestationData := range stepData.Data {
+			pdf.SetFont("Arial", "U", 10)
+			pdf.CellFormat(0, 10, attestationType, "", 1, "L", false, 0, "")
+			pdf.Ln(4)
+
+			if dataMap, ok := attestationData.(map[string]interface{}); ok {
+				for key, value := range dataMap {
+					x, y := pdf.GetXY()
+
+					// Calculate maximum height needed for both key and value cells
+					keyHeight := CalculateRowHeight(pdf, key, keyWidth, lineHeight)
+					valueHeight := CalculateRowHeight(pdf, fmt.Sprintf("%v", value), valueWidth, lineHeight)
+					maxHeight := keyHeight
+					if valueHeight > maxHeight {
+						maxHeight = valueHeight
+					}
+
+					// Check if a new page is needed
+					_, pageHeight := pdf.GetPageSize()
+					if y+maxHeight > pageHeight-bottomMargin {
+						pdf.AddPage()
+						y = pdf.GetY()
+					}
+
+					// Render Key Cell
+					pdf.SetXY(x, y)
+					pdf.MultiCell(keyWidth, lineHeight, key, "1", "L", false)
+
+					// Render Value Cell
+					pdf.SetXY(x+keyWidth, y)
+					pdf.MultiCell(valueWidth, lineHeight, fmt.Sprintf("%v", value), "1", "L", false)
+
+					// Adjust Y position for next row
+					pdf.SetXY(x, y+maxHeight)
+				}
+			}
+			pdf.Ln(4)
+		}
+		pdf.Ln(6)
+	}
+
+	err := pdf.OutputFileAndClose(filename)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CalculateRowHeight calculates the required height for a MultiCell.
+func CalculateRowHeight(pdf *gofpdf.Fpdf, text string, width float64, lineHeight float64) float64 {
+	splitText := pdf.SplitLines([]byte(text), width)
+	return float64(len(splitText)) * lineHeight
 }

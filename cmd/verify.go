@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 	"github.com/testifysec/go-witness"
 	"github.com/testifysec/go-witness/archivista"
@@ -141,7 +140,11 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 			return fmt.Errorf("failed to process verified evidence for report: %w", err)
 		}
 
-		spew.Dump(reportData)
+		err = report.GeneratePDFReport(reportData, vo.ReportOutputPath)
+		if err != nil {
+			return fmt.Errorf("failed to generate report: %w", err)
+		}
+
 	}
 
 	if err != nil {
