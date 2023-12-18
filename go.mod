@@ -3,7 +3,7 @@ module github.com/in-toto/witness
 go 1.19
 
 require (
-	github.com/in-toto/go-witness v0.1.18-0.20231214175634-5b5647c42b3c
+	github.com/in-toto/go-witness v0.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
@@ -54,7 +54,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-3 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
-	github.com/in-toto/archivista v0.1.3-0.20231214050507-e28a4170a9fe // indirect
+	github.com/in-toto/archivista v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
