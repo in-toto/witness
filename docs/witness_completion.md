@@ -5,6 +5,8 @@ Generate completion script
 ### Synopsis
 
 To load completions:
+
+```bash
 Bash:
   $ source <(witness completion bash)
   # To load completions for each session, execute once:
@@ -28,7 +30,7 @@ PowerShell:
   # To load completions for every new session, run:
   PS> witness completion powershell > witness.ps1
   # and source this file from your PowerShell profile.
-
+```
 
 ```
 witness completion [bash|zsh|fish|powershell]

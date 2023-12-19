@@ -36,4 +36,4 @@ witness verify [flags]
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
 
 ## Verification Lifecycle
-![](docs/assets/verification.png)
+![](assets/verification.png)

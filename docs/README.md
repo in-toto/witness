@@ -1,23 +1,24 @@
-# Witness [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness)
+# Witness 
+[![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness)
 
 <center>
    
 **[DOCS](https://witness.dev) • 
-[CONTRIBUTING](./CONTRIBUTORS.md) • 
-[LICENSE](./LICENSE)**  
-<span style="font-size:0.9em;"> **Get Started Now 👇** </span><br>
-<span style="font-size:0.85em;">`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span><br><br>
+[CONTRIBUTING](../CONTRIBUTING.md) • 
+[LICENSE](../LICENSE)**  
+
+<span style={{fontSize: '0.85em'}}>`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span>
 </center>
 
 <img src="https://github.com/in-toto/witness/raw/main/docs/assets/logo.png" align="right"
-     alt="Witness project logo" width="150">
+     alt="Witness project logo" width="150"></img>
 
-### What does Witness do?<br>
-✏️ **Attests** - <span style="font-size:0.9em;">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
- audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span><br>
+### What does Witness do?
+✏️ **Attests** - <span style={{fontSize: '0.9em'}}>Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
+audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span>
 
-**🧐 Verifies** - <span style="font-size:0.9em;">Witness also features its own policy engine with embedded support for OPA Rego, so you can
-  ensure that your software was handled safely from source to deployment.</span>
+**🧐 Verifies** - <span style={{fontSize: '0.9em'}}>Witness also features its own policy engine with embedded support for OPA Rego, so you can
+ensure that your software was handled safely from source to deployment.</span>
 
 ### What can you do with Witness?
 - Verify how your software was produced and what tools were used
@@ -67,7 +68,7 @@ Check out some of the content out in the wild that gives more detail on how the 
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
-[demo]: assets/demo.gif "Demo"
+[demo]: docs/assets/demo.gif "Demo"
 
 ## Background
 This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
