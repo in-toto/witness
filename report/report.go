@@ -1,9 +1,7 @@
 package report
 
 import (
-	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -56,63 +54,63 @@ func ProcessVerifiedEvidence(verifiedEvidence map[string][]source.VerifiedCollec
 			// Extract the DSSE Envelope and process signers
 			envelope := collection.Envelope
 
-			signers := collection.Envelope.Signatures
-			// var signers []dsse.Signature
+			// signers := collection.Envelope.Signatures
+			// // var signers []dsse.Signature
 
-			for _, signer := range signers {
-				break
-				// Decode the PEM block
-				block, _ := pem.Decode(signer.Certificate)
-				if block == nil {
-					//dont error out, just skip this signer
-					break
+			// for _, signer := range signers {
+			// 	break
+			// 	// Decode the PEM block
+			// 	block, _ := pem.Decode(signer.Certificate)
+			// 	if block == nil {
+			// 		//dont error out, just skip this signer
+			// 		break
 
-					//return nil, fmt.Errorf("failed to decode PEM block")
-				}
+			// 		//return nil, fmt.Errorf("failed to decode PEM block")
+			// 	}
 
-				var functionary Functionary
+			// 	var functionary Functionary
 
-				// Check if the block is a certificate
-				if block.Type == "CERTIFICATE" {
-					// Parse the certificate
-					cert, err := x509.ParseCertificate(block.Bytes)
-					if err != nil {
-						return nil, fmt.Errorf("failed to parse certificate: %w", err)
-					}
+			// 	// Check if the block is a certificate
+			// 	if block.Type == "CERTIFICATE" {
+			// 		// Parse the certificate
+			// 		cert, err := x509.ParseCertificate(block.Bytes)
+			// 		if err != nil {
+			// 			return nil, fmt.Errorf("failed to parse certificate: %w", err)
+			// 		}
 
-					functionary.CACommonName = cert.Issuer.CommonName
-					functionary.CommonName = cert.Subject.CommonName
+			// 		functionary.CACommonName = cert.Issuer.CommonName
+			// 		functionary.CommonName = cert.Subject.CommonName
 
-					// Handle EmailAddresses
-					if len(cert.EmailAddresses) > 0 {
-						functionary.Email = cert.EmailAddresses[0]
-					} else {
-						functionary.Email = "N/A"
-					}
+			// 		// Handle EmailAddresses
+			// 		if len(cert.EmailAddresses) > 0 {
+			// 			functionary.Email = cert.EmailAddresses[0]
+			// 		} else {
+			// 			functionary.Email = "N/A"
+			// 		}
 
-					// Handle URIs
-					if len(cert.URIs) > 0 {
-						functionary.URI = cert.URIs[0].String()
-					} else {
-						functionary.URI = "N/A"
-					}
-				} else if block.Type == "PUBLIC KEY" || block.Type == "RSA PUBLIC KEY" {
-					// Handle public key
-					_, err := x509.ParsePKIXPublicKey(block.Bytes)
-					if err != nil {
-						return nil, fmt.Errorf("failed to parse public key: %w", err)
-					}
-					// You can now use publicKey for your purposes
-					// For example, setting common name as "Public Key"
-					functionary.CommonName = "Public Key"
-					functionary.Email = "N/A"
-					functionary.URI = "N/A"
-				} else {
-					return nil, fmt.Errorf("unknown PEM block type")
-				}
+			// 		// Handle URIs
+			// 		if len(cert.URIs) > 0 {
+			// 			functionary.URI = cert.URIs[0].String()
+			// 		} else {
+			// 			functionary.URI = "N/A"
+			// 		}
+			// 	} else if block.Type == "PUBLIC KEY" || block.Type == "RSA PUBLIC KEY" {
+			// 		// Handle public key
+			// 		_, err := x509.ParsePKIXPublicKey(block.Bytes)
+			// 		if err != nil {
+			// 			return nil, fmt.Errorf("failed to parse public key: %w", err)
+			// 		}
+			// 		// You can now use publicKey for your purposes
+			// 		// For example, setting common name as "Public Key"
+			// 		functionary.CommonName = "Public Key"
+			// 		functionary.Email = "N/A"
+			// 		functionary.URI = "N/A"
+			// 	} else {
+			// 		return nil, fmt.Errorf("unknown PEM block type")
+			// 	}
 
-				stepData.Signers = append(stepData.Signers, functionary)
-			}
+			// 	stepData.Signers = append(stepData.Signers, functionary)
+			// }
 
 			// Unmarshal the payload into an intoto.Statement
 			payload := &intoto.Statement{}
