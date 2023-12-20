@@ -6,8 +6,17 @@
 .heroBanner {
   padding: 4rem 0;
   text-align: center;
+  color: #000000;
   position: relative;
   overflow: hidden;
+  background-color: #936342;
+}
+
+.heroTitle {
+  font-family: 'DM Mono';
+  font-size: 50px;
+  font-weight: 800;
+  color: var(--ifm-color-primary);
 }
 
 @media screen and (max-width: 996px) {

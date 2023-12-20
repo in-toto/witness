@@ -8,9 +8,9 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Witness Docs',
+  title: 'In-toto Witness',
   tagline: 'Documentation for the Witness Project',
-  favicon: '../img/logo.png',
+  favicon: '/static/img/favicon.ico',
 
   // Set the production url of your site here
   url: 'https://witness.dev',
@@ -43,6 +43,8 @@ const config = {
           path: "..",
           include: [
             "docs/**/*.{md,mdx}",
+            "CONTRIBUTING.md",
+            "CODE_OF_CONDUCT.md",
           ],
           sidebarPath: './sidebars.js',
           routeBasePath: "/",
@@ -61,20 +63,45 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'My Site',
+        title: 'Witness',
         logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          alt: 'Witness Project Logo',
+          src: 'img/logo.png',
         },
         items: [
           {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Docs',
+            type: "search",
+            position: "right",
           },
+          {
+            type: "doc",
+            docId: "docs/README",
+            position: "left",
+            label: "Docs",
+          },
+          {
+            href: "https://github.com/in-toto/witness",
+            position: "right",
+            className: "header-github-link",
+            "aria-label": "GitHub repository",
+          },
+          {
+            href: "https://communityinviter.com/apps/cloud-native/cncf",
+            position: "right",
+            className: "header-slack-link",
+            "aria-label": "Slack Invite Link",
+          },
+
         ],
       },
+    announcementBar: {
+      id: 'support_us',
+      content:
+        'We are looking to revamp our docs, please fill <a target="_blank" rel="noopener noreferrer" href="#">this survey</a>',
+      textColor: 'white',
+      backgroundColor: '#333385',
+      isCloseable: false,
+    },
       footer: {
         style: 'dark',
         links: [
@@ -82,8 +109,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'Tutorials',
+                to: '/docs/tutorials/getting-started',
               },
             ],
           },
@@ -91,34 +118,17 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                label: 'Slack',
+                href: 'https://slack.cncf.io/',
               },
               {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                label: 'Github',
+                href: 'https://github.com/in-toto/witness',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} The Witness Contributors, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,

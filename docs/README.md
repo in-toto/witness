@@ -10,8 +10,8 @@
 <span style={{fontSize: '0.85em'}}>`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span>
 </center>
 
-<img src="https://github.com/in-toto/witness/raw/main/docs/assets/logo.png" align="right"
-     alt="Witness project logo" width="150"></img>
+<img src="/img/logo.png" align="right"
+     alt="Witness project logo" width="200"></img>
 
 ### What does Witness do?
 ✏️ **Attests** - <span style={{fontSize: '0.9em'}}>Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
