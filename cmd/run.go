@@ -27,9 +27,10 @@ import (
 	"github.com/in-toto/go-witness/attestation/material"
 	"github.com/in-toto/go-witness/attestation/product"
 	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/dsse"
+	idsse "github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
+	dsse "github.com/in-toto/go-witness/signature/envelope/dsse"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -75,7 +76,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return fmt.Errorf("failed to open out file: %w", err)
 	}
 
-	timestampers := []dsse.Timestamper{}
+	timestampers := []idsse.Timestamper{}
 	for _, url := range ro.TimestampServers {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}
@@ -120,7 +121,6 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -135,11 +135,17 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	}
 
 	if ro.ArchivistaOptions.Enable {
-		archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
-		if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
-			return fmt.Errorf("failed to store artifact in archivista: %w", err)
+		/* check the type of result.SignedEnvelope */
+		env, ok := result.SignedEnvelope.(*dsse.Envelope)
+		if ok {
+			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
+			if gitoid, err := archivistaClient.Store(ctx, *env.Envelope); err != nil {
+				return fmt.Errorf("failed to store artifact in archivista: %w", err)
+			} else {
+				log.Infof("Stored in archivista as %v\n", gitoid)
+			}
 		} else {
-			log.Infof("Stored in archivista as %v\n", gitoid)
+			log.Warnf("Archvista only supports the DSSE envelope type, skipping")
 		}
 	}
 

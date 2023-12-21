@@ -64,6 +64,7 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 		return fmt.Errorf("no signers found")
 	}
 
+	// NOTE: We should probably use a function here to generate all options
 	timestampers := []dsse.Timestamper{}
 	for _, url := range so.TimestampServers {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
@@ -80,5 +81,5 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 	}
 
 	defer outFile.Close()
-	return witness.Sign(inFile, so.DataType, outFile, dsse.SignWithSigners(signers[0]), dsse.SignWithTimestampers(timestampers...))
+	return witness.Sign(signers[0], inFile, so.DataType, outFile, dsse.SignWithTimestampers(timestampers...))
 }
