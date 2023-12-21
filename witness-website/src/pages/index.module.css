@@ -30,3 +30,16 @@
   align-items: center;
   justify-content: center;
 }
+
+.merryChristmas {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #f9575c; /* Adjust background color as needed */
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  animation: snowfall 5s linear infinite; /* Apply the snowfall animation */
+}

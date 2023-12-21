@@ -7,9 +7,14 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Snowfall from 'react-snowfall';
+
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
+    <>
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
         <Heading as="h1" className={styles.heroTitle}>
@@ -24,8 +29,14 @@ function HomepageHeader() {
             Try the Witness Getting Started Tutorial! 🦉
           </Link>
         </div>
+
+        <div className={styles.merryChristmas}>
+          <Snowfall   snowflakeCount={15}/>
+          <span>Merry Christmas! 🎄 </span>
+        </div>
       </div>
     </header>
+    </>
   );
 }
 
