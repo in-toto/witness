@@ -30,6 +30,7 @@ import (
 	idsse "github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
+	"github.com/in-toto/go-witness/signature/envelope/cose"
 	dsse "github.com/in-toto/go-witness/signature/envelope/dsse"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
@@ -117,6 +118,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	result, err := witness.Run(
 		ro.StepName,
 		signers[0],
+		witness.RunWithEnvelopeType(ro.EnvelopeType),
 		witness.RunWithAttestors(attestors),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
@@ -125,9 +127,29 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return err
 	}
 
-	signedBytes, err := json.Marshal(&result.SignedEnvelope)
-	if err != nil {
-		return fmt.Errorf("failed to marshal envelope: %w", err)
+	var signedBytes []byte
+	switch ro.EnvelopeType {
+	case "dsse":
+		e, ok := result.SignedEnvelope.(*dsse.Envelope)
+		if !ok {
+			return fmt.Errorf("expected DSSE envelope but got %T", result.SignedEnvelope)
+		}
+		signedBytes, err = json.Marshal(e.Envelope)
+		if err != nil {
+			return fmt.Errorf("failed to marshal envelope: %w", err)
+		}
+	case "cose":
+		e, ok := result.SignedEnvelope.(*cose.Envelope)
+		if !ok {
+			return fmt.Errorf("expected COSE envelope but got %T", result.SignedEnvelope)
+		}
+		signedBytes, err = e.Envelope.MarshalCBOR()
+		if err != nil {
+			return fmt.Errorf("failed to marshal envelope: %w", err)
+		}
+
+	default:
+		return fmt.Errorf("unknown envelope type: %v", ro.EnvelopeType)
 	}
 
 	if _, err := out.Write(signedBytes); err != nil {

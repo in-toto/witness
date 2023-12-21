@@ -18,6 +18,7 @@ import "github.com/spf13/cobra"
 
 type SignOptions struct {
 	SignerOptions    SignerOptions
+	EnvelopeType     string
 	DataType         string
 	OutFilePath      string
 	InFilePath       string
@@ -26,6 +27,7 @@ type SignOptions struct {
 
 func (so *SignOptions) AddFlags(cmd *cobra.Command) {
 	so.SignerOptions.AddFlags(cmd)
+	cmd.Flags().StringVarP(&so.EnvelopeType, "envelope-type", "e", "dsse", "the type of envelope to use for signing (dsse, cose or jws). Defaults to dsse")
 	cmd.Flags().StringVarP(&so.DataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")
 	cmd.Flags().StringVarP(&so.OutFilePath, "outfile", "o", "", "File to write signed data. Defaults to stdout")
 	cmd.Flags().StringVarP(&so.InFilePath, "infile", "f", "", "Witness policy file to sign")

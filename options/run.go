@@ -23,6 +23,7 @@ import (
 type RunOptions struct {
 	SignerOptions      SignerOptions
 	ArchivistaOptions  ArchivistaOptions
+	EnvelopeType       string
 	WorkingDir         string
 	Attestations       []string
 	Hashes             []string
@@ -36,6 +37,8 @@ type RunOptions struct {
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	ro.SignerOptions.AddFlags(cmd)
 	ro.ArchivistaOptions.AddFlags(cmd)
+
+	cmd.Flags().StringVarP(&ro.EnvelopeType, "envelope-type", "e", "dsse", "the type of envelope to use for signing (dsse, cose or jws). Defaults to dsse")
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record")
 	cmd.Flags().StringSliceVar(&ro.Hashes, "hashes", []string{"sha256"}, "Hashes selected for digest calculation. Defaults to SHA256")

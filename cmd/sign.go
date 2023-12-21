@@ -81,5 +81,5 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 	}
 
 	defer outFile.Close()
-	return witness.Sign(signers[0], inFile, so.DataType, outFile, dsse.SignWithTimestampers(timestampers...))
+	return witness.Sign(signers[0], inFile, so.DataType, outFile, witness.SignWithTimestampers(timestampers...))
 }
