@@ -16,7 +16,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/in-toto/witness/cmd"
 	"github.com/spf13/cobra/doc"
@@ -34,4 +37,62 @@ func main() {
 	if err := doc.GenMarkdownTree(cmd.New(), directory); err != nil {
 		log.Fatalf("Error generating docs: %s", err)
 	}
+
+	err := cmd.GenConfig(cmd.New(), "template.witness.yml")
+	if err != nil {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+
+	f, err := os.ReadFile("template.witness.yml")
+	if err != nil {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+
+	os.Remove("template.witness.yml")
+
+	updateConfigMd(f)
+}
+
+func updateConfigMd(newYAML []byte) error {
+	// Read the Markdown file
+	fileName := "docs/config.md"
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+
+	fileContent := string(content)
+	comment := "<!-- Config file YAML placeholder -->"
+	yamlBlockStart := "```yaml"
+	yamlBlockEnd := "```"
+
+	// Find the position of the comment
+	commentPos := strings.Index(fileContent, comment)
+	if commentPos == -1 {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+
+	// Find the positions of the YAML block
+	yamlStartPos := strings.Index(fileContent[commentPos:], yamlBlockStart)
+	if yamlStartPos == -1 {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+	yamlStartPos += commentPos + len(yamlBlockStart)
+
+	yamlEndPos := strings.Index(fileContent[yamlStartPos:], yamlBlockEnd)
+	if yamlEndPos == -1 {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+	yamlEndPos += yamlStartPos
+
+	// Replace the YAML block entirely
+	fileContent = fileContent[:yamlStartPos] + fmt.Sprintf("\n%s\n", string(newYAML)) + fileContent[yamlEndPos:]
+
+	// Write the updated content back to the file
+	err = os.WriteFile(fileName, []byte(fileContent), 0644)
+	if err != nil {
+		log.Fatalf("Error generating docs: %s", err)
+	}
+
+	return nil
 }

@@ -13,6 +13,7 @@ Collect and verify attestations about your build environments
 ### SEE ALSO
 
 * [witness completion](witness_completion.md)	 - Generate completion script
+* [witness gen-config](witness_gen-config.md)	 - Generate a template configuration file with empty values.
 * [witness run](witness_run.md)	 - Runs the provided command and records attestations about the execution
 * [witness sign](witness_sign.md)	 - Signs a file
 * [witness verify](witness_verify.md)	 - Verifies a witness policy

@@ -82,7 +82,7 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 	return nil
 }
 
-func genConfig(rootCmd *cobra.Command, path string) error {
+func GenConfig(rootCmd *cobra.Command, path string) error {
 	v := viper.New()
 
 	// Currently we do not accept configuration for root commands
