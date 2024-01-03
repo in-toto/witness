@@ -41,6 +41,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(VerifyCmd())
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
+	cmd.AddCommand(GenConfigCmd())
 	cmd.AddCommand(versionCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
 	return cmd

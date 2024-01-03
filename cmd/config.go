@@ -47,10 +47,10 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	//Currently we do not accept configuration for root commands
+	// Currently we do not accept configuration for root commands
 	commands := rootCmd.Commands()
 	for _, cm := range commands {
-		//Check which command we are running
+		// Check which command we are running
 		if !contains(os.Args, cm.Name()) {
 			continue
 		}
@@ -79,6 +79,28 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 		})
 	}
 
+	return nil
+}
+
+func genConfig(rootCmd *cobra.Command, path string) error {
+	v := viper.New()
+
+	// Currently we do not accept configuration for root commands
+	commands := rootCmd.Commands()
+	for _, cm := range commands {
+		v.Set(cm.Name(), nil)
+		flags := cm.Flags()
+		flags.VisitAll(func(f *pflag.Flag) {
+			configKey := fmt.Sprintf("%s.%s", cm.Name(), f.Name)
+			if f.Value.Type() == "stringSlice" {
+				v.Set(configKey, []string{})
+			} else {
+				v.Set(configKey, "")
+			}
+		})
+	}
+
+	v.WriteConfigAs(path)
 	return nil
 }
 
