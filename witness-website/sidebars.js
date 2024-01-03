@@ -40,6 +40,11 @@ const sidebars = {
     },
     {
       type: 'doc',
+      label: 'Command Line Reference',
+      id: 'docs/commands',
+    },
+    {
+      type: 'doc',
       label: 'New Contributor Guide',
       id: 'CONTRIBUTING',
     },
