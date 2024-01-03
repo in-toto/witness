@@ -1,6 +1,6 @@
-## Witness Configuration
+# Witness Configuration
 
-TestifySec Witness looks for the configuration file `.witness.yaml` in the current directory.
+Witness looks for the configuration file `.witness.yaml` in the current directory.
 
 Any values in the configuration file will be overridden by the command line arguments.
 
