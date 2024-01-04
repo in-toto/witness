@@ -1,6 +1,7 @@
 # Signing Attestations with Sigstore Keyless
 
-><span style={{fontSize: '0.9em'}}>💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first!</span>
+><span style={{fontSize: '0.9em'}}>💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first! You might 
+also benefit from trying the [Witness Policy](./artifact-policy.md) tutorial, as it gives key insight into how to create more simple policies.</span>
 
 ## Intro
 This quick tutorial will walk you through a simple example of how Witness can be used. To complete it
@@ -15,41 +16,94 @@ successfully, you will need the following:
 You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
 
 ### Get Rid of the Old Stuff
-If you have tried any of our other tutorials, you might have a `test.txt` lying around (if not, then you can skip the following command).
-It's important that you remove this as Witness will not record file hashes for products that exist in the filesystem before its invocation:
+If you tried any of our other tutorials, you might have some files lying around in the your working directory that will interfere with this tutorial. Be sure to get rid of them, particularly `test.txt`, as Witness will not record file hashes for products that exist in the filesystem before its invocation.
 
+Alternatively, you can run this tutorial in a fresh directory, just make sure to `git init` first.
+
+### Make sure to `git init`
+Witness expects that the current working directory is a git repository. If you are not in a git repository already, you can create a new one by running:
 ```
-rm test.txt
+git init
 ```
+
+You should now be able to run `git status` successfully.
 
 ## Let's Go!
 
 ### Run a build step and record the attestation
 First, we want to run simple example step, wrapped with Witness. This will create attestations that will later help us verify that it was run safely: 
 ```
-witness run -s test -o test.json --fulcio https://fulcio.sigstore.dev --fulcio-oidc-client-id https://oauth2.sigstore.dev/auth --fulcio-oidc-issuer sigstore --timestamp-servers https://freetsa.org/tsr -- echo "hello" > test.txt
+witness run -s test -o test.json --signer-fulcio-url https://fulcio.sigstore.dev --signer-fulcio-oidc-client-id sigstore --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth --timestamp-servers https://freetsa.org/tsr -- echo "hello" > test.txt
 ```
 
-Hold up a second, what's going on here? If you jumped 
+Wait! Don't run it yet! Make sure you know what's going on first.
+
+### What's Going on Here?
+Well, let's break down the flags called in this run command.
+
+#### The Familiar Flags
+- `-s test` - This is the name of the step we are running.
+- `-o test.json` - This is the name of the file we want to output our attestation to.
+
+#### The New Stuff
+
+If you jumped the gun and actually ran the above command, you might have been greeted by a login screen in your web browser.
+This is because we are using [Sigstore Keyless Signing](https://sigstore.dev/) to sign the attestations, rather than the static keys used in other
+tutorials.
+
+Sigstore is a service that provides public services for signing artifacts and attestations by leveraging
+[OpenID Connect](https://openid.net/connect/) and a special Certificate Authority (CA) that they call [Fulcio](https://docs.sigstore.dev/certificate_authority/overview/). This
+makes the signing process both more convenient for you, as you don't need to manage your own keys, and more secure, as you don't need to worry about those keys being compromised. 
+
+So breaking down the rest of the flags:
+- `--signer-fulcio-url https://fulcio.sigstore.dev` - This is the URL of the Fulcio service that we will use to sign our attestation.
+- `--signer-fulcio-oidc-client-id sigstore` - This is the client ID that we will use to authenticate with Fulcio.
+- `--signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth` - This is the OIDC issuer that we will use to authenticate with Fulcio.
+- `--timestamp-servers https://freetsa.org/tsr` - This is the timestamp server that we will use to timestamp our attestations.
+
+Neat right? If you're interested, we recommend learning more about [how Sigstore works](https://sigstore.dev/how-it-works).
+
+### Run the Magic ✨
+
+Now you should be safe to run the command from the [first step](#run-a-build-step-and-record-the-attestation). Following the steps in your browser
+should result in a message like "Sigstore Authentication Successful!". If you are using a terminal that doesn't support opening a browser, you can
+copy the link that is printed out and paste it into your browser manually.
+
+Afterwards, you should see the `witness run` command finished in your terminal with a silent `0` exit code.
+
 
 ### View the attestation data in the signed DSSE Envelope
+
+Next, you might want to view the attestation that you generated and saved to `test.json`:
 
 ```
 cat test.json | jq -r .payload | base64 -d | jq
 ```
 
+But this all means nothing if we can't trust it.
+
 ### Download the Fulcio Root CA
-
-The Fulcio Root CA is used to verify the Fulcio certificate chain it is available at https://fulcio.sigstore.dev/api/v2/trustBundle.
-
-### Create a Policy File
-
-Create a policy file that defines the attestations that are required for a build step to be considered valid.  Add the Fulcio Root CA to the policy file and as a functionary on the build step.  You can define constraints on the certificate that is used to sign the build step.  In this example we are requiring that the certificate be signed by the Fulcio Root CA and that the user that signed the certificate is `cole@testifysec.com`.  The Fulcio API provides both a root certificate and an intermidate in the bundle.  The Witness API requires that the root and the intermidate be included in the policy file.  Additionally, since Fulcio's certs are short lived we must also include a root of trust for the Timestamp.  Future versions of Witness will support retrieving and verifying the embeded timestamp in the certificate provided by Fulcio.
-
-- Make sure you replace my email with one that is associated with the account you used to sign the attestation.
-- Notice the name and identifier in the `steps` section of the policy file.  This corresponds with the `step` name indicated in the `witness run` command and in the `payload` section of the attestation.
+Sigstore Keyless Signing uses X.509 certificates to perform the signing of attestations. As such, we need to trust the Fulcio Certificate Authority (CA),
+which can be done by downloading the Fulcio Root CA Trust Bundle from the Fulcio API:
 
 ```
+curl -s https://fulcio.sigstore.dev/api/v2/trustBundle > fulcio.pem 
+```
+
+If you `cat fulcio.pem`, you should see some JSON with some certificates inside. This is the Fulcio Root CA Trust Bundle, which includes the Fulcio Root CA certificate,
+as well as the Fulcio Intermediate CA certificate. We will need both of these.
+
+You will also need the root certificate for the FreeTSA Timestamping Authority:
+
+```
+curl -s https://freetsa.org/files/cacert.pem > freetsa.pem
+```
+
+### Create a Policy File
+Here is an example policy template:
+
+```
+cat <<EOF >> policy-template.json
 {
   "expires": "2030-12-17T23:57:40-05:00",
   "steps": {
@@ -65,12 +119,20 @@ Create a policy file that defines the attestations that are required for a build
           "type": "root",
           "certConstraint": {
             "commonname": "*",
-            "dnsnames": ["*"],
-            "emails": ["cole@testifysec.com"],
-            "organizations": ["*"],
-            "uris": ["*"],
+            "dnsnames": [
+              "*"
+            ],
+            "emails": [
+              "{{EMAIL}}"
+            ],
+            "organizations": [
+              "*"
+            ],
+            "uris": [
+              "*"
+            ],
             "roots": [
-              "3ba7b6cc4e95469d4d334b49cb257ad8537076fa84b0ca87ff4ecfe6a54680c1"
+              "{{FULCIO_KEYID}}"
             ]
           }
         }
@@ -78,21 +140,119 @@ Create a policy file that defines the attestations that are required for a build
     }
   },
   "roots": {
-    "3ba7b6cc4e95469d4d334b49cb257ad8537076fa84b0ca87ff4ecfe6a54680c1": {
-      "certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNHakNDQWFHZ0F3SUJBZ0lVQUxuVmlWZm5VMGJySmFzbVJrSHJuL1VuZmFRd0NnWUlLb1pJemowRUF3TXdLakVWTUJNR0ExVUVDaE1NYzJsbmMzUnZjbVV1WkdWMk1SRXdEd1lEVlFRREV3aHphV2R6ZEc5eVpUQWVGdzB5TWpBME1UTXlNREEyTVRWYUZ3MHpNVEV3TURVeE16VTJOVGhhTURjeEZUQVRCZ05WQkFvVERITnBaM04wYjNKbExtUmxkakVlTUJ3R0ExVUVBeE1WYzJsbmMzUnZjbVV0YVc1MFpYSnRaV1JwWVhSbE1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFOFJWUy95c0grTk92dURaeVBJWnRpbGdVRjlObGFyWXBBZDlIUDF2QkJIMVU1Q1Y3N0xTUzdzMFppSDRuRTdIdjdwdFM2THZ2Ui9TVGs3OThMVmdNekxsSjRIZUlmRjN0SFNhZXhMY1lwU0FTcjFrUzBOL1JnQkp6LzlqV0NpWG5vM3N3ZVRBT0JnTlZIUThCQWY4RUJBTUNBUVl3RXdZRFZSMGxCQXd3Q2dZSUt3WUJCUVVIQXdNd0VnWURWUjBUQVFIL0JBZ3dCZ0VCL3dJQkFEQWRCZ05WSFE0RUZnUVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFlaRDh3SHdZRFZSMGpCQmd3Rm9BVVdNQWVYNUZGcFdhcGVzeVFvWk1pMENyRnhmb3dDZ1lJS29aSXpqMEVBd01EWndBd1pBSXdQQ3NRSzREWWlaWURQSWFEaTVIRktuZnhYeDZBU1NWbUVSZnN5bllCaVgyWDZTSlJuWlU4NC85RFpkbkZ2dnhtQWpCT3Q2UXBCbGM0Si8wRHh2a1RDcXBjbHZ6aUw2QkNDUG5qZGxJQjNQdTNCeHNQbXlnVVk3SWkyemJkQ2RsaWlvdz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ==",
+    "{{FULCIO_KEYID}}": {
+      "certificate": "{{FULCIO_ROOT}}",
       "intermediates": [
-        "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUI5ekNDQVh5Z0F3SUJBZ0lVQUxaTkFQRmR4SFB3amVEbG9Ed3lZQ2hBTy80d0NnWUlLb1pJemowRUF3TXcKS2pFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUkV3RHdZRFZRUURFd2h6YVdkemRHOXlaVEFlRncweQpNVEV3TURjeE16VTJOVGxhRncwek1URXdNRFV4TXpVMk5UaGFNQ294RlRBVEJnTlZCQW9UREhOcFozTjBiM0psCkxtUmxkakVSTUE4R0ExVUVBeE1JYzJsbmMzUnZjbVV3ZGpBUUJnY3Foa2pPUFFJQkJnVXJnUVFBSWdOaUFBVDcKWGVGVDRyYjNQUUd3UzRJYWp0TGszL09sbnBnYW5nYUJjbFlwc1lCcjVpKzR5bkIwN2NlYjNMUDBPSU9aZHhleApYNjljNWlWdXlKUlErSHowNXlpK1VGM3VCV0FsSHBpUzVzaDArSDJHSEU3U1hyazFFQzVtMVRyMTlMOWdnOTJqCll6QmhNQTRHQTFVZER3RUIvd1FFQXdJQkJqQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01CMEdBMVVkRGdRV0JCUlkKd0I1ZmtVV2xacWw2ekpDaGt5TFFLc1hGK2pBZkJnTlZIU01FR0RBV2dCUll3QjVma1VXbFpxbDZ6SkNoa3lMUQpLc1hGK2pBS0JnZ3Foa2pPUFFRREF3TnBBREJtQWpFQWoxbkhlWFpwKzEzTldCTmErRURzRFA4RzFXV2cxdENNCldQL1dIUHFwYVZvMGpoc3dlTkZaZ1NzMGVFN3dZSTRxQWpFQTJXQjlvdDk4c0lrb0YzdlpZZGQzL1Z0V0I1YjkKVE5NZWE3SXgvc3RKNVRmY0xMZUFCTEU0Qk5KT3NRNHZuQkhKCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0="
+        "{{FULCIO_INT}}"
       ]
     }
   },
   "timestampauthorities": {
     "freetsa": {
-      "certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUgvekNDQmVlZ0F3SUJBZ0lKQU1IcGhoWU5xT21BTUEwR0NTcUdTSWIzRFFFQkRRVUFNSUdWTVJFd0R3WUQKVlFRS0V3aEdjbVZsSUZSVFFURVFNQTRHQTFVRUN4TUhVbTl2ZENCRFFURVlNQllHQTFVRUF4TVBkM2QzTG1aeQpaV1YwYzJFdWIzSm5NU0l3SUFZSktvWklodmNOQVFrQkZoTmlkWE5wYkdWNllYTkFaMjFoYVd3dVkyOXRNUkl3CkVBWURWUVFIRXdsWGRXVnllbUoxY21jeER6QU5CZ05WQkFnVEJrSmhlV1Z5YmpFTE1Ba0dBMVVFQmhNQ1JFVXcKSGhjTk1UWXdNekV6TURFMU1qRXpXaGNOTkRFd016QTNNREUxTWpFeldqQ0JsVEVSTUE4R0ExVUVDaE1JUm5KbApaU0JVVTBFeEVEQU9CZ05WQkFzVEIxSnZiM1FnUTBFeEdEQVdCZ05WQkFNVEQzZDNkeTVtY21WbGRITmhMbTl5Clp6RWlNQ0FHQ1NxR1NJYjNEUUVKQVJZVFluVnphV3hsZW1GelFHZHRZV2xzTG1OdmJURVNNQkFHQTFVRUJ4TUoKVjNWbGNucGlkWEpuTVE4d0RRWURWUVFJRXdaQ1lYbGxjbTR4Q3pBSkJnTlZCQVlUQWtSRk1JSUNJakFOQmdrcQpoa2lHOXcwQkFRRUZBQU9DQWc4QU1JSUNDZ0tDQWdFQXRnS09EakF5OFJFUTJXVE5xVXVkQW5qaGxDcnBFNnFsCm1RZk5wcGVUbVZ2WnJINHp1dG4rTndUYUhBR3BqU0d2NC9XUnBaMXdaM0JSWjVtUFVCWnlMZ3EwWXJJZlE1RngKMHMvTVJaUHpjMXIzbEtXck1SOXNBUXg0bU40ejExeEZFTzUyOUwwZEZKalBGOU1EOEdwZDJmZVd6R3lwdGxlbApiK1BxVCsrK2ZPYTJvWTArTmFNTTdsL3hjTkhQT2FNejAvMm9sazBpMjJoYktlVmh2b2tQQ3FoRmh6c3VoS3NtCnE0T2Yvbyt0NmRJN3N4NWgwblBNbTRnR1NSaGZxK3o2QlRSZ0NycVFHMkZPTG9WRmd0NmlJbS9Cbk5mZlVyN1YKRFlkM3pabUl3Rk9qL0gzREtIb0dpay94SzNFODJZQTJadWxWT0ZSVy96ajRBcGpQYTVPRmJwSWtkMHBtenh6ZApFY0w0NzloU0E5ZEZpeVZtU3hQdFk1emUxUCtCRTliTVUxUFNjcFJ6dzhNSEZYeHlLcVcxM1F2N0xXdzRzYmszClNjaUI3R0FDYlFpVkd6Z2t2WEc2eTg1SE91dldOdkM1R0xTaXlQOUdsUEIwVjY4dGJ4ejRKVlRSZHcvWG4vWFQKRk56UkJNM2NxOGxCT0FWdC9QQVg1K3VGY3YxUzl3RkU4WWphQmZXQ1AxamRCaWwrYzRlKzB0ZHl3VDJvSm1ZQgpCRi9rRXQxd21Hd01tSHVuTkV1UU56aDFGdEpZNTRoYlVmaVdpMzhtQVNFN3hNdE1oZmovQzRTdmFwaUROODM3CmdZYVBmczh4M0taeGJYN0MzWUFzRm5KaW5sd0FVc3MxZmRLYXI4US9ZVnM3SC9uVTRjNEl4eHh6NGY2N2ZjVnEKTTJJVEtlbnRiQ01DQXdFQUFhT0NBazR3Z2dKS01Bd0dBMVVkRXdRRk1BTUJBZjh3RGdZRFZSMFBBUUgvQkFRRApBZ0hHTUIwR0ExVWREZ1FXQkJUNlZRMk1OR1pSUTB6MzU3T25iSld2ZXVha2x6Q0J5Z1lEVlIwakJJSENNSUcvCmdCVDZWUTJNTkdaUlEwejM1N09uYkpXdmV1YWtsNkdCbTZTQm1EQ0JsVEVSTUE4R0ExVUVDaE1JUm5KbFpTQlUKVTBFeEVEQU9CZ05WQkFzVEIxSnZiM1FnUTBFeEdEQVdCZ05WQkFNVEQzZDNkeTVtY21WbGRITmhMbTl5WnpFaQpNQ0FHQ1NxR1NJYjNEUUVKQVJZVFluVnphV3hsZW1GelFHZHRZV2xzTG1OdmJURVNNQkFHQTFVRUJ4TUpWM1ZsCmNucGlkWEpuTVE4d0RRWURWUVFJRXdaQ1lYbGxjbTR4Q3pBSkJnTlZCQVlUQWtSRmdna0F3ZW1HRmcybzZZQXcKTXdZRFZSMGZCQ3d3S2pBb29DYWdKSVlpYUhSMGNEb3ZMM2QzZHk1bWNtVmxkSE5oTG05eVp5OXliMjkwWDJOaApMbU55YkRDQnp3WURWUjBnQklISE1JSEVNSUhCQmdvckJnRUVBWUh5SkFFQk1JR3lNRE1HQ0NzR0FRVUZCd0lCCkZpZG9kSFJ3T2k4dmQzZDNMbVp5WldWMGMyRXViM0puTDJaeVpXVjBjMkZmWTNCekxtaDBiV3d3TWdZSUt3WUIKQlFVSEFnRVdKbWgwZEhBNkx5OTNkM2N1Wm5KbFpYUnpZUzV2Y21jdlpuSmxaWFJ6WVY5amNITXVjR1JtTUVjRwpDQ3NHQVFVRkJ3SUNNRHNhT1VaeVpXVlVVMEVnZEhKMWMzUmxaQ0IwYVcxbGMzUmhiWEJwYm1jZ1UyOW1kSGRoCmNtVWdZWE1nWVNCVFpYSjJhV05sSUNoVFlXRlRLVEEzQmdnckJnRUZCUWNCQVFRck1Da3dKd1lJS3dZQkJRVUgKTUFHR0cyaDBkSEE2THk5M2QzY3VabkpsWlhSellTNXZjbWM2TWpVMk1EQU5CZ2txaGtpRzl3MEJBUTBGQUFPQwpBZ0VBYUs5K3Y1T0ZZdTlNNnp0WUMrTDY5c3cxb21keWxpODlsWkFmcFdNTWg5Q1JtSmhNNktCcU0vaXB3b0x0Cm54eXhHc2JDUGhjUWp1VHZ6bSt5bE42VndUTW1JbFZ5VlNMS1laY2RTanQvZUNVTis0MUs3c0Q3R1ZteFpCQUYKSUxuQkRtVEdKbUxrclUwS3V1SXBqOGxJL0U2WjZObm11UDIrUkFRU0hzZkJRaTZzc3NuWE1vNEhPVzVndFBPNwpnRHJVcFZYSUQrKzFQNFhuZGtvS243U3Z3NW4welM5ZnYxaHhCY1lJSFBQUVV6ZTJ1MzBiQVF0MG4waUl5Ukx6CmFXdWh0cEF0ZDdmZndFYkFTZ3pCN0UrTkdGNHRwVjM3ZThLaUEyeGlHU1JxVDVuZHUyOGZncE9ZODdnRDNBcloKRGN0WnZ2VENmSGRBUzVrRU8zZ25HR2VaRVZMRG1mRXN2OFRHSmEzQWxqVmE1RTQwSVFEc1VYcFFMaThHK1VDNAoxRFdadThFVlQ0cm5ZYUN3MVZYN1NoT1IxUE5DQ3ZqYjhTOHRmZHVkZDl6aFUzZ0VCMHJ4ZGVUeTF0VmJOTFhXCjk5eTkweGN3cjFaSURVd00veFEvbm9POEZSaG0wTG9QQzczRWYrSjRaQmRydld3YXVGM3pKZTMzZDRpYnhFY2IKOC9wejVXekZrZWl4WU0ybnNIaHFIc0JLdzdKUG91S05YUm5sNUlBRTFlRm1xRHlDN0cvVlQ3T0Y2Njl4TTZoYgpVdDVHMjFKRTRjTks2Tk51Y1MrZnpnMUpQWDArM1Zoc1laamo3RDV1bGpSdlFYcko4aUhnci9NNmoyb0xIdlRBCkkyTUxkcTJxalpGRE9DWHN4QnhKcGJtTEdCeDlvdzZaZXJsVXh6d3MyQVd2MnBrPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t"
+      "certificate": "{{FREETSA_ROOT}}"
     }
   }
 }
+EOF
+```
+You can save this to a file locally by copying the above code, pasting it into your terminal and pressing enter. This will create a file named `policy-template.json` in your current working directory.
+
+#### Things to Note
+There are a couple of fields to note in this template policy file:
+
+In the template we have defined a single functionary for the `test` step. This functionary is of type `root`, which means that it will be verified against an X.509 Root CA (Fulcio):
+```json
+  "functionaries": [
+    {
+      "type": "root",
+  ...
+```
+There is also a `certConstraint` field within the `type: root` functionary, which is used to define constraints on the certificate that is used to sign the attestation. In this case, we are requiring that the certificate be signed by the Fulcio Root CA (by referencing the KEYID) and that the certificate contains the email address
+of the user that signed the attestation:
+```json
+  "certConstraint": {
+    "commonname": "*",
+    "dnsnames": ["*"],
+    "emails": ["{{EMAIL}}"],
+    "organizations": ["*"],
+    "uris": ["*"],
+    "roots": [
+      "{{FULCIO_KEYID}}"
+    ]
+  }
+  ...
+```
+
+Next, there is a `roots` field, which is where the details of the X.509 Root CA defined above will be stored. The Key ID will be the same as above (the sha256sum of the root certificate), and we are supplying the root and intermediate certificate of the CA that we expect has signed the certificate that was used to sign the artifact:
+
+```json
+  "roots": {
+    "{{FULCIO_KEYID}}": {
+      "certificate": "{{FULCIO_ROOT}}",
+      "intermediates": [
+        "{{FULCIO_INT}
+      ]
+    }
+  },
+```
+
+Finally, there is a `timestampauthorities` field, which is where the details of the timestamp authority will be stored. The Key ID will again be the sha256sum of the root certificate, and we are supplying the certificate of the timestamp authority ([freetsa](https://freetsa.org/index_en.php)) that we expect was used to timestamp the artifact in base64 encoded form:
+```json
+  "timestampauthorities": {
+    "freetsa": {
+      "certificate": "{{FREETSA_ROOT}}"
+    }
+  }
+```
+
+It should be noted that the the Witness requires that the root and the intermidate be included in the policy file.  
+
+### Templating the Policy
+Before we can use the policy, we need to populate it with the base64 encoded certificates that belong to Fulcio and FreeTSA, their `sha256sum`'d Key IDs, and the email address that you used to authenticate with Sigstore through the web browser.
+While it might be fun for some to do this manually (I'm looking at you VIM power users), we have provided a script to do this for you:
+
+*Note: This script uses the shasum tool on MacOS and sha256sum on Linux. If you are using a different operating system, you may need to modify the script to use the appropriate tool. Contributions to make this script more portable are welcome!*
 
 ```
+cat << 'EOF' > template-policy.sh
+
+email="$1"
+fulcio_root="$(cat fulcio.pem | jq -r '.chains.[0].certificates.[0]')"
+fulcio_int="$(cat fulcio.pem | jq -r '.chains.[0].certificates.[1]')"
+freetsa_root="$(cat freetsa.pem)"
+fulcio_root_b64="$(echo "$fulcio_root" | openssl base64 -A)"
+fulcio_int_b64="$(echo "$fulcio_int" | openssl base64 -A)"
+freetsa_root_b64="$(echo "$freetsa_root" | openssl base64 -A)"
+
+cp policy-template.json policy.json
+
+# Use double quotes around variables in sed commands to preserve newlines
+sed -i '' "s|{{FULCIO_ROOT}}|$fulcio_root_b64|g" policy.json
+sed -i '' "s|{{FULCIO_INT}}|$fulcio_int_b64|g" policy.json
+sed -i '' "s|{{FREETSA_ROOT}}|$freetsa_root_b64|g" policy.json
+sed -i '' "s|{{EMAIL}}|$email|g" policy.json
+
+# Calculate SHA256 hash (macOS and Linux compatible)
+if [[ "$(uname)" == "Darwin" ]]; then
+	fulcio_keyid="$(echo -n "$fulcio_root" | shasum -a 256 | awk '{print $1}')"
+	sed -i '' "s|{{FULCIO_KEYID}}|$fulcio_keyid|g" policy.json
+else
+	fulcio_keyid="$(echo -n "$fulcio_root" | sha256sum | awk '{print $1}')"
+	sed -i '' "s|{{FULCIO_KEYID}}|$fulcio_keyid|g" policy.json
+fi
+EOF
+chmod +x template-policy.sh
+```
+
+Once again, you can save this to a file locally by copying the above code, pasting it into your terminal and pressing enter. This will create a file named template-policy.sh in your current working directory, but also make it executable (with `chmod +x`).
+
+Now you can go ahead and run the script with a single argument which you must set to be the email address that you used to authenticate to Sigstore with in the web browser earlier, e.g.,:
+
+```
+./template-policy.sh witty@in-toto.io
+```
+
+This should create a file named `policy.json` in your current working directory. Nice!
 
 ### Sign the policy file
 
