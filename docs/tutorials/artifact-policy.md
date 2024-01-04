@@ -1,5 +1,7 @@
 # Verifying an Artifact with a Witness Policy
 
+><span style={{fontSize: '0.9em'}}>💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first!</span>
+
 ## Intro
 This quick tutorial will walk you through a simple example of how Witness can be used. To complete it
 successfully, you will need the following:
@@ -297,6 +299,12 @@ witness verify -k policypublic.pem -p policy.signed.json -a build-attestation.js
 - `-f hello.txt` specifies the artifact that was produced by the pipeline.
 
 
+### You did it! 🎉
 If the attestations meet the requirements specified in the policy, the witness verify command will output a message indicating that the verification succeeded along with references to the evidence. If the attestations do not meet the requirements, the witness verify command will output an error message indicating which requirement was not met.
 
+## What's Next?
+If you enjoyed this tutorial, you might enjoy learning about how Witness can be used to sign attestations without any keys! Sound intriguing? [Let's go!](./sigstore-keyless.md)
+
+
+## Did You Know?
 One of the key benefits of using Witness is that it is not only a standalone tool, but also a library that can be embedded into other applications such as admission controllers and runtime visibility tooling. Be sure to check out go-witness [here](https://github.com/in-toto/go-witness).

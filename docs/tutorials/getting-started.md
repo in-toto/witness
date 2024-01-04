@@ -11,7 +11,9 @@ successfully, you will need the following:
 
 You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
 
-## 1. Create a Keypair
+## Let's Go!
+
+### 1. Create a Keypair
 
 ><span style={{fontSize:'0.9em'}}>💡 Tip: Witness supports keyless signing with [SPIRE](https://spiffe.io/)!</span>
 ```
@@ -19,7 +21,7 @@ openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
 openssl pkey -in testkey.pem -pubout > testpub.pem
 ```
 
-## 2. Create a Witness Configuration
+### 2. Create a Witness Configuration
 ><span style={{fontSize: '0.9em'}}>💡 Tip: Witness supports creating attestations for a wide variety of services,
 > including Github Actions </span>
 
@@ -41,7 +43,7 @@ verify:
     publickey: testpub.pem
 ```
 
-## 3. Record attestations for a build step
+### 3. Record attestations for a build step
 ><span style={{fontSize: '0.9em'}}>💡 Tip: You can upload the recorded attestations to an [Archivista](https://github.com/in-toto/archivista) server by using the `--enable-archivista` flag!</span>
 - The `-a {attestor}` flag allows you to define which attestors run
 - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
@@ -52,7 +54,7 @@ verify:
 witness run --step build -o test-att.json -- go build -o=testapp .
 ```
 
-## 4. View the attestation data in the signed DSSE Envelope
+### 4. View the attestation data in the signed DSSE Envelope
 
 - This data can be stored and retrieved from Archivista
 - This is the data that is evaluated against the Rego policy
@@ -61,7 +63,7 @@ witness run --step build -o test-att.json -- go build -o=testapp .
 cat test-att.json | jq -r .payload | base64 -d | jq
 ```
 
-## 5. Create a Policy File
+### 5. Create a Policy File
 
 Look [here](docs/policy.md) for full documentation on Witness Policies.
 
@@ -109,14 +111,14 @@ Look [here](docs/policy.md) for full documentation on Witness Policies.
 }
 ```
 
-## 6. Replace the variables in the policy
+### 6. Replace the variables in the policy
 
 ```
 id=`sha256sum testpub.pem | awk '{print $1}'` && sed -i "s/{{PUBLIC_KEY_ID}}/$id/g" policy.json
 pubb64=`cat testpub.pem | base64 -w 0` && sed -i "s/{{B64_PUBLIC_KEY}}/$pubb64/g" policy.json
 ```
 
-## 7. Sign The Policy File
+### 7. Sign The Policy File
 
 Keep this key safe, its owner will control the policy gates.
 
@@ -124,12 +126,15 @@ Keep this key safe, its owner will control the policy gates.
 witness sign -f policy.json --signer-file-key-path testkey.pem --outfile policy-signed.json
 ```
 
-## 8. Verify the Binary Meets Policy Requirements
+### 8. Verify the Binary Meets Policy Requirements
 
 This process works across air-gap as long as you have the signed policy file, correct binary, and public key or certificate authority corresponding to the private 
-key that signed the policy. `witness verify` will return a `non-zero` exit and reason in the case of failure. Success will be silent with a `0` exit status for
-policies that require multiple steps, multiple attestations are required.
-
+key that signed the policy.
 ```
 witness verify -f testapp -a test-att.json -p policy-signed.json -k testpub.pem
 ```
+### 9. Profit
+`witness verify` will return a `non-zero` exit and reason in the case of failure, but hopefully you should have gotten sweet sweet silence with a `0` exit status, victory! If not, try again and if that fails please [file an issue](https://github.com/in-toto/witness/issues/new/choose)!
+
+## What's Next?
+If you enjoyed this intro to Witness, you might benefit from taking things a step further by learning about [Witness Policies](./artifact-policy.md).

@@ -1,4 +1,4 @@
-# Witness Configuration
+# Configuration
 
 Witness allows the user to specify a `yaml` file for persisting the command line flags to be set whenever Witness is invoked. Any values in the configuration file will be overridden by the command line flags set on command invocation.
 
