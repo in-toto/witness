@@ -10,7 +10,7 @@
 <span style={{fontSize: '0.85em'}}>`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span>
 </center>
 
-<img src="https://raw.githubusercontent.com/chaosinthecrd/witness/readme-docs-restructure/.github/images/logo.png" align="right"
+<img src="https://raw.githubusercontent.com/chaosinthecrd/witness/readme-docs-restructure/witness-website/static/img/logo.png" align="right"
      alt="Witness project logo" width="200"></img>
 
 ### What does Witness do?
