@@ -7,9 +7,12 @@
 [CONTRIBUTING](../CONTRIBUTING.md) • 
 [LICENSE](../LICENSE)**  
 
-<span style={{fontSize: '0.85em'}}>`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`</span>
+`bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`
 </center>
 
+<!---
+NOTE: MUST CHANGE URL TO LOGO BEFORE MERGING
+-->
 <img src="https://raw.githubusercontent.com/chaosinthecrd/witness/readme-docs-restructure/witness-website/static/img/logo.png" align="right"
      alt="Witness project logo" width="200"></img>
 
@@ -68,7 +71,9 @@ Check out some of the content out in the wild that gives more detail on how the 
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
-[demo]: docs/assets/demo.gif "Demo"
-
+<!---
+NOTE: MUST CHANGE URL TO LOGO BEFORE MERGING
+-->
+[demo]: https://raw.githubusercontent.com/chaosinthecrd/witness/readme-docs-restructure/docs/assets/demo.gif "Demo"
 ## Background
 This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
