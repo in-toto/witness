@@ -87,3 +87,8 @@
   width: 30px;
 }
 
+.tip-text {
+    font-size: 0.9em;
+    /* Add any other styles you need for the tip text */
+}
+

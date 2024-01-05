@@ -17,10 +17,10 @@ NOTE: MUST CHANGE URL TO LOGO BEFORE MERGING
      alt="Witness project logo" width="200"></img>
 
 ### What does Witness do?
-✏️ **Attests** - <span style={{fontSize: '0.9em'}}>Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
+✏️ **Attests** - <span class="tip-text">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
 audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span>
 
-**🧐 Verifies** - <span style={{fontSize: '0.9em'}}>Witness also features its own policy engine with embedded support for OPA Rego, so you can
+**🧐 Verifies** - <span class="tip-text">Witness also features its own policy engine with embedded support for OPA Rego, so you can
 ensure that your software was handled safely from source to deployment.</span>
 
 ### What can you do with Witness?

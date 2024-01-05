@@ -15,14 +15,14 @@ You will also of course need to have witness installed, which can be achieved by
 
 ### 1. Create a Keypair
 
-><span style={{fontSize:'0.9em'}}>💡 Tip: Witness supports keyless signing with [SPIRE](https://spiffe.io/)!</span>
+><span class="tip-text">💡 Tip: Witness supports keyless signing with [SPIRE](https://spiffe.io/)!</span>
 ```
 openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
 openssl pkey -in testkey.pem -pubout > testpub.pem
 ```
 
 ### 2. Create a Witness Configuration
-><span style={{fontSize: '0.9em'}}>💡 Tip: Witness supports creating attestations for a wide variety of services,
+><span class="tip-text">💡 Tip: Witness supports creating attestations for a wide variety of services,
 > including Github Actions </span>
 
 - This file generally resides in your source code repository along with the public keys generated above.
@@ -44,7 +44,7 @@ verify:
 ```
 
 ### 3. Record attestations for a build step
-><span style={{fontSize: '0.9em'}}>💡 Tip: You can upload the recorded attestations to an [Archivista](https://github.com/in-toto/archivista) server by using the `--enable-archivista` flag!</span>
+><span class="tip-text">💡 Tip: You can upload the recorded attestations to an [Archivista](https://github.com/in-toto/archivista) server by using the `--enable-archivista` flag!</span>
 - The `-a {attestor}` flag allows you to define which attestors run
 - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
 - Defining step names is important, these will be used in the policy.

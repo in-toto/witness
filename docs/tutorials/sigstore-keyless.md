@@ -1,6 +1,6 @@
 # Signing Attestations with Sigstore Keyless
 
-><span style={{fontSize: '0.9em'}}>💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first! You might 
+><span class="tip-text">💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first! You might 
 also benefit from trying the [Witness Policy](./artifact-policy.md) tutorial, as it gives key insight into how to create more simple policies.</span>
 
 ## Intro

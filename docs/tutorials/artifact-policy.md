@@ -1,6 +1,6 @@
 # Verifying an Artifact with a Witness Policy
 
-><span style={{fontSize: '0.9em'}}>💡 Tip: If this is your first time using Witness, you might benefit from trying the [Getting Started](./getting-started.md) tutorial first!</span>
+<span class="tip-text">💡 Tip: If this is your first time using Witness, you might benefit from trying the <a href="./getting-started.md">Getting Started</a> tutorial first!</span>
 
 ## Intro
 This quick tutorial will walk you through a simple example of how Witness can be used. To complete it
