@@ -17,7 +17,7 @@ jobs:
           with:
             go-version: '1.18.x'
         - name: Install addlicense
-          run: go install github.com/google/addlicense@latest
+          run: go install github.com/google/addlicense@v1.1.1
         - name: Check license headers
           run: |
             set -e
