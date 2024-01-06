@@ -21,6 +21,14 @@ gomod:
   proxy: false
 source:
   enabled: true
+signs:
+  - cmd: cosign
+    args:
+      - "sign-blob"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+    artifacts: all
 changelog:
   use: github
   groups:
@@ -49,3 +57,11 @@ kos:
     platforms:
     - linux/amd64
     - linux/arm64
+    sbom: spdx
+docker_signs:
+  - artifacts: manifests
+    cmd: cosign
+    args:
+      - "sign"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
