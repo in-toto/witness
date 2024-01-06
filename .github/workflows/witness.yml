@@ -40,9 +40,15 @@ on:
                 required: true
                 type: string
 
+permissions:
+  contents: read
+
 jobs:
     witness:
         runs-on: ubuntu-latest
+        permissions:
+          contents: read
+          id-token: write
         steps:
           - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
           - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
