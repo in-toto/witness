@@ -1,11 +1,12 @@
-[![OpenSSF-Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
-[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness?ref=badge_shield&issueType=license)
-
 <p align="center">
   <img src="docs/assets/logo.png" width="250">
   <br>
   Witness is a pluggable framework for supply chain security
 </p>
+
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8280/badge)](https://www.bestpractices.dev/projects/8280)
+[![OpenSSF-Scorecard](https://api.securityscorecards.dev/projects/github.com/testifysec/witness/badge)](https://api.securityscorecards.dev/projects/github.com/testifysec/witness)
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness?ref=badge_shield&issueType=license)
 
 [![asciicast](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D.svg)](https://asciinema.org/a/2DZRRh8uzrzHcUVL8md86Zj4D)
 
@@ -26,22 +27,24 @@ Witness works by wrapping commands executed in a continuous integration process,
 
 ## Witness is a pluggable framework for supply chain security
 
- - It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
- - It is designed to run in both containerized and non-containerized environments and does not require elevated privileges.
- - It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
- - It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
+- It creates an evidence trail of the entire software development life cycle (SDLC) that can be used to evaluate policy compliance and detect any potential tampering or malicious activity.
+- It is designed to run in both containerized and non-containerized environments and does not require elevated privileges.
+- It supports most major CI and infrastructure providers, making it a versatile and flexible solution for securing software supply chains.
+- It uses a secure PKI distribution system and allows for verification of Witness metadata to further enhance security and mitigate against software supply chain attack vectors.
 
 ## Key Features
- - Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
- - Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivista server.
- - Support for RFC3161 compatible timestamp authorities
- - Experimental support for process tracing and process tampering prevention.
- - Verifies file integrity between CI steps and across air gap.
- - Support for Darwin, Windows, and ARM architectures.
- - Can use Archivista as an attestation store.
- - Integrations with GitLab, GitHub, AWS, and GCP.
+
+- Implementation of the in-toto specification including ITE-5, ITE-6, and ITE-7, and an embedded rego policy engine for build policy enforcement.
+- Support for keyless signing with Sigstore and SPIFFE/SPIRE, and uploading attestation evidence to the Archivista server.
+- Support for RFC3161 compatible timestamp authorities
+- Experimental support for process tracing and process tampering prevention.
+- Verifies file integrity between CI steps and across air gap.
+- Support for Darwin, Windows, and ARM architectures.
+- Can use Archivista as an attestation store.
+- Integrations with GitLab, GitHub, AWS, and GCP.
 
 ## How it works
+
 - Witness wraps commands executed during a continuous integration process to create an evidence trail of the entire software development life cycle (SDLC)
 - It records secure hashes of materials, artifacts, and events that occur during the CI process
 - This evidence can be used to evaluate policy compliance, detect tampering or malicious activity, and ensure only authorized users or machines complete a step of the process
@@ -53,7 +56,6 @@ Witness works by wrapping commands executed in a continuous integration process,
 - It offers experimental support for tracing and process tampering prevention and can verify file integrity between CI steps and across air gap
 - It supports Darwin, Windows, and ARM architectures and can use [Archivista](https://github.com/testifysec/archivista) as an attestation store
 - Overall, Witness acts as a comprehensive framework for automated governance, providing a robust solution for securing the software supply chain.
-
 
 ## Witness Examples
 
@@ -117,19 +119,20 @@ Witness works by wrapping commands executed in a continuous integration process,
 ## Quick Start
 
 ### Download the Binary
+
 Download from the releases page or use the install script to download the latest release.
 
 [Releases](https://github.com/testifysec/witness/releases)
-```
+
+```bash
 bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)
 ```
-
 
 ### Create a Keypair
 
 > Witness supports keyless signing with [SPIRE](https://spiffe.io/)!
 
-```
+```bash
 openssl genpkey -algorithm ed25519 -outform PEM -out testkey.pem
 openssl pkey -in testkey.pem -pubout > testpub.pem
 ```
@@ -141,7 +144,7 @@ openssl pkey -in testkey.pem -pubout > testpub.pem
 > - `witness help` will show all configuration options
 > - command-line arguments overrides configuration file values.
 
-```
+```yaml
 ## .witness.yaml
 
 run:
@@ -161,7 +164,7 @@ verify:
 > - Defining step names is important, these will be used in the policy.
 > - This should happen as a part of a CI step
 
-```
+```bash
 witness run --step build -o test-att.json -- go build -o=testapp .
 ```
 
@@ -170,7 +173,7 @@ witness run --step build -o test-att.json -- go build -o=testapp .
 > - This data can be stored and retrieved from Archivista
 > - This is the data that is evaluated against the Rego policy
 
-```
+```bash
 cat test-att.json | jq -r .payload | base64 -d | jq
 ```
 
@@ -184,7 +187,7 @@ Look [here](docs/policy.md) for full documentation on Witness Policies.
 > - Witness will require all attestations to succeed
 > - Witness will evaluate the rego policy against the JSON object in the corresponding attestor
 
-```
+```json
 ## policy.json
 
 {
@@ -224,7 +227,7 @@ Look [here](docs/policy.md) for full documentation on Witness Policies.
 
 ### Replace the variables in the policy
 
-```
+```bash
 id=`sha256sum testpub.pem | awk '{print $1}'` && sed -i "s/{{PUBLIC_KEY_ID}}/$id/g" policy.json
 pubb64=`cat testpub.pem | base64 -w 0` && sed -i "s/{{B64_PUBLIC_KEY}}/$pubb64/g" policy.json
 ```
@@ -233,7 +236,7 @@ pubb64=`cat testpub.pem | base64 -w 0` && sed -i "s/{{B64_PUBLIC_KEY}}/$pubb64/g
 
 Keep this key safe, its owner will control the policy gates.
 
-```
+```bash
 witness sign -f policy.json --signer-file-key-path testkey.pem --outfile policy-signed.json
 ```
 
@@ -243,7 +246,7 @@ witness sign -f policy.json --signer-file-key-path testkey.pem --outfile policy-
 > `witness verify` will return a `non-zero` exit and reason in the case of failure. Success will be silent with a `0` exit status
 > for policies that require multiple steps, multiple attestations are required.
 
-```
+```bash
 witness verify -f testapp -a test-att.json -p policy-signed.json -k testpub.pem
 ```
 
@@ -253,7 +256,7 @@ witness verify -f testapp -a test-att.json -p policy-signed.json -k testpub.pem
 
 Witness attestors are pieces of code that assert facts about a system and store those facts in a versioned schema. Each attestor has a `Name`, `Type`, and `RunType`. The `Type` is a versioned string corresponding to the JSON schema of the attestation. For example, the AWS attestor is defined as follows:
 
-```
+```go
   Name    = "aws"
   Type    = "https://witness.dev/attestations/aws/v0.1"
   RunType = attestation.PreRunType
@@ -286,6 +289,7 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 ## Attestor Types
 
 ### Pre-material Attestors
+
 - [AWS](docs/attestors/aws-iid.md) - Attestor for AWS Instance Metadata
 - [GCP](docs/attestors/gcp-iit.md) - Attestor for GCP Instance Identity Service
 - [GitLab](docs/attestors/gitlab.md) - Attestor for GitLab Pipelines
@@ -295,12 +299,15 @@ Examples of cryptographic validation is found in the [GCP](https://github.com/te
 - [JWT](docs/attestors/jwt.md) - Attestor for JWT Tokens
 
 ### Material Attestors
+
 - [Material](docs/attestors/material.md) - Records secure hashes of files in current working directory
 
 ### Execute Attestors
+
 - [CommandRun](docs/attestors/commandrun.md) - Records traces and metadata about the actual process being run
 
 ### Product Attestors
+
 - [Product](docs/attestors/product.md) - Records secure hashes of files produced by commandrun attestor (only detects new files)
 
 ### Post-product Attestors
@@ -334,7 +341,6 @@ A witness policy allows administrators to trace the compliance status of an arti
 Witness can consume ephemeral keys from a [SPIRE](https://github.com/spiffe/spire) node agent. Configure witness with the flag `--spiffe-socket` to enable keyless signing.
 
 During the verification process witness will use a source of trusted time such as a timestamp from a timestamp authority to make a determination on certificate validity. The SPIRE certificate only needs to remain valid long enough for a timestamp to be created.
-
 
 ## Support
 
