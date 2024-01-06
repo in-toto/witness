@@ -1,11 +1,30 @@
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+# Copyright 2022 The Witness Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: release
 on: [push, pull_request]
+
+permissions:
+  contents: read  # This is required for actions/checkout
+
+
 jobs:
   fmt:
     uses: ./.github/workflows/witness.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
     with:
       pull_request: ${{ github.event_name == 'pull_request' }}
       step: fmt
@@ -15,6 +34,9 @@ jobs:
   sast:
     needs: [fmt]
     uses: ./.github/workflows/witness.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
     with:
       pull_request: ${{ github.event_name == 'pull_request' }}
       step: sast
@@ -24,6 +46,9 @@ jobs:
   unit-test:
     needs: [fmt]
     uses: ./.github/workflows/witness.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
     with:
       pull_request: ${{ github.event_name == 'pull_request' }}
       step: unit-test
@@ -68,7 +93,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download GoReleaser
-        run: go install github.com/goreleaser/goreleaser@latest
+        run: go install github.com/goreleaser/goreleaser@v1.23.0
 
       - name: Run GoReleaser
         uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
