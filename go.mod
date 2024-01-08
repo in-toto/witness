@@ -1,15 +1,22 @@
 module github.com/in-toto/witness
 
-go 1.19
+go 1.21
+
+toolchain go1.21.4
+
+replace github.com/in-toto/go-witness => ../go-witness
+
+replace github.com/in-toto/go-witness/signer/kms/aws => ../go-witness/signer/kms/aws
 
 require (
 	github.com/in-toto/go-witness v0.2.0
+	github.com/in-toto/go-witness/signer/kms/aws v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
-	k8s.io/apimachinery v0.26.11
+	k8s.io/apimachinery v0.26.12
 )
 
 require (
@@ -32,6 +39,20 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230828082145-3c4c8a2d2371 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.334 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.24.0 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.26.2 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.16.13 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.10 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.7.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.10.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/kms v1.27.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.18.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.26.6 // indirect
+	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
@@ -58,6 +79,7 @@ require (
 	github.com/in-toto/archivista v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
+	github.com/jellydator/ttlcache/v3 v3.1.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/letsencrypt/boulder v0.0.0-20221109233200-85aa52084eaf // indirect
@@ -92,6 +114,7 @@ require (
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

@@ -30,6 +30,7 @@ import (
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
+	_ "github.com/in-toto/go-witness/signer/kms/aws"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -120,7 +121,6 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
 	)
-
 	if err != nil {
 		return err
 	}
