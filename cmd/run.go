@@ -28,6 +28,7 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
+	_ "github.com/in-toto/go-witness/signer/kms/aws"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
