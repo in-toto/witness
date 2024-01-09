@@ -24,6 +24,12 @@ type SignOptions struct {
 	TimestampServers []string
 }
 
+var RequiredSignFlags = []string{
+	"infile",
+	"outfile",
+	"datatype",
+}
+
 func (so *SignOptions) AddFlags(cmd *cobra.Command) {
 	so.SignerOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&so.DataType, "datatype", "t", "https://witness.testifysec.com/policy/v0.1", "The URI reference to the type of data being signed. Defaults to the Witness policy type")

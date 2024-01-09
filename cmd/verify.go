@@ -57,7 +57,7 @@ const (
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
-		return fmt.Errorf("must suply public key or ca paths")
+		return fmt.Errorf("must supply public key or ca paths")
 	}
 
 	var verifier cryptoutil.Verifier

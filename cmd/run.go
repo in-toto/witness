@@ -87,7 +87,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 
 	addtlAttestors, err := attestation.Attestors(ro.Attestations)
 	if err != nil {
-		return fmt.Errorf("failed to create attestors := %w", err)
+		return fmt.Errorf("failed to create attestors: %w", err)
 	}
 
 	attestors = append(attestors, addtlAttestors...)
