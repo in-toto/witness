@@ -40,7 +40,7 @@ func SignCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			signers, err := loadSigners(cmd.Context(), so.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
+			signers, err := loadSigners(cmd.Context(), so.SignerOptions, providersFromFlags("signer", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signer: %w", err)
 			}

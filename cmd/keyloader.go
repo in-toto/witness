@@ -26,11 +26,12 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// signerProvidersFromFlags looks at all flags that were set by the user to determine which signer providers we should use
-func signerProvidersFromFlags(flags *pflag.FlagSet) map[string]struct{} {
-	signerProviders := make(map[string]struct{})
+// providersFromFlags looks at all flags that were set by the user to determine which providers we should use
+func providersFromFlags(prefix string, flags *pflag.FlagSet) map[string]struct{} {
+	providers := make(map[string]struct{})
 	flags.Visit(func(flag *pflag.Flag) {
-		if !strings.HasPrefix(flag.Name, "signer-") {
+		log.Info(flag)
+		if !strings.HasPrefix(flag.Name, fmt.Sprintf("%s-", prefix)) {
 			return
 		}
 
@@ -39,10 +40,10 @@ func signerProvidersFromFlags(flags *pflag.FlagSet) map[string]struct{} {
 			return
 		}
 
-		signerProviders[parts[1]] = struct{}{}
+		providers[parts[1]] = struct{}{}
 	})
 
-	return signerProviders
+	return providers
 }
 
 // loadSigners loads all signers that appear in the signerProviders set and creates their respective signers, using any options provided in so
@@ -70,4 +71,32 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 	}
 
 	return signers, nil
+}
+
+// NOTE: This is a temprorary implementation until we have a SignerVerifier interface
+// loadVerifiers loads all verifiers that appear in the verifierProviders set and creates their respective verifiers, using any options provided in so
+func loadVerifiers(ctx context.Context, so options.VerifierOptions, verifierProviders map[string]struct{}) ([]cryptoutil.Verifier, error) {
+	verifiers := make([]cryptoutil.Verifier, 0)
+	for verifierProvider := range verifierProviders {
+		setters := so[verifierProvider]
+		sp, err := signer.NewVerifierProvider(verifierProvider, setters...)
+		if err != nil {
+			log.Errorf("failed to create %v verifier provider: %w", verifierProvider, err)
+			continue
+		}
+
+		s, err := sp.Verifier(ctx)
+		if err != nil {
+			log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
+			continue
+		}
+
+		verifiers = append(verifiers, s)
+	}
+
+	if len(verifiers) == 0 {
+		return verifiers, fmt.Errorf("failed to load any verifiers")
+	}
+
+	return verifiers, nil
 }
