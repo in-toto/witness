@@ -42,7 +42,11 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runVerify(cmd.Context(), vo)
+			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, providersFromFlags("verifier", cmd.Flags()))
+			if err != nil {
+				return fmt.Errorf("failed to load signer: %w", err)
+			}
+			return runVerify(cmd.Context(), vo, verifiers...)
 		},
 	}
 	vo.AddFlags(cmd)
@@ -55,12 +59,12 @@ const (
 
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
-func runVerify(ctx context.Context, vo options.VerifyOptions) error {
-	if vo.KeyPath == "" && len(vo.CAPaths) == 0 {
-		return fmt.Errorf("must suply public key or ca paths")
+func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
+	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
+		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
-	var verifier cryptoutil.Verifier
+	// NOTE: I think we can add multiple verifiers here
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
@@ -68,11 +72,29 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		}
 		defer keyFile.Close()
 
-		verifier, err = cryptoutil.NewVerifierFromReader(keyFile)
+		v, err := cryptoutil.NewVerifierFromReader(keyFile)
 		if err != nil {
 			return fmt.Errorf("failed to create verifier: %w", err)
 		}
 
+		verifiers = append(verifiers, v)
+	}
+
+	if vo.CAPaths != nil {
+		for _, caPath := range vo.CAPaths {
+			caFile, err := os.Open(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to open CA Cerficate file: %w", err)
+			}
+			defer caFile.Close()
+
+			v, err := cryptoutil.NewVerifierFromReader(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to create verifier: %w", err)
+			}
+
+			verifiers = append(verifiers, v)
+		}
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)
@@ -121,14 +143,12 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	verifiedEvidence, err := witness.Verify(
 		ctx,
 		policyEnvelope,
-		[]cryptoutil.Verifier{verifier},
+		verifiers,
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
 	)
-
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)
-
 	}
 
 	log.Info("Verification succeeded")
@@ -142,5 +162,4 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	return nil
-
 }
