@@ -21,5 +21,6 @@ assignees: ''
 **Environment:**
 
 - Witness version:
+- Architecture:
 - Attestors used:
 - Archivista version:

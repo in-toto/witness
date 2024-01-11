@@ -29,8 +29,8 @@ assignees: ''
 
 **Testing changes required:**
 
-[List possible testing changes required, if none please explain]
+[List possible testing changes required, if none please explain, if unsure assignee will assist]
 
 **Documentation changes required:**
 
-[List possible documentation changes required, if none please explain]
+[List possible documentation changes required, if none please explain, if unsure assignee will assist]
