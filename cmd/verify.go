@@ -80,23 +80,6 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		verifiers = append(verifiers, v)
 	}
 
-	if vo.CAPaths != nil {
-		for _, caPath := range vo.CAPaths {
-			caFile, err := os.Open(caPath)
-			if err != nil {
-				return fmt.Errorf("failed to open CA Cerficate file: %w", err)
-			}
-			defer caFile.Close()
-
-			v, err := cryptoutil.NewVerifierFromReader(caFile)
-			if err != nil {
-				return fmt.Errorf("failed to create verifier: %w", err)
-			}
-
-			verifiers = append(verifiers, v)
-		}
-	}
-
 	inFile, err := os.Open(vo.PolicyFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file to sign: %w", err)
