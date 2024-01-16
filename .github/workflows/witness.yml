@@ -40,9 +40,15 @@ on:
                 required: true
                 type: string
 
+permissions:
+  contents: read
+
 jobs:
     witness:
         runs-on: ubuntu-latest
+        permissions:
+          contents: read
+          id-token: write
         steps:
           - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
           - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
@@ -50,7 +56,7 @@ jobs:
               go-version: 1.21.x
 
           - if: ${{ inputs.artifact-download != '' }}
-            uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v4.0.0
+            uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
             with:
               name: ${{ inputs.artifact-download }}
               path: /tmp
@@ -74,7 +80,7 @@ jobs:
             run: ${{ inputs.command }}
 
           - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
-            uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+            uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v4.1.0
             with:
               name: ${{ inputs.artifact-upload-name }}
               path: ${{ inputs.artifact-upload-path }}
