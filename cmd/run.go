@@ -85,12 +85,26 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
 
-	addtlAttestors, err := attestation.Attestors(ro.Attestations)
-	if err != nil {
-		return fmt.Errorf("failed to create attestors := %w", err)
+	for _, a := range ro.Attestations {
+		duplicate := false
+		for _, att := range attestors {
+			if a != att.Name() {
+			} else {
+				log.Warnf("Attestator %s already declared, skipping", a)
+				duplicate = true
+				break
+			}
+		}
+
+		if !duplicate {
+			attestor, err := attestation.GetAttestor(a)
+			if err != nil {
+				return fmt.Errorf("failed to create attestor: %w", err)
+			}
+			attestors = append(attestors, attestor)
+		}
 	}
 
-	attestors = append(attestors, addtlAttestors...)
 	for _, attestor := range attestors {
 		setters, ok := ro.AttestorOptSetters[attestor.Name()]
 		if !ok {
@@ -120,7 +134,6 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
 	)
-
 	if err != nil {
 		return err
 	}
