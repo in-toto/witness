@@ -30,7 +30,6 @@ import (
 func providersFromFlags(prefix string, flags *pflag.FlagSet) map[string]struct{} {
 	providers := make(map[string]struct{})
 	flags.Visit(func(flag *pflag.Flag) {
-		log.Info(flag)
 		if !strings.HasPrefix(flag.Name, fmt.Sprintf("%s-", prefix)) {
 			return
 		}
