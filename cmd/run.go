@@ -86,18 +86,22 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	}
 
 	for _, a := range ro.Attestations {
+		duplicate := false
 		for _, att := range attestors {
-			if a == att.Name() {
-				log.Warnf("Attestator %s already declared, skipping", a)
-				break
+			if a != att.Name() {
 			} else {
-				attestor, err := attestation.GetAttestor(a)
-				if err != nil {
-					return fmt.Errorf("failed to create attestor: %w", err)
-				}
-				attestors = append(attestors, attestor)
+				log.Warnf("Attestator %s already declared, skipping", a)
+				duplicate = true
 				break
 			}
+		}
+
+		if !duplicate {
+			attestor, err := attestation.GetAttestor(a)
+			if err != nil {
+				return fmt.Errorf("failed to create attestor: %w", err)
+			}
+			attestors = append(attestors, attestor)
 		}
 	}
 

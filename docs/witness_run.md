@@ -10,7 +10,7 @@ witness run [cmd] [flags]
 
 ```
       --archivista-server string                      URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
-  -a, --attestations strings                          Attestations to record (default [environment,git])
+  -a, --attestations strings                          Attestations to record (default [product,material])
       --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --enable-archivista                             Use Archivista to store or retrieve attestations
