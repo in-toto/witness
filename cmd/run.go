@@ -31,6 +31,7 @@ import (
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
 	_ "github.com/in-toto/go-witness/signer/kms/aws"
+	_ "github.com/in-toto/go-witness/signer/kms/gcp"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
