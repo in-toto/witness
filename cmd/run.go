@@ -27,7 +27,6 @@ import (
 	"github.com/in-toto/go-witness/attestation/material"
 	"github.com/in-toto/go-witness/attestation/product"
 	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
 	"github.com/in-toto/go-witness/timestamp"
@@ -75,7 +74,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return fmt.Errorf("failed to open out file: %w", err)
 	}
 
-	timestampers := []dsse.Timestamper{}
+	timestampers := []timestamp.Timestamper{}
 	for _, url := range ro.TimestampServers {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}
