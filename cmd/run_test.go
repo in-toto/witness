@@ -20,15 +20,20 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/signer"
 	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/witness/options"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -161,6 +166,76 @@ func TestRunHashesOptions(t *testing.T) {
 			err = runRun(context.Background(), runOptions, args, signer)
 			if tt.expectErr {
 				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				attestationBytes, err := os.ReadFile(attestationPath)
+				require.NoError(t, err)
+				env := dsse.Envelope{}
+				require.NoError(t, json.Unmarshal(attestationBytes, &env))
+			}
+		})
+	}
+}
+
+func TestRunDuplicateAttestors(t *testing.T) {
+	tests := []struct {
+		name       string
+		attestors  []string
+		expectWarn int
+	}{
+		{
+			name:       "No duplicate attestors",
+			attestors:  []string{"environment"},
+			expectWarn: 0,
+		},
+		{
+			name:       "duplicate attestors",
+			attestors:  []string{"environment", "environment"},
+			expectWarn: 1,
+		},
+		{
+			name:       "duplicate attestor due to default",
+			attestors:  []string{"product"},
+			expectWarn: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println(tt.name)
+			testLogger, hook := test.NewNullLogger()
+			log.SetLogger(testLogger)
+
+			privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+			require.NoError(t, err)
+			signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+
+			workingDir := t.TempDir()
+			attestationPath := filepath.Join(workingDir, "outfile.txt")
+			runOptions := options.RunOptions{
+				WorkingDir:   workingDir,
+				Attestations: tt.attestors,
+				OutFilePath:  attestationPath,
+				StepName:     "teststep",
+				Tracing:      false,
+			}
+
+			args := []string{
+				"bash",
+				"-c",
+				"echo 'test' > test.txt",
+			}
+
+			err = runRun(context.Background(), runOptions, args, signer)
+			if tt.expectWarn > 0 {
+				c := 0
+				for _, entry := range hook.AllEntries() {
+					fmt.Println(tt.name, "log:", entry.Message)
+					if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "already declared, skipping") {
+						c++
+					}
+				}
+				assert.Equal(t, tt.expectWarn, c)
 			} else {
 				require.NoError(t, err)
 				attestationBytes, err := os.ReadFile(attestationPath)
