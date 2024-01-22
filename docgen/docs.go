@@ -50,7 +50,7 @@ func main() {
 	}
 
 	// Write the combined markdown content to a file
-	err := os.WriteFile("docs/commands.md", []byte(mdContent), 0644)
+	err := os.WriteFile(fmt.Sprintf("%s/commands.md", directory), []byte(mdContent), 0644)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		os.Exit(1)
