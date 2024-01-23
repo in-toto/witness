@@ -161,8 +161,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		verifiers,
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
-		witness.VerifyWithPolicyTimestampServers(ptsv),
-		witness.VerifyWithPolicyCACerts(policyRoots),
+		witness.VerifyWithPolicyTimestampAuthorities(ptsv),
+		witness.VerifyWithPolicyCARoots(policyRoots),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)
