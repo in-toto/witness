@@ -165,7 +165,6 @@ In the template we have defined a single functionary for the `test` step. This f
   "functionaries": [
     {
       "type": "root",
-  ...
 ```
 
 There is also a `certConstraint` field within the `type: root` functionary, which is used to define constraints on the certificate that is used to sign the attestation. In this case, we are requiring that the certificate be signed by the Fulcio Root CA (by referencing the KEYID) and that the certificate contains the email address
@@ -181,7 +180,6 @@ of the user that signed the attestation:
       "{{FULCIO_KEYID}}"
     ]
   }
-  ...
 ```
 
 Next, there is a `roots` field, which is where the details of the X.509 Root CA defined above will be stored. The Key ID will be the same as above (the sha256sum of the root certificate), and we are supplying the root and intermediate certificate of the CA that we expect has signed the certificate that was used to sign the artifact:
@@ -191,7 +189,7 @@ Next, there is a `roots` field, which is where the details of the X.509 Root CA 
     "{{FULCIO_KEYID}}": {
       "certificate": "{{FULCIO_ROOT}}",
       "intermediates": [
-        "{{FULCIO_INT}
+        "{{FULCIO_INT}}"
       ]
     }
   },
