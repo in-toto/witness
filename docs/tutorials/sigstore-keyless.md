@@ -167,6 +167,7 @@ In the template we have defined a single functionary for the `test` step. This f
       "type": "root",
   ...
 ```
+
 There is also a `certConstraint` field within the `type: root` functionary, which is used to define constraints on the certificate that is used to sign the attestation. In this case, we are requiring that the certificate be signed by the Fulcio Root CA (by referencing the KEYID) and that the certificate contains the email address
 of the user that signed the attestation:
 ```json
