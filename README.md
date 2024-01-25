@@ -52,9 +52,9 @@ bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-wi
 ### Tutorials
 Check out our Tutorials:
 
-- [Getting Started](tutorials/getting-started.md)
-- [Verify an Artifact Policy](tutorials/artifact-policy.md)
-- [Using Fulcio as a Key Provider](tutorials/artifact-policy.md)
+- [Getting Started](docs/tutorials/getting-started.md)
+- [Verify an Artifact Policy](docs/tutorials/artifact-policy.md)
+- [Using Fulcio as a Key Provider](docs/tutorials/artifact-policy.md)
 
 ## Media
 Check out some of the content out in the wild that gives more detail on how the project can be used.
@@ -68,6 +68,7 @@ Check out some of the content out in the wild that gives more detail on how the 
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
-[demo]: https://raw.githubusercontent.com/in-toto/witness/main/docs/assets/demo.gif "Demo"
 ## Background
 This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
+
+[demo]: https://raw.githubusercontent.com/in-toto/witness/main/docs/assets/demo.gif "Demo"
