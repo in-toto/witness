@@ -5,7 +5,6 @@ taking the time to contribute!
 
 Before starting, please take some time to familiarize yourself with the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-
 ## Getting Started
 
 We welcome many different types of contributions and not all of them need a
