@@ -220,8 +220,6 @@ github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/in-toto/archivista v0.2.0 h1:FViuHMVVETborvOqlmSYdROY8RmX3CO0V0MOhU/Rl20=
 github.com/in-toto/archivista v0.2.0/go.mod h1:qt9uN4TkHWUgR5A2wxRqQIBizSl32P2nI2AjESskkr0=
-github.com/in-toto/go-witness v0.2.2 h1:oyiqyzzKwX8j5zjBVdxoo0LxjMV13ujOF0l/hu5uYp8=
-github.com/in-toto/go-witness v0.2.2/go.mod h1:b5ocF+eHUYnQgQncM6nK0g5TIoUzA94gs50fS7g+uNk=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=

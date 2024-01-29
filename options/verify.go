@@ -26,6 +26,11 @@ type VerifyOptions struct {
 	PolicyCARootPaths         []string
 	PolicyCAIntermediatePaths []string
 	PolicyTimestampServers    []string
+	PolicyCommonName          string
+	PolicyDNSNames            []string
+	PolicyEmails              []string
+	PolicyOrganizations       []string
+	PolicyURIs                []string
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
@@ -35,7 +40,12 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringSliceVarP(&vo.AdditionalSubjects, "subjects", "s", []string{}, "Additional subjects to lookup attestations")
-	cmd.Flags().StringSliceVarP(&vo.PolicyCARootPaths, "policy-ca-roots", "", []string{}, "Paths to CA root certificates to use for verifying the policy")
-	cmd.Flags().StringSliceVarP(&vo.PolicyCAIntermediatePaths, "policy-ca-intermediates", "", []string{}, "Paths to CA intermediate certificates to use for verifying the policy")
-	cmd.Flags().StringSliceVarP(&vo.PolicyTimestampServers, "policy-timestamp-servers", "", []string{}, "Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy")
+	cmd.Flags().StringSliceVarP(&vo.PolicyCARootPaths, "policy-ca-roots", "", []string{}, "Paths to CA root certificates to use for verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVarP(&vo.PolicyCAIntermediatePaths, "policy-ca-intermediates", "", []string{}, "Paths to CA intermediate certificates to use for verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVarP(&vo.PolicyTimestampServers, "policy-timestamp-servers", "", []string{}, "Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy signed with x.509")
+	cmd.Flags().StringVar(&vo.PolicyCommonName, "policy-commonname", "*", "The common name to use when verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVar(&vo.PolicyDNSNames, "policy-dns-names", []string{"*"}, "The DNS names to use when verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVar(&vo.PolicyEmails, "policy-emails", []string{"*"}, "The DNS names to use when verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVar(&vo.PolicyOrganizations, "policy-organizations", []string{"*"}, "The organizations to use when verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVar(&vo.PolicyURIs, "policy-uris", []string{"*"}, "The URIs to use when verifying a policy signed with x.509")
 }
