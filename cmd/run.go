@@ -121,7 +121,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if err != nil {
 			return fmt.Errorf("failed to parse hash: %w", err)
 		}
-		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash})
+		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
 	defer out.Close()
