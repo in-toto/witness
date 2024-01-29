@@ -58,7 +58,7 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions) error {
-	if vo.KeyPath == "" && len(vo.PolicyCAPaths) == 0 {
+	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(vo.PolicyCAIntermediatePaths) == 0 {
 		return fmt.Errorf("must supply public key or ca paths")
 	}
 
@@ -79,23 +79,40 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	var policyRoots []*x509.Certificate
-	if len(vo.PolicyCAPaths) > 0 {
-		for _, caPath := range vo.PolicyCAPaths {
+	if len(vo.PolicyCARootPaths) > 0 {
+		for _, caPath := range vo.PolicyCARootPaths {
 			caFile, err := os.ReadFile(caPath)
 			if err != nil {
-				return fmt.Errorf("failed to read CA certificate file: %w", err)
+				return fmt.Errorf("failed to read root CA certificate file: %w", err)
 			}
 
 			cert, err := cryptoutil.TryParseCertificate(caFile)
 			if err != nil {
-				return fmt.Errorf("failed to parse Timestamp Server CA certificate: %w", err)
+				return fmt.Errorf("failed to parse root CA certificate: %w", err)
 			}
 
 			policyRoots = append(policyRoots, cert)
 		}
 	}
 
-	ptsv := make([]dsse.TimestampVerifier, 0)
+	var policyIntermediates []*x509.Certificate
+	if len(vo.PolicyCAIntermediatePaths) > 0 {
+		for _, caPath := range vo.PolicyCAIntermediatePaths {
+			caFile, err := os.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read intermediate CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to parse intermediate CA certificate: %w", err)
+			}
+
+			policyRoots = append(policyIntermediates, cert)
+		}
+	}
+
+	ptsVerifiers := make([]timestamp.TimestampVerifier, 0)
 	if len(vo.PolicyTimestampServers) > 0 {
 		for _, server := range vo.PolicyTimestampServers {
 			f, err := os.ReadFile(server)
@@ -108,7 +125,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 				return fmt.Errorf("failed to parse Timestamp Server CA certificate: %w", err)
 			}
 
-			ptsv = append(ptsv, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
+			ptsVerifiers = append(ptsVerifiers, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
 		}
 	}
 
@@ -161,8 +178,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		verifiers,
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
-		witness.VerifyWithPolicyTimestampAuthorities(ptsv),
+		witness.VerifyWithPolicyTimestampAuthorities(ptsVerifiers),
 		witness.VerifyWithPolicyCARoots(policyRoots),
+		witness.VerifyWithPolicyCAIntermediates(policyIntermediates),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)

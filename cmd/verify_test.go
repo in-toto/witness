@@ -60,7 +60,7 @@ func TestVerifyPolicyWithFulcio(t *testing.T) {
 	vo := options.VerifyOptions{
 		PolicyFilePath:         filepath.Join(cwd, "../test/policy-signed.json"),
 		PolicyTimestampServers: []string{filepath.Join(workingDir, "freetsa.pem")},
-		PolicyCAPaths:          []string{filepath.Join(workingDir, "fulcio.pem")},
+		PolicyCARootPaths:      []string{filepath.Join(workingDir, "fulcio.pem")},
 		AttestationFilePaths:   []string{filepath.Join(cwd, "../test/test.json")},
 		ArtifactFilePath:       filepath.Join(cwd, "../test/test.txt"),
 	}
@@ -90,7 +90,7 @@ func TestVerifyPolicyWrongCAFile(t *testing.T) {
 	vo := options.VerifyOptions{
 		PolicyFilePath:         filepath.Join(cwd, "../test/policy-signed.json"),
 		PolicyTimestampServers: []string{filepath.Join(workingDir, "freetsa.pem")},
-		PolicyCAPaths:          []string{filepath.Join(workingDir, "badca.pem")},
+		PolicyCARootPaths:      []string{filepath.Join(workingDir, "badca.pem")},
 		AttestationFilePaths:   []string{filepath.Join(cwd, "../test/test.json")},
 		ArtifactFilePath:       filepath.Join(cwd, "../test/test.txt"),
 	}
@@ -386,9 +386,7 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	p.Steps[step02.Name] = step02
 
 	if publicKey.KeyID != "" {
-
 		p.PublicKeys[publicKey.KeyID] = publicKey
-
 	}
 
 	pb, err := json.MarshalIndent(p, "", "  ")

@@ -2,8 +2,6 @@ module github.com/in-toto/witness
 
 go 1.19
 
-replace github.com/in-toto/go-witness => ../go-witness
-
 require (
 	github.com/in-toto/go-witness v0.2.2
 	github.com/sirupsen/logrus v1.9.3

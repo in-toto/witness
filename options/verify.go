@@ -17,14 +17,15 @@ package options
 import "github.com/spf13/cobra"
 
 type VerifyOptions struct {
-	ArchivistaOptions      ArchivistaOptions
-	KeyPath                string
-	AttestationFilePaths   []string
-	PolicyFilePath         string
-	ArtifactFilePath       string
-	AdditionalSubjects     []string
-	PolicyCAPaths          []string
-	PolicyTimestampServers []string
+	ArchivistaOptions         ArchivistaOptions
+	KeyPath                   string
+	AttestationFilePaths      []string
+	PolicyFilePath            string
+	ArtifactFilePath          string
+	AdditionalSubjects        []string
+	PolicyCARootPaths         []string
+	PolicyCAIntermediatePaths []string
+	PolicyTimestampServers    []string
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
@@ -34,6 +35,7 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringSliceVarP(&vo.AdditionalSubjects, "subjects", "s", []string{}, "Additional subjects to lookup attestations")
-	cmd.Flags().StringSliceVarP(&vo.PolicyCAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
+	cmd.Flags().StringSliceVarP(&vo.PolicyCARootPaths, "policy-ca-roots", "", []string{}, "Paths to CA root certificates to use for verifying the policy")
+	cmd.Flags().StringSliceVarP(&vo.PolicyCAIntermediatePaths, "policy-ca-intermediates", "", []string{}, "Paths to CA intermediate certificates to use for verifying the policy")
 	cmd.Flags().StringSliceVarP(&vo.PolicyTimestampServers, "policy-timestamp-servers", "", []string{}, "Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy")
 }
