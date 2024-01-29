@@ -19,7 +19,7 @@ set -e
 # Verify that generated Markdown docs are up-to-date.
 tmpdir=$(mktemp -d)
 tmpdir2=$(mktemp -d)
-cp docs/witness*.md "$tmpdir2/"
+cp docs/commands.md "$tmpdir2/"
 go run ./docgen --dir "$tmpdir"
 echo "###########################################"
 echo "If diffs are found, run: make docgen"
