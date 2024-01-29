@@ -10,6 +10,8 @@ replace github.com/in-toto/go-witness/signer/kms/aws => ../go-witness/signer/kms
 
 replace github.com/in-toto/go-witness/signer/kms/gcp => ../go-witness/signer/kms/gcp
 
+replace github.com/in-toto/go-witness/signer/kms/hashivault => ../go-witness/signer/kms/hashivault
+
 require (
 	github.com/in-toto/go-witness v0.2.0
 	github.com/in-toto/go-witness/signer/kms/aws v0.0.0-00010101000000-000000000000
