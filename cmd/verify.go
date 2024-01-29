@@ -89,7 +89,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 
 	subjects := []cryptoutil.DigestSet{}
 	if len(vo.ArtifactFilePath) > 0 {
-		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
+		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
 		if err != nil {
 			return fmt.Errorf("failed to calculate artifact digest: %w", err)
 		}
@@ -125,10 +125,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
 	)
-
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)
-
 	}
 
 	log.Info("Verification succeeded")
@@ -142,5 +140,4 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 	}
 
 	return nil
-
 }
