@@ -224,6 +224,8 @@ github.com/in-toto/go-witness v0.2.1 h1:eAxMBWUPbz3oPU3lsfEYi/Kdj6weej2umm59bOXP
 github.com/in-toto/go-witness v0.2.1/go.mod h1:xURJVj4QRD3xnzOJps7gT0pMCFPpAHcPqDC3EyuLuUE=
 github.com/in-toto/go-witness v0.2.2 h1:oyiqyzzKwX8j5zjBVdxoo0LxjMV13ujOF0l/hu5uYp8=
 github.com/in-toto/go-witness v0.2.2/go.mod h1:b5ocF+eHUYnQgQncM6nK0g5TIoUzA94gs50fS7g+uNk=
+github.com/in-toto/go-witness v0.2.3 h1:KjiaRHxW2VSyouXUW0Zrpc+7LXfFKilB86a1lqNDsAU=
+github.com/in-toto/go-witness v0.2.3/go.mod h1:b5ocF+eHUYnQgQncM6nK0g5TIoUzA94gs50fS7g+uNk=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
