@@ -72,7 +72,7 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 	return signers, nil
 }
 
-// NOTE: This is a temprorary implementation until we have a SignerVerifier interface
+// NOTE: This is a temporary implementation until we have a SignerVerifier interface
 // loadVerifiers loads all verifiers that appear in the verifierProviders set and creates their respective verifiers, using any options provided in so
 func loadVerifiers(ctx context.Context, so options.VerifierOptions, verifierProviders map[string]struct{}) ([]cryptoutil.Verifier, error) {
 	verifiers := make([]cryptoutil.Verifier, 0)
@@ -91,10 +91,6 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, verifierProv
 		}
 
 		verifiers = append(verifiers, s)
-	}
-
-	if len(verifiers) == 0 {
-		return verifiers, fmt.Errorf("failed to load any verifiers")
 	}
 
 	return verifiers, nil
