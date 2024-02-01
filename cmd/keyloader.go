@@ -134,9 +134,5 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.K
 		verifiers = append(verifiers, s)
 	}
 
-	if len(verifiers) == 0 {
-		return verifiers, fmt.Errorf("failed to load any verifiers")
-	}
-
 	return verifiers, nil
 }
