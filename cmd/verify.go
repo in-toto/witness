@@ -64,7 +64,6 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
-	// NOTE: I think we can add multiple verifiers here
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
