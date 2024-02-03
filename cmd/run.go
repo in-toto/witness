@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"context"
-	"crypto"
 	"encoding/json"
 	"fmt"
 
@@ -116,13 +115,13 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 	}
 
-	var roHashes []crypto.Hash
+	var roHashes []cryptoutil.DigestValue
 	for _, hashStr := range ro.Hashes {
 		hash, err := cryptoutil.HashFromString(hashStr)
 		if err != nil {
 			return fmt.Errorf("failed to parse hash: %w", err)
 		}
-		roHashes = append(roHashes, hash)
+		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
 	defer out.Close()
