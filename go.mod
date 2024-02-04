@@ -1,6 +1,8 @@
 module github.com/in-toto/witness
 
-go 1.19
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/in-toto/go-witness v0.2.3
@@ -56,6 +58,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-3 // indirect
 	github.com/in-toto/archivista v0.2.0 // indirect
+	github.com/in-toto/attestation v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -118,3 +121,5 @@ replace github.com/sigstore/rekor => github.com/testifysec/rekor v0.4.0-dsse-int
 replace github.com/gin-gonic/gin v1.5.0 => github.com/gin-gonic/gin v1.7.7
 
 replace github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.3-0.20220303224323-02efb9a75ee1
+
+replace github.com/in-toto/go-witness => ../go-witness
