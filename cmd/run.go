@@ -139,9 +139,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		// TODO: Find out explicit way to describe "prefix" in CLI options
 		outfile := ro.OutFilePath
 		if result.AttestorName != "" {
-			outfile += "-" + result.AttestorName
+			outfile += "-" + result.AttestorName + ".json"
 		}
-		outfile += ".json"
 
 		out, err := loadOutfile(outfile)
 		if err != nil {
