@@ -249,6 +249,8 @@ github.com/in-toto/archivista v0.2.0 h1:FViuHMVVETborvOqlmSYdROY8RmX3CO0V0MOhU/R
 github.com/in-toto/archivista v0.2.0/go.mod h1:qt9uN4TkHWUgR5A2wxRqQIBizSl32P2nI2AjESskkr0=
 github.com/in-toto/attestation v1.0.1 h1:DgX1XuBkryTpj1Piq8AiMK3CMfEcec3Qv6+Ku+uI3WY=
 github.com/in-toto/attestation v1.0.1/go.mod h1:hCR5COCuENh5+VfojEkJnt7caOymbEgvyZdKifD6pOw=
+github.com/in-toto/go-witness v0.2.3-0.20240205142443-bb8a96291d2e h1:y+NnGhV9ECAv0i8v3wWx1Cpu7wF+b/hg6JLAOzCElaI=
+github.com/in-toto/go-witness v0.2.3-0.20240205142443-bb8a96291d2e/go.mod h1:iVZcw2SxHemB1IDpwmbW9n8Jwo4QtucrLrzeKzzG3Ag=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
