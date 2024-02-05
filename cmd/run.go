@@ -119,7 +119,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
-	results, err := witness.ExportedRun(
+	results, err := witness.RunWithExports(
 		ro.StepName,
 		signers[0],
 		witness.RunWithAttestors(attestors),
@@ -136,7 +136,14 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			return fmt.Errorf("failed to marshal envelope: %w", err)
 		}
 
-		out, err := loadOutfile(ro.OutFilePath + result.AttestorName + ".json")
+		// TODO: Find out explicit way to describe "prefix" in CLI options
+		outfile := ro.OutFilePath
+		if result.AttestorName != "" {
+			outfile += "-" + result.AttestorName
+		}
+		outfile += ".json"
+
+		out, err := loadOutfile(outfile)
 		if err != nil {
 			return fmt.Errorf("failed to open out file: %w", err)
 		}
