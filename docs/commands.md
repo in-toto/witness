@@ -15,6 +15,7 @@ witness run [cmd] [flags]
 ```
       --archivista-server string                      URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -a, --attestations strings                          Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
+      --attestor-link-export                          Export the link attestation to its own file
       --attestor-maven-pom-path string                The path to the Project Object Model (POM) XML file used for task being attested (default "pom.xml"). (default "pom.xml")
       --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
