@@ -1,9 +1,11 @@
 module github.com/in-toto/witness
 
-go 1.19
+go 1.21
+
+toolchain go1.22.0
 
 require (
-	github.com/in-toto/go-witness v0.2.3
+	github.com/in-toto/go-witness v0.2.3-0.20240208170628-27698bd8e556
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
