@@ -15,7 +15,12 @@
 package options
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/in-toto/go-witness/registry"
 	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/kms"
 	"github.com/spf13/cobra"
 )
 
@@ -24,4 +29,24 @@ type VerifierOptions map[string][]func(signer.VerifierProvider) (signer.Verifier
 func (vo *VerifierOptions) AddFlags(cmd *cobra.Command) {
 	verifierRegistrations := signer.VerifierRegistryEntries()
 	*vo = addFlagsFromRegistry("verifier", verifierRegistrations, cmd)
+}
+
+type KMSVerifierProviderOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
+
+func (ko *KMSVerifierProviderOptions) AddFlags(cmd *cobra.Command) {
+	kmsProviderOpts := kms.ProviderOptions()
+	for k, v := range kmsProviderOpts {
+		if v != nil {
+			opts := v.Init()
+			name := fmt.Sprintf("kms-%s", strings.TrimSuffix(k, "kms://"))
+			// NOTE: this strikes me as a bad idea since it isn't a registry entry. however we wish to piggy back on the add flags logic, and when splitting it out I got errors
+			entry := []registry.Entry[signer.SignerProvider]{
+				{
+					Name:    name,
+					Options: opts,
+				},
+			}
+			*ko = addFlagsFromRegistry[signer.SignerProvider]("signer", entry, cmd)
+		}
+	}
 }
