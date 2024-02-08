@@ -33,7 +33,11 @@ import (
 )
 
 func VerifyCmd() *cobra.Command {
-	vo := options.VerifyOptions{}
+	vo := options.VerifyOptions{
+		ArchivistaOptions:          options.ArchivistaOptions{},
+		KMSVerifierProviderOptions: options.KMSVerifierProviderOptions{},
+		VerifierOptions:            options.VerifierOptions{},
+	}
 	cmd := &cobra.Command{
 		Use:               "verify",
 		Short:             "Verifies a witness policy",
@@ -42,7 +46,7 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, providersFromFlags("verifier", cmd.Flags()))
+			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, vo.KMSVerifierProviderOptions, providersFromFlags("verifier", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signer: %w", err)
 			}

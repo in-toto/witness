@@ -22,6 +22,7 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/kms"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/pflag"
 )
@@ -46,7 +47,7 @@ func providersFromFlags(prefix string, flags *pflag.FlagSet) map[string]struct{}
 }
 
 // loadSigners loads all signers that appear in the signerProviders set and creates their respective signers, using any options provided in so
-func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders map[string]struct{}) ([]cryptoutil.Signer, error) {
+func loadSigners(ctx context.Context, so options.SignerOptions, ko options.KMSSignerProviderOptions, signerProviders map[string]struct{}) ([]cryptoutil.Signer, error) {
 	signers := make([]cryptoutil.Signer, 0)
 	for signerProvider := range signerProviders {
 		setters := so[signerProvider]
@@ -54,6 +55,19 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 		if err != nil {
 			log.Errorf("failed to create %v signer provider: %w", signerProvider, err)
 			continue
+		}
+
+		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
+			for _, opt := range ksp.Options {
+				pn := opt.ProviderName()
+				for _, setter := range ko[pn] {
+					sp, err = setter(ksp)
+					if err != nil {
+						continue
+					}
+				}
+			}
 		}
 
 		s, err := sp.Signer(ctx)
@@ -74,7 +88,7 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 
 // NOTE: This is a temporary implementation until we have a SignerVerifier interface
 // loadVerifiers loads all verifiers that appear in the verifierProviders set and creates their respective verifiers, using any options provided in so
-func loadVerifiers(ctx context.Context, so options.VerifierOptions, verifierProviders map[string]struct{}) ([]cryptoutil.Verifier, error) {
+func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.KMSVerifierProviderOptions, verifierProviders map[string]struct{}) ([]cryptoutil.Verifier, error) {
 	verifiers := make([]cryptoutil.Verifier, 0)
 	for verifierProvider := range verifierProviders {
 		setters := so[verifierProvider]
@@ -82,6 +96,34 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, verifierProv
 		if err != nil {
 			log.Errorf("failed to create %v verifier provider: %w", verifierProvider, err)
 			continue
+		}
+
+		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
+			for _, opt := range ksp.Options {
+				pn := opt.ProviderName()
+				for _, setter := range ko[pn] {
+					vp, err := setter(ksp)
+					if err != nil {
+						continue
+					}
+
+					// NOTE: KMS SignerProvider can also be a VerifierProvider. This is a nasty hack to cast things back in a way that we can add to the loaded verifiers.
+					// This must be refactored.
+					kspv, ok := vp.(*kms.KMSSignerProvider)
+					if !ok {
+						return nil, fmt.Errorf("provided verifier provider is not a KMS verifier provider")
+					}
+
+					s, err := kspv.Verifier(ctx)
+					if err != nil {
+						log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
+						continue
+					}
+					verifiers = append(verifiers, s)
+					return verifiers, nil
+				}
+			}
 		}
 
 		s, err := sp.Verifier(ctx)
