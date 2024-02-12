@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var defaultAttestors = []attestation.Attestor{product.New(), material.New()}
+var alwaysRunAttestors = []attestation.Attestor{product.New(), material.New()}
 
 func RunCmd() *cobra.Command {
 	o := options.RunOptions{
@@ -80,7 +80,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}
 
-	attestors := defaultAttestors
+	attestors := alwaysRunAttestors
 	if len(args) > 0 {
 		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
