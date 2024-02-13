@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"context"
-	"crypto"
 	"encoding/json"
 	"fmt"
 
@@ -85,12 +84,26 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
 
-	addtlAttestors, err := attestation.Attestors(ro.Attestations)
-	if err != nil {
-		return fmt.Errorf("failed to create attestors := %w", err)
+	for _, a := range ro.Attestations {
+		duplicate := false
+		for _, att := range attestors {
+			if a != att.Name() {
+			} else {
+				log.Warnf("Attestator %s already declared, skipping", a)
+				duplicate = true
+				break
+			}
+		}
+
+		if !duplicate {
+			attestor, err := attestation.GetAttestor(a)
+			if err != nil {
+				return fmt.Errorf("failed to create attestor: %w", err)
+			}
+			attestors = append(attestors, attestor)
+		}
 	}
 
-	attestors = append(attestors, addtlAttestors...)
 	for _, attestor := range attestors {
 		setters, ok := ro.AttestorOptSetters[attestor.Name()]
 		if !ok {
@@ -103,13 +116,13 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 	}
 
-	var roHashes []crypto.Hash
+	var roHashes []cryptoutil.DigestValue
 	for _, hashStr := range ro.Hashes {
 		hash, err := cryptoutil.HashFromString(hashStr)
 		if err != nil {
 			return fmt.Errorf("failed to parse hash: %w", err)
 		}
-		roHashes = append(roHashes, hash)
+		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
 	defer out.Close()
