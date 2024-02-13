@@ -97,7 +97,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 
 	subjects := []cryptoutil.DigestSet{}
 	if len(vo.ArtifactFilePath) > 0 {
-		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []crypto.Hash{crypto.SHA256})
+		artifactDigestSet, err := cryptoutil.CalculateDigestSetFromFile(vo.ArtifactFilePath, []cryptoutil.DigestValue{{Hash: crypto.SHA256, GitOID: false}})
 		if err != nil {
 			return fmt.Errorf("failed to calculate artifact digest: %w", err)
 		}
