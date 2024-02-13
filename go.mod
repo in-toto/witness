@@ -26,7 +26,7 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.1.7 // indirect
 	github.com/zclconf/go-cty v1.12.1 // indirect
-	golang.org/x/oauth2 v0.15.0 // indirect
+	golang.org/x/oauth2 v0.13.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 )
 
