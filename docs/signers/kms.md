@@ -14,7 +14,7 @@ witness run -s --signer-kms-ref=gcpkms://projects/test-project/locations/europe-
 
 Furthermore, if a user wanted to use a KMS Key (e.g., GCP KMS) to sign a policy, they could simply execute a command like:
 ```yaml
-go run . sign -f policy.json -o policy-signed.json --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key
+witness sign -f policy.json -o policy-signed.json --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key
 ```
 
 ### Declaring KMS Keys in Witness Policies

@@ -1,11 +1,6 @@
 module github.com/in-toto/witness
 
 go 1.21
-
-replace github.com/in-toto/go-witness/signer/kms/aws => ../go-witness/signer/kms/aws
-
-replace github.com/in-toto/go-witness/signer/kms/gcp => ../go-witness/signer/kms/gcp
-
 require (
 	github.com/in-toto/go-witness v0.3.0
 	github.com/sirupsen/logrus v1.9.3
