@@ -63,7 +63,7 @@ func Test_loadSignersKeyPair(t *testing.T) {
 			},
 		}
 
-		signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+		signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 		require.NoError(t, err)
 		require.Len(t, signers, 1)
 		assert.IsType(t, &cryptoutil.RSASigner{}, signers[0])
@@ -79,7 +79,7 @@ func Test_loadSignersKeyPair(t *testing.T) {
 			},
 		}
 
-		signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+		signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 		require.Error(t, err)
 		require.Len(t, signers, 0)
 	})
@@ -99,7 +99,7 @@ func Test_loadSignersCertificate(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 	require.Len(t, signers, 1)
 	require.IsType(t, &cryptoutil.X509Signer{}, signers[0])

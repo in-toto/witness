@@ -20,20 +20,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type SignerOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
+type VerifierOptions map[string][]func(signer.VerifierProvider) (signer.VerifierProvider, error)
 
-func (so *SignerOptions) AddFlags(cmd *cobra.Command) {
-	signerRegistrations := signer.RegistryEntries()
-	*so = addFlagsFromRegistry("signer", signerRegistrations, cmd)
+func (vo *VerifierOptions) AddFlags(cmd *cobra.Command) {
+	verifierRegistrations := signer.VerifierRegistryEntries()
+	*vo = addFlagsFromRegistry("verifier", verifierRegistrations, cmd)
 }
 
-type KMSSignerProviderOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
+type KMSVerifierProviderOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
 
-func (ko *KMSSignerProviderOptions) AddFlags(cmd *cobra.Command) {
+func (ko *KMSVerifierProviderOptions) AddFlags(cmd *cobra.Command) {
 	kmsProviderOpts := kms.ProviderOptions()
 	for k := range kmsProviderOpts {
 		if kmsProviderOpts[k] != nil {
-			*ko = addFlags("signer", kmsProviderOpts[k].ProviderName(), kmsProviderOpts[k].Init(), *ko, cmd)
+			*ko = addFlags("verifier", kmsProviderOpts[k].ProviderName(), kmsProviderOpts[k].Init(), *ko, cmd)
 		}
 	}
 }
