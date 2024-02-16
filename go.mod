@@ -2,8 +2,6 @@ module github.com/in-toto/witness
 
 go 1.21
 
-replace github.com/in-toto/go-witness => ../go-witness
-
 replace github.com/in-toto/go-witness/signer/kms/aws => ../go-witness/signer/kms/aws
 
 replace github.com/in-toto/go-witness/signer/kms/gcp => ../go-witness/signer/kms/gcp
