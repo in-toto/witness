@@ -35,7 +35,11 @@ import (
 )
 
 func VerifyCmd() *cobra.Command {
-	vo := options.VerifyOptions{}
+	vo := options.VerifyOptions{
+		ArchivistaOptions:          options.ArchivistaOptions{},
+		KMSVerifierProviderOptions: options.KMSVerifierProviderOptions{},
+		VerifierOptions:            options.VerifierOptions{},
+	}
 	cmd := &cobra.Command{
 		Use:               "verify",
 		Short:             "Verifies a witness policy",
@@ -44,7 +48,11 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runVerify(cmd.Context(), vo)
+			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, vo.KMSVerifierProviderOptions, providersFromFlags("verifier", cmd.Flags()))
+			if err != nil {
+				return fmt.Errorf("failed to load signer: %w", err)
+			}
+			return runVerify(cmd.Context(), vo, verifiers...)
 		},
 	}
 	vo.AddFlags(cmd)
@@ -57,12 +65,11 @@ const (
 
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
-func runVerify(ctx context.Context, vo options.VerifyOptions) error {
-	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(vo.PolicyCAIntermediatePaths) == 0 {
-		return fmt.Errorf("must supply public key or ca paths")
+func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
+	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
+		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
-	var verifiers []cryptoutil.Verifier
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
@@ -127,6 +134,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions) error {
 
 			ptsVerifiers = append(ptsVerifiers, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
 		}
+
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)

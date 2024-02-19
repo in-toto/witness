@@ -93,13 +93,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+        uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
 
       - name: Download GoReleaser
         run: go install github.com/goreleaser/goreleaser@v1.23.0
 
       - name: Run GoReleaser
-        uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
+        uses: testifysec/witness-run-action@2ae7f93c013ccf24b8ff52b4f042b32ca95ec7b8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}

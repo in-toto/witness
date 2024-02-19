@@ -22,15 +22,16 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/kms"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/pflag"
 )
 
-// signerProvidersFromFlags looks at all flags that were set by the user to determine which signer providers we should use
-func signerProvidersFromFlags(flags *pflag.FlagSet) map[string]struct{} {
-	signerProviders := make(map[string]struct{})
+// providersFromFlags looks at all flags that were set by the user to determine which providers we should use
+func providersFromFlags(prefix string, flags *pflag.FlagSet) map[string]struct{} {
+	providers := make(map[string]struct{})
 	flags.Visit(func(flag *pflag.Flag) {
-		if !strings.HasPrefix(flag.Name, "signer-") {
+		if !strings.HasPrefix(flag.Name, fmt.Sprintf("%s-", prefix)) {
 			return
 		}
 
@@ -39,14 +40,14 @@ func signerProvidersFromFlags(flags *pflag.FlagSet) map[string]struct{} {
 			return
 		}
 
-		signerProviders[parts[1]] = struct{}{}
+		providers[parts[1]] = struct{}{}
 	})
 
-	return signerProviders
+	return providers
 }
 
 // loadSigners loads all signers that appear in the signerProviders set and creates their respective signers, using any options provided in so
-func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders map[string]struct{}) ([]cryptoutil.Signer, error) {
+func loadSigners(ctx context.Context, so options.SignerOptions, ko options.KMSSignerProviderOptions, signerProviders map[string]struct{}) ([]cryptoutil.Signer, error) {
 	signers := make([]cryptoutil.Signer, 0)
 	for signerProvider := range signerProviders {
 		setters := so[signerProvider]
@@ -54,6 +55,18 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 		if err != nil {
 			log.Errorf("failed to create %v signer provider: %w", signerProvider, err)
 			continue
+		}
+
+		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
+			for _, opt := range ksp.Options {
+				for _, setter := range ko[opt.ProviderName()] {
+					sp, err = setter(ksp)
+					if err != nil {
+						continue
+					}
+				}
+			}
 		}
 
 		s, err := sp.Signer(ctx)
@@ -70,4 +83,56 @@ func loadSigners(ctx context.Context, so options.SignerOptions, signerProviders 
 	}
 
 	return signers, nil
+}
+
+// NOTE: This is a temporary implementation until we have a SignerVerifier interface
+// loadVerifiers loads all verifiers that appear in the verifierProviders set and creates their respective verifiers, using any options provided in so
+func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.KMSVerifierProviderOptions, verifierProviders map[string]struct{}) ([]cryptoutil.Verifier, error) {
+	verifiers := make([]cryptoutil.Verifier, 0)
+	for verifierProvider := range verifierProviders {
+		setters := so[verifierProvider]
+		sp, err := signer.NewVerifierProvider(verifierProvider, setters...)
+		if err != nil {
+			log.Errorf("failed to create %v verifier provider: %w", verifierProvider, err)
+			continue
+		}
+
+		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
+			for _, opt := range ksp.Options {
+				pn := opt.ProviderName()
+				for _, setter := range ko[pn] {
+					vp, err := setter(ksp)
+					if err != nil {
+						continue
+					}
+
+					// NOTE: KMS SignerProvider can also be a VerifierProvider. This is a nasty hack to cast things back in a way that we can add to the loaded verifiers.
+					// This must be refactored.
+					kspv, ok := vp.(*kms.KMSSignerProvider)
+					if !ok {
+						return nil, fmt.Errorf("provided verifier provider is not a KMS verifier provider")
+					}
+
+					s, err := kspv.Verifier(ctx)
+					if err != nil {
+						log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
+						continue
+					}
+					verifiers = append(verifiers, s)
+					return verifiers, nil
+				}
+			}
+		}
+
+		s, err := sp.Verifier(ctx)
+		if err != nil {
+			log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
+			continue
+		}
+
+		verifiers = append(verifiers, s)
+	}
+
+	return verifiers, nil
 }
