@@ -1,6 +1,7 @@
 module github.com/in-toto/witness
 
 go 1.21
+
 require (
 	github.com/in-toto/go-witness v0.3.0
 	github.com/sirupsen/logrus v1.9.3
@@ -8,7 +9,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
-	k8s.io/apimachinery v0.26.13
+	k8s.io/apimachinery v0.26.14
 )
 
 require (
