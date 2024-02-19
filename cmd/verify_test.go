@@ -63,6 +63,11 @@ func TestVerifyPolicyWithFulcio(t *testing.T) {
 		PolicyCARootPaths:      []string{filepath.Join(workingDir, "fulcio.pem")},
 		AttestationFilePaths:   []string{filepath.Join(cwd, "../test/test.json")},
 		ArtifactFilePath:       filepath.Join(cwd, "../test/test.txt"),
+		PolicyCommonName:       "*",
+		PolicyURIs:             []string{"*"},
+		PolicyDNSNames:         []string{"*"},
+		PolicyEmails:           []string{"*"},
+		PolicyOrganizations:    []string{"*"},
 	}
 
 	require.NoError(t, runVerify(context.Background(), vo))
@@ -95,7 +100,7 @@ func TestVerifyPolicyWrongCAFile(t *testing.T) {
 		ArtifactFilePath:       filepath.Join(cwd, "../test/test.txt"),
 	}
 
-	require.ErrorContains(t, runVerify(context.Background(), vo), "failed to verify policy: could not verify policy: no valid signatures for the provided verifiers found")
+	require.ErrorContains(t, runVerify(context.Background(), vo), "failed to verify policy: failed to verify policy signature: could not verify policy: no valid signatures for the provided verifiers found")
 }
 
 func TestRunVerifyCA(t *testing.T) {
