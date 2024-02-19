@@ -147,7 +147,14 @@ witness verify [flags]
       --enable-archivista                          Use Archivista to store or retrieve attestations
   -h, --help                                       help for verify
   -p, --policy string                              Path to the policy to verify
-      --policy-ca strings                          Paths to CA certificates to use for verifying the policy
+      --policy-ca-intermediates strings            Paths to CA intermediate certificates to use for verifying a policy signed with x.509
+      --policy-ca-roots strings                    Paths to CA root certificates to use for verifying a policy signed with x.509
+      --policy-commonname string                   The common name to use when verifying a policy signed with x.509 (default "*")
+      --policy-dns-names strings                   The DNS names to use when verifying a policy signed with x.509 (default [*])
+      --policy-emails strings                      The DNS names to use when verifying a policy signed with x.509 (default [*])
+      --policy-organizations strings               The organizations to use when verifying a policy signed with x.509 (default [*])
+      --policy-timestamp-servers strings           Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy signed with x.509
+      --policy-uris strings                        The URIs to use when verifying a policy signed with x.509 (default [*])
   -k, --publickey string                           Path to the policy signer's public key
   -s, --subjects strings                           Additional subjects to lookup attestations
       --verifier-kms-aws-config-file string        The shared configuration file to use with the AWS KMS signer provider
