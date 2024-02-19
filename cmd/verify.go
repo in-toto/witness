@@ -66,7 +66,7 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
-	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
+	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(verifiers) == 0 {
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
@@ -134,7 +134,6 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 
 			ptsVerifiers = append(ptsVerifiers, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
 		}
-
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)
