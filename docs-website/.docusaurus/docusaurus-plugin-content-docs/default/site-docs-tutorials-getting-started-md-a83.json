@@ -1,0 +1,23 @@
+{
+  "id": "docs/tutorials/getting-started",
+  "title": "Getting Started",
+  "description": "Intro",
+  "source": "@site/../docs/tutorials/getting-started.md",
+  "sourceDirName": "docs/tutorials",
+  "slug": "/docs/tutorials/getting-started",
+  "permalink": "/docs/docs/tutorials/getting-started",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Verifying an Artifact with a Witness Policy",
+    "permalink": "/docs/docs/tutorials/artifact-policy"
+  },
+  "next": {
+    "title": "Signing Attestations with Sigstore Keyless",
+    "permalink": "/docs/docs/tutorials/sigstore-keyless"
+  }
+}

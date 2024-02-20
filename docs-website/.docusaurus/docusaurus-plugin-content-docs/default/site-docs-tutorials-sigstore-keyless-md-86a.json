@@ -1,0 +1,23 @@
+{
+  "id": "docs/tutorials/sigstore-keyless",
+  "title": "Signing Attestations with Sigstore Keyless",
+  "description": "💡 Tip: If this is your first time using Witness, you might benefit from trying the Getting Started tutorial first! You might",
+  "source": "@site/../docs/tutorials/sigstore-keyless.md",
+  "sourceDirName": "docs/tutorials",
+  "slug": "/docs/tutorials/sigstore-keyless",
+  "permalink": "/docs/docs/tutorials/sigstore-keyless",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/docs/docs/tutorials/getting-started"
+  },
+  "next": {
+    "title": "Attestors",
+    "permalink": "/docs/docs/concepts/attestor"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "docs/attestors/commandrun",
+  "title": "Command Attestor",
+  "description": "The Command Attestor collects information about a command that TestifySec Witness executes and observes.",
+  "source": "@site/../docs/attestors/commandrun.md",
+  "sourceDirName": "docs/attestors",
+  "slug": "/docs/attestors/commandrun",
+  "permalink": "/docs/docs/attestors/commandrun",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "AWS Instance Identity Attestor",
+    "permalink": "/docs/docs/attestors/aws-iid"
+  },
+  "next": {
+    "title": "Environment Attestor",
+    "permalink": "/docs/docs/attestors/environment"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "CONTRIBUTING",
+  "title": "Contributing to Witness",
+  "description": "We welcome contributions from the community and first want to thank you for",
+  "source": "@site/../CONTRIBUTING.md",
+  "sourceDirName": ".",
+  "slug": "/CONTRIBUTING",
+  "permalink": "/docs/CONTRIBUTING",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Witness CLI Reference",
+    "permalink": "/docs/docs/commands"
+  },
+  "next": {
+    "title": "Contributor Covenant Code of Conduct",
+    "permalink": "/docs/CODE_OF_CONDUCT"
+  }
+}
