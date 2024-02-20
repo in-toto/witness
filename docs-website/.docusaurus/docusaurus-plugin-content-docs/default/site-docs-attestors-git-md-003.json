@@ -1,0 +1,23 @@
+{
+  "id": "docs/attestors/git",
+  "title": "Git Attestor",
+  "description": "The Git Attestor records the current state of the objects in the git repository, including untracked objects.",
+  "source": "@site/../docs/attestors/git.md",
+  "sourceDirName": "docs/attestors",
+  "slug": "/docs/attestors/git",
+  "permalink": "/docs/docs/attestors/git",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "GCP Instance Identity Attestor",
+    "permalink": "/docs/docs/attestors/gcp-iit"
+  },
+  "next": {
+    "title": "GitLab Attestor",
+    "permalink": "/docs/docs/attestors/gitlab"
+  }
+}

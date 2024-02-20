@@ -1,0 +1,23 @@
+{
+  "id": "docs/attestors/gitlab",
+  "title": "GitLab Attestor",
+  "description": "The GitLab Attestor records information about the GitLab CI/CD job execution in which",
+  "source": "@site/../docs/attestors/gitlab.md",
+  "sourceDirName": "docs/attestors",
+  "slug": "/docs/attestors/gitlab",
+  "permalink": "/docs/docs/attestors/gitlab",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Git Attestor",
+    "permalink": "/docs/docs/attestors/git"
+  },
+  "next": {
+    "title": "JWT Attestor",
+    "permalink": "/docs/docs/attestors/jwt"
+  }
+}

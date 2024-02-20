@@ -1,0 +1,23 @@
+{
+  "id": "docs/attestors/jwt",
+  "title": "JWT Attestor",
+  "description": "The JWT (JSON Web Token) Attestor verifies a JWT against a JWKS (JSON Web Key Set) and records information about the",
+  "source": "@site/../docs/attestors/jwt.md",
+  "sourceDirName": "docs/attestors",
+  "slug": "/docs/attestors/jwt",
+  "permalink": "/docs/docs/attestors/jwt",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "GitLab Attestor",
+    "permalink": "/docs/docs/attestors/gitlab"
+  },
+  "next": {
+    "title": "Material Attestor",
+    "permalink": "/docs/docs/attestors/material"
+  }
+}

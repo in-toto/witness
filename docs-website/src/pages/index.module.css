@@ -1,0 +1,45 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  color: #000000;
+  position: relative;
+  overflow: hidden;
+  background-color: #936342;
+}
+
+.heroTitle {
+  font-family: 'DM Mono';
+  font-size: 50px;
+  font-weight: 800;
+  color: var(--ifm-color-primary);
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merryChristmas {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #f9575c; /* Adjust background color as needed */
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  animation: snowfall 5s linear infinite; /* Apply the snowfall animation */
+}

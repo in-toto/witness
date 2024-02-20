@@ -1,0 +1,23 @@
+{
+  "id": "docs/tutorials/artifact-policy",
+  "title": "Verifying an Artifact with a Witness Policy",
+  "description": "💡 Tip: If this is your first time using Witness, you might benefit from trying the Getting Started tutorial first!",
+  "source": "@site/../docs/tutorials/artifact-policy.md",
+  "sourceDirName": "docs/tutorials",
+  "slug": "/docs/tutorials/artifact-policy",
+  "permalink": "/docs/docs/tutorials/artifact-policy",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Witness",
+    "permalink": "/docs/"
+  },
+  "next": {
+    "title": "Getting Started",
+    "permalink": "/docs/docs/tutorials/getting-started"
+  }
+}

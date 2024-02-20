@@ -1,0 +1,19 @@
+{
+  "id": "CODE_OF_CONDUCT",
+  "title": "Contributor Covenant Code of Conduct",
+  "description": "Our Pledge",
+  "source": "@site/../CODE_OF_CONDUCT.md",
+  "sourceDirName": ".",
+  "slug": "/CODE_OF_CONDUCT",
+  "permalink": "/docs/CODE_OF_CONDUCT",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Contributing to Witness",
+    "permalink": "/docs/CONTRIBUTING"
+  }
+}
