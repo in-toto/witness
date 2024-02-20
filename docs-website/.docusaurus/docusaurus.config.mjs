@@ -44,7 +44,7 @@ export default {
     ]
   ],
   "themeConfig": {
-    "image": "img/docusaurus-social-card.jpg",
+    "image": "img/witness-og.png",
     "navbar": {
       "title": "Witness",
       "logo": {

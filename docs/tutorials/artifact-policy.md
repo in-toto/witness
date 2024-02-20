@@ -12,7 +12,7 @@ successfully, you will need the following:
 - [wget](https://www.gnu.org/software/wget/)
 - [base64](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html) (which is part of GNU coreutils)
 
-You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
+You will also of course need to have witness installed, which can be achieved by following the [Quick Start](/README.md#quick-start).
 
 ## Let's Go!
 
@@ -185,7 +185,7 @@ steps:
       name: build
 ```
 
-For this step, we expect to find an [Attestation Collection](../attestor.md) that contains three types of attestation: material, product and command-run:
+For this step, we expect to find an [Attestation Collection](/docs/concepts/attestor.md) that contains three types of attestation: material, product and command-run:
 ```
   attestations:
     - type: https://witness.dev/attestations/material/v0.1
