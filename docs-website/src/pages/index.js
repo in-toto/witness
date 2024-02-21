@@ -24,7 +24,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--primary button--lg"
-            to="/docs/tutorials/getting-started"
+            to="/docs/docs/tutorials/getting-started"
             style={{color: 'black' }}>
             Try the Witness Getting Started Tutorial! 🦉
           </Link>
