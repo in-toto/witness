@@ -38,7 +38,7 @@ bash -c "echo 'hello' > hello.txt"
 In this command you will notice a few flags:
 
 - `-s build` specifies the step name. This is helpful for identifying which step of the supply chain these particular attestations are from.
-- `-a environment` specifies the attestor to use. There are a [wide variety of attestors](../attestors) available which can called in a list using this flag.
+- `-a environment` specifies the attestor to use. There are a [wide variety of attestors](/docs/concepts/attestor) available which can called in a list using this flag.
 - `-k buildkey.pem` specifies the private key we generated to use for signing the attestations.
 - `-o build-attestation.json` specifies the output file for the attestations to be written to in `json` format.
 
