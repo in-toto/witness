@@ -9,7 +9,7 @@ Based on the KMS signer functionality presented in the [Sigstore Cosign project]
 If a user wanted to use a KMS Key (e.g., GCP KMS) to sign the result of a `witness run` command, they would use a command similar the following:
 
 ```yaml
-witness run -s --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key -- echo "hello world" > hello.txt
+witness run -s test --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key -- echo "hello world" > hello.txt
 ```
 
 Furthermore, if a user wanted to use a KMS Key (e.g., GCP KMS) to sign a policy, they could simply execute a command like:
@@ -94,7 +94,7 @@ In this example, the `key` field is a base64 encoded PEM block of the public key
 
 ### Verifying
 
-The KMS signer can of course be supplied in `witness verify` in order to verify the policy signature that was generated over created policies in `witness sign`: 
+The KMS signer can of course be supplied in `witness verify` in order to verify the policy signature that was generated over created policies in `witness sign`:
 ```yaml
 witness verify -p policy-signed.json -a test.json --verifier-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key -f test.txt
 ```
@@ -126,7 +126,7 @@ The following URIs are valid:
 - Alias ARN with endpoint: `awskms://localhost:4566/arn:aws:kms:us-east-2:111122223333:alias/ExampleAlias`
 
 ### GCP
-The URI format for GCP KMS is: 
+The URI format for GCP KMS is:
 
 ```shell
 gcpkms://projects/$PROJECT/locations/$LOCATION/keyRings/$KEYRING/cryptoKeys/$KEY/versions/$KEY_VERSION
