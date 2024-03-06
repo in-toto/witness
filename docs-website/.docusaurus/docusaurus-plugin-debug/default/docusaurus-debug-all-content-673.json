@@ -13,9 +13,9 @@
           "tagsPath": "/docs/tags",
           "isLast": true,
           "routePriority": -1,
-          "sidebarFilePath": "/Users/chaosinthecrd/Git/witness-project/witness/sidebars.js",
-          "contentPath": "/Users/chaosinthecrd/Git/witness-project/witness",
-          "contentPathLocalized": "/Users/chaosinthecrd/Git/witness-project/witness/docs-website/i18n/en/docusaurus-plugin-content-docs/current",
+          "sidebarFilePath": "/Users/jkjell/sandbox/ChaosInTheCRD/witness/sidebars.js",
+          "contentPath": "/Users/jkjell/sandbox/ChaosInTheCRD/witness",
+          "contentPathLocalized": "/Users/jkjell/sandbox/ChaosInTheCRD/witness/docs-website/i18n/en/docusaurus-plugin-content-docs/current",
           "docs": [
             {
               "id": "CODE_OF_CONDUCT",

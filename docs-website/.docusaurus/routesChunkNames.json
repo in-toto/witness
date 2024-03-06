@@ -1,157 +1,114 @@
 {
-  "/__docusaurus/debug-154": {
-    "__comp": "__comp---theme-debug-config-23-a-2ff",
+  "/docs-e8c": {
+    "__comp": "5e95c892",
     "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/__docusaurus/debug/config-8e2": {
-    "__comp": "__comp---theme-debug-config-23-a-2ff",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/__docusaurus/debug/content-2da": {
-    "__comp": "__comp---theme-debug-contentba-8-ce7",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    },
-    "allContent": "allContent---docusaurus-debug-content-246-9aa"
-  },
-  "/__docusaurus/debug/globalData-3ab": {
-    "__comp": "__comp---theme-debug-global-dataede-0fa",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/__docusaurus/debug/metadata-67e": {
-    "__comp": "__comp---theme-debug-site-metadata-68-e-3d4",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/__docusaurus/debug/registry-72d": {
-    "__comp": "__comp---theme-debug-registry-679-501",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/__docusaurus/debug/routes-589": {
-    "__comp": "__comp---theme-debug-routes-946-699",
-    "__context": {
-      "plugin": "plugin---docusaurus-debug-7-ac-4b3"
-    }
-  },
-  "/docs-3d8": {
-    "__comp": "__comp---theme-docs-root-5-e-9-0b6",
-    "__context": {
-      "plugin": "plugin---docsc-7-c-b67"
+      "plugin": "4b05de29"
     }
   },
   "/docs-c9e": {
-    "__comp": "__comp---theme-doc-version-roota-7-b-5de",
-    "version": "version---docs-935-398"
+    "__comp": "a7bd4aaa",
+    "version": "935f2afb"
   },
   "/docs-d14": {
-    "__comp": "__comp---theme-doc-roota-94-67a"
+    "__comp": "a94703ab"
   },
   "/docs/-b31": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-ad-9-4f4"
+    "__comp": "17896441",
+    "content": "ad9520ef"
   },
   "/docs/CODE_OF_CONDUCT-e8d": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-code-of-conduct-826-8c7"
+    "__comp": "17896441",
+    "content": "826a2c15"
   },
   "/docs/CONTRIBUTING-6d0": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-contributing-8-c-2-caf"
+    "__comp": "17896441",
+    "content": "8c294f46"
   },
   "/docs/docs/about/how-witness-works-32f": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-about-how-witness-works-500-ae0"
+    "__comp": "17896441",
+    "content": "500af381"
   },
   "/docs/docs/attestors/aws-iid-d98": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-aws-iid-201-c3e"
+    "__comp": "17896441",
+    "content": "2014e561"
   },
   "/docs/docs/attestors/commandrun-b30": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-commandrunc-80-196"
+    "__comp": "17896441",
+    "content": "c803bb10"
   },
   "/docs/docs/attestors/environment-b27": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-environment-87-d-7c6"
+    "__comp": "17896441",
+    "content": "87d53d72"
   },
   "/docs/docs/attestors/gcp-iit-3b9": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-gcp-iit-34-a-f51"
+    "__comp": "17896441",
+    "content": "34a45777"
   },
   "/docs/docs/attestors/git-323": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-git-003-407"
+    "__comp": "17896441",
+    "content": "00397d08"
   },
   "/docs/docs/attestors/gitlab-667": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-gitlabe-1-b-ac7"
+    "__comp": "17896441",
+    "content": "e1b2eba9"
   },
   "/docs/docs/attestors/jwt-04a": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-jwt-1-e-2-8d0"
+    "__comp": "17896441",
+    "content": "1e21cedc"
   },
   "/docs/docs/attestors/material-63a": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-materialb-61-b50"
+    "__comp": "17896441",
+    "content": "b6122f1d"
   },
   "/docs/docs/attestors/maven-028": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-maven-3-f-5-995"
+    "__comp": "17896441",
+    "content": "3f587b61"
   },
   "/docs/docs/attestors/oci-daa": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-oci-565-926"
+    "__comp": "17896441",
+    "content": "5651251f"
   },
   "/docs/docs/attestors/product-860": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-attestors-product-516-901"
+    "__comp": "17896441",
+    "content": "5165b8b4"
   },
   "/docs/docs/commands-dc1": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-commands-6-f-3-e27"
+    "__comp": "17896441",
+    "content": "6f3bb722"
   },
   "/docs/docs/concepts/attestor-e45": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-concepts-attestor-556-222"
+    "__comp": "17896441",
+    "content": "556fd389"
   },
   "/docs/docs/concepts/config-102": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-concepts-configef-4-b51"
+    "__comp": "17896441",
+    "content": "ef48dc36"
   },
   "/docs/docs/concepts/policy-4af": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-concepts-policy-3-a-0-a18"
+    "__comp": "17896441",
+    "content": "3a05c1c7"
   },
   "/docs/docs/signers/kms-656": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-signers-kmsdc-7-f70"
+    "__comp": "17896441",
+    "content": "dc7d6c03"
   },
   "/docs/docs/tutorials/artifact-policy-5d1": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-tutorials-artifact-policyec-3-172"
+    "__comp": "17896441",
+    "content": "ec3dab5b"
   },
   "/docs/docs/tutorials/getting-started-6a0": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-tutorials-getting-starteda-83-003"
+    "__comp": "17896441",
+    "content": "a8340195"
   },
   "/docs/docs/tutorials/sigstore-keyless-879": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-docs-tutorials-sigstore-keyless-86-a-388"
+    "__comp": "17896441",
+    "content": "86a58e68"
   },
-  "/-e2c": {
-    "__comp": "__comp---site-src-pages-index-jsc-4-f-f99",
+  "/-fc7": {
+    "__comp": "c4f5d8e4",
     "__context": {
-      "plugin": "plugin---73-c-3af"
+      "plugin": "3a27d259"
     },
-    "config": "config---5-e-9-4f3"
+    "config": "5e9f5e1a"
   }
 }
