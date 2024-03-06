@@ -14,14 +14,20 @@
 
 package options
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 type RootOptions struct {
-	Config   string
-	LogLevel string
+	Config         string
+	LogLevel       string
+	CpuProfileFile string
+	MemProfileFile string
 }
 
 func (ro *RootOptions) AddFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&ro.Config, "config", "c", ".witness.yaml", "Path to the witness config file")
 	cmd.PersistentFlags().StringVarP(&ro.LogLevel, "log-level", "l", "info", "Level of logging to output (debug, info, warn, error)")
+	cmd.PersistentFlags().StringVar(&ro.CpuProfileFile, "debug-cpu-profile-file", "", "Path to store the CPU profile. Profiling will be enabled if this is non-empty")
+	cmd.PersistentFlags().StringVar(&ro.MemProfileFile, "debug-mem-profile-file", "", "Path to store the Memory profile. Profiling will be enabled if this is non-empty")
 }
