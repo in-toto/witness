@@ -9,7 +9,7 @@ successfully, you will need the following:
 - [jq](https://jqlang.github.io/jq/)
 - [base64](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html) (which is part of GNU coreutils)
 
-You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
+You will also of course need to have witness installed, which can be achieved by following the [Quick Start](/README.md#quick-start).
 
 ## Let's Go!
 
@@ -65,7 +65,7 @@ cat test-att.json | jq -r .payload | base64 -d | jq
 
 ### 5. Create a Policy File
 
-Look [here](docs/policy.md) for full documentation on Witness Policies.
+Look [here](/docs/concepts/policy.md) for full documentation on Witness Policies.
 
 > - Make sure to replace the keys in this file with the ones from the step above (sed command below).
 > - Rego policies should be base64 encoded

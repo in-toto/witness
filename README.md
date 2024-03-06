@@ -4,8 +4,8 @@
 <center>
 
 **[DOCS](https://witness.dev) •
-[CONTRIBUTING](../CONTRIBUTING.md) •
-[LICENSE](../LICENSE)**
+[CONTRIBUTING](/CONTRIBUTING.md) •
+[LICENSE](https://github.com/in-toto/witness/blob/main/LICENSE)
 
 `bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)`
 </center>
