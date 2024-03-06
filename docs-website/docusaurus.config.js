@@ -47,7 +47,7 @@ const config = {
             "CONTRIBUTING.md",
             "CODE_OF_CONDUCT.md",
           ],
-          sidebarPath: '../sidebars.js',
+          sidebarPath: 'sidebars.js',
           routeBasePath: "/docs",
         },
         blog: false,
