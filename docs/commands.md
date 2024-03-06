@@ -62,6 +62,10 @@ witness run [cmd] [flags]
   -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
 
+### SEE ALSO
+
+* [witness](witness.md)	 - Collect and verify attestations about your build environments
+
 ## witness sign
 
 Signs a file
@@ -118,6 +122,10 @@ witness sign [file] [flags]
   -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
 
+### SEE ALSO
+
+* [witness](witness.md)	 - Collect and verify attestations about your build environments
+
 ## witness verify
 
 Verifies a witness policy
@@ -160,6 +168,10 @@ witness verify [flags]
   -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
 
+### SEE ALSO
+
+* [witness](witness.md)	 - Collect and verify attestations about your build environments
+
 ## witness version
 
 Prints out the witness version
@@ -184,4 +196,8 @@ witness version [flags]
   -c, --config string      Path to the witness config file (default ".witness.yaml")
   -l, --log-level string   Level of logging to output (debug, info, warn, error) (default "info")
 ```
+
+### SEE ALSO
+
+* [witness](witness.md)	 - Collect and verify attestations about your build environments
 
