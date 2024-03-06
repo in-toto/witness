@@ -57,6 +57,20 @@ jobs:
       artifact-upload-name: profile.cov
       artifact-upload-path: profile.cov
 
+  e2e-test:
+    needs: [fmt]
+    uses: ./.github/workflows/witness.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
+    with:
+      pull_request: ${{ github.event_name == 'pull_request' }}
+      step: e2e-test
+      attestations: "git github environment"
+      command: cd test/ && ./test.sh
+      artifact-upload-name: profile.cov
+      artifact-upload-path: profile.cov
+
   release:
     permissions:
       id-token: write
