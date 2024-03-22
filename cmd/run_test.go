@@ -83,7 +83,7 @@ func Test_runRunRSACA(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), signerOptions, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 
 	workingDir := t.TempDir()
