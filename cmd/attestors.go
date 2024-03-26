@@ -46,13 +46,9 @@ func runAttestors(ctx context.Context) error {
 	entries := attestation.RegistrationEntries()
 	for _, entry := range entries {
 		name := entry.Factory().Name()
-		// NOTE: This is a workaround to avoid printing the command-run attestor. We should mark it in the registry as such somehow.
-		if name == "command-run" {
-			continue
-		}
 
 		for _, a := range alwaysRunAttestors {
-			if name == a.Name() {
+			if name == a.Name() || name == "command-run" {
 				name = name + " (always run)"
 			}
 		}
