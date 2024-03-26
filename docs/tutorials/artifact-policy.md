@@ -12,7 +12,7 @@ successfully, you will need the following:
 - [wget](https://www.gnu.org/software/wget/)
 - [base64](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html) (which is part of GNU coreutils)
 
-You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
+You will also of course need to have witness installed, which can be achieved by following the [Quick Start](/README.md#quick-start).
 
 ## Let's Go!
 
@@ -38,7 +38,7 @@ bash -c "echo 'hello' > hello.txt"
 In this command you will notice a few flags:
 
 - `-s build` specifies the step name. This is helpful for identifying which step of the supply chain these particular attestations are from.
-- `-a environment` specifies the attestor to use. There are a [wide variety of attestors](../attestors) available which can called in a list using this flag.
+- `-a environment` specifies the attestor to use. There are a [wide variety of attestors](/docs/concepts/attestor.md) available which can called in a list using this flag.
 - `-k buildkey.pem` specifies the private key we generated to use for signing the attestations.
 - `-o build-attestation.json` specifies the output file for the attestations to be written to in `json` format.
 
@@ -185,7 +185,7 @@ steps:
       name: build
 ```
 
-For this step, we expect to find an [Attestation Collection](../attestor.md) that contains three types of attestation: material, product and command-run:
+For this step, we expect to find an [Attestation Collection](/docs/concepts/attestor.md) that contains three types of attestation: material, product and command-run:
 ```
   attestations:
     - type: https://witness.dev/attestations/material/v0.1

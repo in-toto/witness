@@ -19,6 +19,8 @@ import (
 	"os"
 
 	"github.com/in-toto/go-witness/log"
+	_ "github.com/in-toto/go-witness/signer/kms/aws"
+	_ "github.com/in-toto/go-witness/signer/kms/gcp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )

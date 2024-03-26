@@ -23,16 +23,17 @@ import (
 var DefaultAttestors = []string{"environment", "git"}
 
 type RunOptions struct {
-	SignerOptions      SignerOptions
-	ArchivistaOptions  ArchivistaOptions
-	WorkingDir         string
-	Attestations       []string
-	Hashes             []string
-	OutFilePath        string
-	StepName           string
-	Tracing            bool
-	TimestampServers   []string
-	AttestorOptSetters map[string][]func(attestation.Attestor) (attestation.Attestor, error)
+	SignerOptions            SignerOptions
+	KMSSignerProviderOptions KMSSignerProviderOptions
+	ArchivistaOptions        ArchivistaOptions
+	WorkingDir               string
+	Attestations             []string
+	Hashes                   []string
+	OutFilePath              string
+	StepName                 string
+	Tracing                  bool
+	TimestampServers         []string
+	AttestorOptSetters       map[string][]func(attestation.Attestor) (attestation.Attestor, error)
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
@@ -48,6 +49,8 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 
 	attestationRegistrations := attestation.RegistrationEntries()
 	ro.AttestorOptSetters = addFlagsFromRegistry("attestor", attestationRegistrations, cmd)
+
+	ro.KMSSignerProviderOptions.AddFlags(cmd)
 }
 
 type ArchivistaOptions struct {

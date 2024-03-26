@@ -37,8 +37,9 @@ var alwaysRunAttestors = []attestation.Attestor{product.New(), material.New()}
 
 func RunCmd() *cobra.Command {
 	o := options.RunOptions{
-		AttestorOptSetters: make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),
-		SignerOptions:      options.SignerOptions{},
+		AttestorOptSetters:       make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),
+		SignerOptions:            options.SignerOptions{},
+		KMSSignerProviderOptions: options.KMSSignerProviderOptions{},
 	}
 
 	cmd := &cobra.Command{
@@ -47,9 +48,9 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			signers, err := loadSigners(cmd.Context(), o.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
+			signers, err := loadSigners(cmd.Context(), o.SignerOptions, o.KMSSignerProviderOptions, providersFromFlags("signer", cmd.Flags()))
 			if err != nil {
-				return fmt.Errorf("failed to load signers")
+				return fmt.Errorf("failed to load signers: %w", err)
 			}
 
 			return runRun(cmd.Context(), o, args, signers...)

@@ -54,7 +54,7 @@ func TestRunVerifyCA(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), so, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), so, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 
 	caBytes, err := os.ReadFile(ca.Name())
@@ -167,7 +167,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), so, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), so, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 
 	artifactPath := filepath.Join(workingDir, "test.txt")
