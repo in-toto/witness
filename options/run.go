@@ -57,9 +57,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
 
-	for _, flag := range RequiredRunFlags {
-		cmd.MarkFlagRequired(flag)
-	}
+	cmd.MarkFlagsRequiredTogether(RequiredRunFlags...)
 
 	attestationRegistrations := attestation.RegistrationEntries()
 	ro.AttestorOptSetters = addFlagsFromRegistry("attestor", attestationRegistrations, cmd)
