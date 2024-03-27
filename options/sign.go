@@ -28,7 +28,6 @@ type SignOptions struct {
 var RequiredSignFlags = []string{
 	"infile",
 	"outfile",
-	"datatype",
 }
 
 func (so *SignOptions) AddFlags(cmd *cobra.Command) {
