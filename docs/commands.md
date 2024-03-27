@@ -50,7 +50,7 @@ witness run [cmd] [flags]
       --enable-archivista                             Use Archivista to store or retrieve attestations
       --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
-  -o, --outfile string                                File to which to write signed data.  Defaults to stdout
+  -o, --outfile string                                File to write signed data to
       --signer-file-cert-path string                  Path to the file containing the certificate for the private key
       --signer-file-intermediate-paths strings        Paths to files containing intermediates required to establish trust of the signer's certificate to a root
   -k, --signer-file-key-path string                   Path to the file containing the private key

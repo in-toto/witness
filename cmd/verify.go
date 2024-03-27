@@ -64,10 +64,6 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
-	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
-		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
-	}
-
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
@@ -85,7 +81,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 
 	inFile, err := os.Open(vo.PolicyFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to open file to sign: %w", err)
+		return fmt.Errorf("failed to open policy file: %w", err)
 	}
 
 	defer inFile.Close()
