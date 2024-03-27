@@ -13,7 +13,19 @@
 # limitations under the License.
 
 name: release
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "docs-site/**"
 
 permissions:
   contents: read  # This is required for actions/checkout
