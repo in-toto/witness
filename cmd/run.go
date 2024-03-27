@@ -33,6 +33,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var alwaysRunAttestors = []attestation.Attestor{product.New(), material.New()}
+
 func RunCmd() *cobra.Command {
 	o := options.RunOptions{
 		AttestorOptSetters:       make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),
@@ -79,17 +81,22 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}
 
-	attestors := []attestation.Attestor{product.New(), material.New()}
+	attestors := alwaysRunAttestors
 	if len(args) > 0 {
 		attestors = append(attestors, commandrun.New(commandrun.WithCommand(args), commandrun.WithTracing(ro.Tracing)))
 	}
 
 	for _, a := range ro.Attestations {
+		if a == "command-run" {
+			log.Warnf("'command-run' is a builtin attestor and cannot be called with --attestations flag")
+			continue
+		}
+
 		duplicate := false
 		for _, att := range attestors {
 			if a != att.Name() {
 			} else {
-				log.Warnf("Attestator %s already declared, skipping", a)
+				log.Warnf("Attestor %s already declared, skipping", a)
 				duplicate = true
 				break
 			}
