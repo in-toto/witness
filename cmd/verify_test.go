@@ -54,7 +54,7 @@ func TestRunVerifyCA(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), so, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), so, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 
 	caBytes, err := os.ReadFile(ca.Name())
@@ -92,7 +92,7 @@ func TestRunVerifyCA(t *testing.T) {
 	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args, signers...))
 
 	subjects := []string{}
-	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
 	require.NoError(t, err)
 
 	for _, digest := range artifactDigest {
@@ -128,7 +128,7 @@ func TestRunVerifyCA(t *testing.T) {
 	require.NoError(t, runVerify(context.Background(), vo))
 
 	// test that verify works without artifactfilepath but the subject of the modified articact also provided
-	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
 	require.NoError(t, err)
 	for _, digest := range artifactDigest {
 		subjects = append(subjects, digest)
@@ -167,7 +167,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		},
 	}
 
-	signers, err := loadSigners(context.Background(), so, map[string]struct{}{"file": {}})
+	signers, err := loadSigners(context.Background(), so, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
 	require.NoError(t, err)
 
 	artifactPath := filepath.Join(workingDir, "test.txt")
@@ -190,7 +190,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	require.NoError(t, runRun(context.Background(), s1RunOptions, step1Args, signers...))
 
 	subjects := []string{}
-	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
 	require.NoError(t, err)
 
 	for _, digest := range artifactDigest {
@@ -226,7 +226,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	require.NoError(t, runVerify(context.Background(), vo))
 
 	// test that verify works without artifactfilepath but the subject of the modified articact also provided
-	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []crypto.Hash{crypto.SHA256})
+	artifactDigest, err = cryptoutil.CalculateDigestSetFromFile(artifactPath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
 	require.NoError(t, err)
 	for _, digest := range artifactDigest {
 		subjects = append(subjects, digest)
@@ -328,9 +328,7 @@ func makepolicy(t *testing.T, functionary policy.Functionary, publicKey policy.P
 	p.Steps[step02.Name] = step02
 
 	if publicKey.KeyID != "" {
-
 		p.PublicKeys[publicKey.KeyID] = publicKey
-
 	}
 
 	pb, err := json.MarshalIndent(p, "", "  ")

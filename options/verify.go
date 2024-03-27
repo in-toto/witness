@@ -19,13 +19,15 @@ import (
 )
 
 type VerifyOptions struct {
-	ArchivistaOptions    ArchivistaOptions
-	KeyPath              string
-	AttestationFilePaths []string
-	PolicyFilePath       string
-	ArtifactFilePath     string
-	AdditionalSubjects   []string
-	CAPaths              []string
+	VerifierOptions            VerifierOptions
+	KMSVerifierProviderOptions KMSVerifierProviderOptions
+	ArchivistaOptions          ArchivistaOptions
+	KeyPath                    string
+	AttestationFilePaths       []string
+	PolicyFilePath             string
+	ArtifactFilePath           string
+	AdditionalSubjects         []string
+	CAPaths                    []string
 }
 
 var RequiredVerifyFlags = []string{
@@ -33,15 +35,13 @@ var RequiredVerifyFlags = []string{
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
+	vo.VerifierOptions.AddFlags(cmd)
 	vo.ArchivistaOptions.AddFlags(cmd)
+	vo.KMSVerifierProviderOptions.AddFlags(cmd)
 	cmd.Flags().StringVarP(&vo.KeyPath, "publickey", "k", "", "Path to the policy signer's public key")
 	cmd.Flags().StringSliceVarP(&vo.AttestationFilePaths, "attestations", "a", []string{}, "Attestation files to test against the policy")
 	cmd.Flags().StringVarP(&vo.PolicyFilePath, "policy", "p", "", "Path to the policy to verify")
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringSliceVarP(&vo.AdditionalSubjects, "subjects", "s", []string{}, "Additional subjects to lookup attestations")
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
-
-	for _, flag := range RequiredVerifyFlags {
-		cmd.MarkFlagRequired(flag)
-	}
 }

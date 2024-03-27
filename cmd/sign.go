@@ -29,7 +29,8 @@ import (
 
 func SignCmd() *cobra.Command {
 	so := options.SignOptions{
-		SignerOptions: options.SignerOptions{},
+		SignerOptions:            options.SignerOptions{},
+		KMSSignerProviderOptions: options.KMSSignerProviderOptions{},
 	}
 
 	cmd := &cobra.Command{
@@ -40,7 +41,7 @@ func SignCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			signers, err := loadSigners(cmd.Context(), so.SignerOptions, signerProvidersFromFlags(cmd.Flags()))
+			signers, err := loadSigners(cmd.Context(), so.SignerOptions, so.KMSSignerProviderOptions, providersFromFlags("signer", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signer: %w", err)
 			}
@@ -64,7 +65,7 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 		return fmt.Errorf("no signers found")
 	}
 
-	timestampers := []dsse.Timestamper{}
+	timestampers := []timestamp.Timestamper{}
 	for _, url := range so.TimestampServers {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
 	}

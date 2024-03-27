@@ -2,7 +2,8 @@
 
 | Name                       | GitHub          |
 |----------------------------|-----------------|
-| Cole Kennedy (TestifySec)      | [@colek42](https://github.com/colek42) |
-| John Kjell (TestifySec)     | [@jkjell](https://github.com/jkjell) |
+| Cole Kennedy (TestifySec)  | [@colek42](https://github.com/colek42) |
+| John Kjell (TestifySec)    | [@jkjell](https://github.com/jkjell) |
+| Tom Meadows (TestifySec)   | [@ChaosInTheCRD](https://github.com/ChaosInTheCRD) |
+| Aditya Sirish (NYU)        | [@adityasaky](https://github.com/adityasaky) |
 | Mikhail Swift (TestifySec) | [@mikhailswift](https://github.com/mikhailswift) |
-| Aditya Sirish (NYU)       | [@adityasaky](https://github.com/adityasaky) |

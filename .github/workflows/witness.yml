@@ -50,19 +50,19 @@ jobs:
           contents: read
           id-token: write
         steps:
-          - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+          - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
           - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
             with:
               go-version: 1.21.x
 
           - if: ${{ inputs.artifact-download != '' }}
-            uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+            uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
             with:
               name: ${{ inputs.artifact-download }}
               path: /tmp
 
           - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
+            uses: testifysec/witness-run-action@2ae7f93c013ccf24b8ff52b4f042b32ca95ec7b8
             with:
               step: pre-${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
@@ -71,7 +71,7 @@ jobs:
             run: ${{ inputs.pre-command }}
 
           - if: ${{ inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@40aa4ef36fc431a37de7c3faebcb66513c03b934
+            uses: testifysec/witness-run-action@2ae7f93c013ccf24b8ff52b4f042b32ca95ec7b8
             with:
               step: ${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
@@ -80,7 +80,7 @@ jobs:
             run: ${{ inputs.command }}
 
           - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
-            uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+            uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
             with:
               name: ${{ inputs.artifact-upload-name }}
               path: ${{ inputs.artifact-upload-path }}
