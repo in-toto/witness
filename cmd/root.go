@@ -44,6 +44,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
 	cmd.AddCommand(versionCmd())
+	cmd.AddCommand(AttestorsCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
 	return cmd
 }

@@ -2,8 +2,11 @@ module github.com/in-toto/witness
 
 go 1.21
 
+toolchain go1.21.4
+
 require (
 	github.com/in-toto/go-witness v0.3.1
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
@@ -91,6 +94,7 @@ require (
 	github.com/letsencrypt/boulder v0.0.0-20240226214708-a97e074b5a3e // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
