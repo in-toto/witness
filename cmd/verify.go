@@ -17,6 +17,7 @@ package cmd
 import (
 	"context"
 	"crypto"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ import (
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
+	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )
@@ -64,7 +66,7 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
-	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
+	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(verifiers) == 0 {
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
@@ -81,6 +83,57 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 
 		verifiers = append(verifiers, v)
+	}
+
+	var policyRoots []*x509.Certificate
+	if len(vo.PolicyCARootPaths) > 0 {
+		for _, caPath := range vo.PolicyCARootPaths {
+			caFile, err := os.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read root CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to parse root CA certificate: %w", err)
+			}
+
+			policyRoots = append(policyRoots, cert)
+		}
+	}
+
+	var policyIntermediates []*x509.Certificate
+	if len(vo.PolicyCAIntermediatePaths) > 0 {
+		for _, caPath := range vo.PolicyCAIntermediatePaths {
+			caFile, err := os.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read intermediate CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to parse intermediate CA certificate: %w", err)
+			}
+
+			policyRoots = append(policyIntermediates, cert)
+		}
+	}
+
+	ptsVerifiers := make([]timestamp.TimestampVerifier, 0)
+	if len(vo.PolicyTimestampServers) > 0 {
+		for _, server := range vo.PolicyTimestampServers {
+			f, err := os.ReadFile(server)
+			if err != nil {
+				return fmt.Errorf("failed to open Timestamp Server CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(f)
+			if err != nil {
+				return fmt.Errorf("failed to parse Timestamp Server CA certificate: %w", err)
+			}
+
+			ptsVerifiers = append(ptsVerifiers, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
+		}
 	}
 
 	inFile, err := os.Open(vo.PolicyFilePath)
@@ -132,17 +185,29 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		verifiers,
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
+		witness.VerifyWithPolicyTimestampAuthorities(ptsVerifiers),
+		witness.VerifyWithPolicyCARoots(policyRoots),
+		witness.VerifyWithPolicyCAIntermediates(policyIntermediates),
+		witness.VerifyWithPolicyCertConstraints(vo.PolicyCommonName, vo.PolicyDNSNames, vo.PolicyEmails, vo.PolicyOrganizations, vo.PolicyURIs),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)
 	}
 
 	log.Info("Verification succeeded")
-	log.Info("Evidence:")
+	log.Infof("Evidence:")
 	num := 0
-	for _, stepEvidence := range verifiedEvidence {
+	for step, stepEvidence := range verifiedEvidence {
 		for _, e := range stepEvidence {
-			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
+			log.Info(fmt.Sprintf("step %d: %s", num, step))
+			log.Info(fmt.Sprintf("reference: %s", e.Reference))
+			for _, v := range e.Verifiers {
+				k, err := v.KeyID()
+				if err != nil {
+					return fmt.Errorf("failed to get verifier key id: %w", err)
+				}
+				log.Info(fmt.Sprintf("Verified Key IDs: %s", k))
+			}
 			num++
 		}
 	}
