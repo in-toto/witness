@@ -89,6 +89,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	for _, a := range ro.Attestations {
 		if a == "command-run" {
 			log.Warnf("'command-run' is a builtin attestor and cannot be called with --attestations flag")
+			continue
 		}
 
 		duplicate := false
