@@ -43,6 +43,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(VerifyCmd())
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
+	cmd.AddCommand(PolicyCmd())
 	cmd.AddCommand(versionCmd())
 	cmd.AddCommand(AttestorsCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
