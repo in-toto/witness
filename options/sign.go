@@ -38,7 +38,5 @@ func (so *SignOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&so.InFilePath, "infile", "f", "", "Witness policy file to sign")
 	cmd.Flags().StringSliceVar(&so.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
 
-	for _, flag := range RequiredSignFlags {
-		cmd.MarkFlagRequired(flag)
-	}
+	cmd.MarkFlagsRequiredTogether(RequiredSignFlags...)
 }

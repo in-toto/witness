@@ -34,7 +34,7 @@ var RequiredVerifyFlags = []string{
 	"policy",
 }
 
-var OneRequiredPKFlags = []string{
+var OneRequiredPKVerifyFlags = []string{
 	"publickey",
 	"policy-ca",
 	"verifier-kms-ref",
@@ -57,5 +57,6 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
 
 	cmd.MarkFlagsRequiredTogether(RequiredVerifyFlags...)
-	cmd.MarkFlagsOneRequired(OneRequiredPKFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredPKVerifyFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredSubjectFlags...)
 }

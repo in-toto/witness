@@ -35,8 +35,15 @@ type RunOptions struct {
 }
 
 var RequiredRunFlags = []string{
-	"outfile",
 	"step",
+	// we're going to require an out file path specified as stdout is an unreliable default
+	"outfile",
+}
+
+var OneRequiredPKSignFlags = []string{
+	"signer-file-key-path",
+	"policy-ca",
+	"signer-kms-ref",
 }
 
 func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
@@ -45,7 +52,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", []string{"environment", "git"}, "Attestations to record ('product' and 'material' are always recorded)")
 	cmd.Flags().StringSliceVar(&ro.Hashes, "hashes", []string{"sha256"}, "Hashes selected for digest calculation. Defaults to SHA256")
-	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")
+	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to write signed data to")
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
