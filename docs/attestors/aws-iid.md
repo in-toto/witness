@@ -14,3 +14,8 @@ GovCloud regions.
 | `accountid` | ID of the account that owns the AWS instance |
 | `imageid` | ID of the AMI ([Amazon Machine Image](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)) the instance was running at time of execution |
 | `privateip` | IP address of the instance at time of execution |
+
+## Attestation Schema
+```json
+[aws-iid.json](https://raw.githubusercontent.com/chaosinthecrd/go-witness/attestor-json-schema/schemagen/aws.json))
+```
