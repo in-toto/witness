@@ -1,3 +1,5 @@
+import JSONRenderer from './json';
+
 # AWS Instance Identity Attestor
 
 The AWS (Amazon Web Services) Instance Identity Attestor communicates with the AWS Instance Metadata to collect
@@ -15,7 +17,4 @@ GovCloud regions.
 | `imageid` | ID of the AMI ([Amazon Machine Image](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)) the instance was running at time of execution |
 | `privateip` | IP address of the instance at time of execution |
 
-## Attestation Schema
-```json
-[aws-iid.json](https://raw.githubusercontent.com/chaosinthecrd/go-witness/attestor-json-schema/schemagen/aws.json))
-```
+<JSONRenderer url="https://raw.githubusercontent.com/chaosinthecrd/go-witness/attestor-json-schema/schemagen/aws.json" />
