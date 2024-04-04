@@ -29,7 +29,9 @@ type RunOptions struct {
 	WorkingDir               string
 	Attestations             []string
 	Hashes                   []string
+	OutFile                  string
 	OutFilePath              string
+	OutFilePrefix            string
 	StepName                 string
 	Tracing                  bool
 	TimestampServers         []string
@@ -42,7 +44,9 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.WorkingDir, "workingdir", "d", "", "Directory from which commands will run")
 	cmd.Flags().StringSliceVarP(&ro.Attestations, "attestations", "a", DefaultAttestors, "Attestations to record ('product' and 'material' are always recorded)")
 	cmd.Flags().StringSliceVar(&ro.Hashes, "hashes", []string{"sha256"}, "Hashes selected for digest calculation. Defaults to SHA256")
-	cmd.Flags().StringVarP(&ro.OutFilePath, "outfile", "o", "", "File to which to write signed data.  Defaults to stdout")
+	cmd.Flags().StringVarP(&ro.OutFile, "outfile", "o", "", "(Deprecated for --output) File to which to write signed data.  Defaults to stdout")
+	cmd.Flags().StringVar(&ro.OutFilePath, "output", "", "The filepath to output the attestations to. The names of the files will follow a standard scheme unless --output-prefix is specified")
+	cmd.Flags().StringVar(&ro.OutFilePrefix, "output-prefix", "", "The prefix to use for the output file names. If not specified, the step name will be used")
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVar(&ro.Tracing, "trace", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVar(&ro.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")

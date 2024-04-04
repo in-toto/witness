@@ -144,10 +144,27 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			return fmt.Errorf("failed to marshal envelope: %w", err)
 		}
 
-		// TODO: Find out explicit way to describe "prefix" in CLI options
-		outfile := ro.OutFilePath
-		if result.AttestorName != "" {
-			outfile += "-" + result.AttestorName + ".json"
+		var outfile string
+		if ro.OutFile != "" {
+			log.Warn("--outfile is deprecated, please use --output instead")
+			if len(results) > 1 {
+				return fmt.Errorf("multiple attestations were created but only one output file was specified")
+			}
+			outfile = ro.OutFile
+		} else if ro.OutFilePath != "" {
+			var prefix string
+			if ro.OutFilePrefix != "" {
+				prefix = ro.OutFilePrefix
+			} else {
+				prefix = ro.StepName
+			}
+
+			if result.AttestorName != "" {
+				outfile = fmt.Sprintf("%s.%s.json", prefix, result.AttestorName)
+			} else if result.Collection.Name != "" {
+				outfile = fmt.Sprintf("%s.collection.json", prefix)
+			}
+
 		}
 
 		out, err := loadOutfile(outfile)
@@ -159,6 +176,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if _, err := out.Write(signedBytes); err != nil {
 			return fmt.Errorf("failed to write envelope to out file: %w", err)
 		}
+
+		log.Info("attestation saved to: ", outfile)
 
 		if ro.ArchivistaOptions.Enable {
 			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
