@@ -431,26 +431,45 @@ func testRun(t *testing.T, tests []runTest) {
 				}
 			}
 
-			if tt.requireErr != "" {
+			if tt.requireErr != "" && err != nil {
 				assert.Equal(t, tt.requireErr, err.Error())
+				return
 			} else {
 				require.NoError(t, err)
-				// NOTE: For tests, make sure to set the OutFile to the entire path of the file
-				for _, attestationPath := range attestationPaths {
-					attestationBytes, err := os.ReadFile(attestationPath)
+			}
+			// NOTE: For tests, make sure to set the OutFile to the entire path of the file
+			for _, attestationPath := range attestationPaths {
+				attestationBytes, err := os.ReadFile(attestationPath)
+				if tt.requireErr != "" && err != nil {
+					assert.Equal(t, tt.requireErr, err.Error())
+					return
+				} else {
 					require.NoError(t, err)
-					env := dsse.Envelope{}
-					require.NoError(t, json.Unmarshal(attestationBytes, &env))
-					if tt.intermediate != nil && tt.leafCert != nil {
-						b, err := os.ReadFile(tt.intermediate.Name())
-						require.NoError(t, err)
-						assert.Equal(t, b, env.Signatures[0].Intermediates[0])
-
-						b, err = os.ReadFile(tt.leafCert.Name())
-						require.NoError(t, err)
-						assert.Equal(t, b, env.Signatures[0].Certificate)
-					}
 				}
+				env := dsse.Envelope{}
+				require.NoError(t, json.Unmarshal(attestationBytes, &env))
+				if tt.intermediate != nil && tt.leafCert != nil {
+					b, err := os.ReadFile(tt.intermediate.Name())
+					if tt.requireErr != "" && err != nil {
+						assert.Equal(t, tt.requireErr, err.Error())
+						return
+					} else {
+						require.NoError(t, err)
+					}
+					assert.Equal(t, b, env.Signatures[0].Intermediates[0])
+
+					b, err = os.ReadFile(tt.leafCert.Name())
+					if tt.requireErr != "" && err != nil {
+						assert.Equal(t, tt.requireErr, err.Error())
+						return
+					} else {
+						require.NoError(t, err)
+					}
+					assert.Equal(t, b, env.Signatures[0].Certificate)
+				}
+			}
+			if tt.requireErr != "" {
+				logg.Fatalf("expected error in test: %s", tt.requireErr)
 			}
 		})
 	}
