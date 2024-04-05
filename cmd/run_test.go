@@ -202,6 +202,37 @@ func TestRunOutputFileHandling(t *testing.T) {
 		{
 			name: "OutFilePath specified with set prefix and exported attestations",
 			options: options.RunOptions{
+				OutFilePath:  tempDir,
+				Attestations: []string{"environment", "slsa", "link"},
+				StepName:     "teststep",
+				Tracing:      false,
+			},
+			exportedAtts: []string{"slsa", "link"},
+			expectLogs: []tlog{
+				{
+					level:   logrus.InfoLevel,
+					message: fmt.Sprintf("attestation written to %s/teststep.collection.json", tempDir),
+				},
+				{
+					level:   logrus.InfoLevel,
+					message: fmt.Sprintf("attestation written to %s/teststep.slsa.json", tempDir),
+				},
+				{
+					level:   logrus.InfoLevel,
+					message: fmt.Sprintf("attestation written to %s/teststep.link.json", tempDir),
+				},
+			},
+			unexpectLogs: []tlog{
+				{
+					level:   logrus.InfoLevel,
+					message: "--outfile is deprecated, please use --output instead",
+				},
+			},
+			requireErr: "",
+		},
+		{
+			name: "OutFilePath specified with set prefix and exported attestations",
+			options: options.RunOptions{
 				OutFilePath:   tempDir,
 				OutFilePrefix: "super-secret-prefix",
 				Attestations:  []string{"environment", "slsa", "link"},
@@ -213,6 +244,14 @@ func TestRunOutputFileHandling(t *testing.T) {
 				{
 					level:   logrus.InfoLevel,
 					message: fmt.Sprintf("attestation written to %s/super-secret-prefix.collection.json", tempDir),
+				},
+				{
+					level:   logrus.InfoLevel,
+					message: fmt.Sprintf("attestation written to %s/super-secret-prefix.slsa.json", tempDir),
+				},
+				{
+					level:   logrus.InfoLevel,
+					message: fmt.Sprintf("attestation written to %s/super-secret-prefix.link.json", tempDir),
 				},
 			},
 			unexpectLogs: []tlog{
