@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/archivista"
@@ -138,26 +139,59 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return err
 	}
 
-	for _, result := range results {
+	for i, result := range results {
 		signedBytes, err := json.Marshal(&result.SignedEnvelope)
 		if err != nil {
 			return fmt.Errorf("failed to marshal envelope: %w", err)
 		}
 
-		// TODO: Find out explicit way to describe "prefix" in CLI options
-		outfile := ro.OutFilePath
-		if result.AttestorName != "" {
-			outfile += "-" + result.AttestorName + ".json"
+		var outfile string
+		// NOTE: This is a temporary fix until https://github.com/in-toto/witness/pull/350 is merged
+		if ro.OutFile != "" && ro.OutFilePath != "" {
+			return fmt.Errorf("cannot use both --outfile and --output")
+		}
+		if ro.OutFile != "" {
+			log.Warn("--outfile is deprecated, please use --output instead")
+			if len(results) > 1 {
+				atts := "collection"
+				for _, r := range results {
+					if r.AttestorName != "" {
+						atts = fmt.Sprintf("%s, %s", atts, r.AttestorName)
+					}
+				}
+				return fmt.Errorf("multiple attestations (%s) were created but only one output file was specified", atts)
+			}
+			outfile = ro.OutFile
+		} else if ro.OutFilePath != "" {
+			var prefix string
+			if ro.OutFilePrefix != "" {
+				prefix = ro.OutFilePrefix
+			} else {
+				prefix = ro.StepName
+			}
+
+			if result.AttestorName != "" {
+				outfile = filepath.Join(ro.OutFilePath, fmt.Sprintf("%s.%s.json", prefix, result.AttestorName))
+			} else if result.Collection.Name != "" {
+				outfile = filepath.Join(ro.OutFilePath, fmt.Sprintf("%s.collection.json", prefix))
+			}
+			// We only want to warn the user wants so logging on the first iteration
+		} else if ro.OutFilePrefix != "" && i == 0 {
+			log.Warn("--output-prefix is ignored unless --output is set")
 		}
 
-		out, err := loadOutfile(outfile)
-		if err != nil {
-			return fmt.Errorf("failed to open out file: %w", err)
-		}
-		defer out.Close()
+		if outfile != "" {
+			out, err := loadOutfile(outfile)
+			if err != nil {
+				return fmt.Errorf("failed to open out file: %w", err)
+			}
+			defer out.Close()
 
-		if _, err := out.Write(signedBytes); err != nil {
-			return fmt.Errorf("failed to write envelope to out file: %w", err)
+			if _, err := out.Write(signedBytes); err != nil {
+				return fmt.Errorf("failed to write envelope to out file: %w", err)
+			}
+
+			log.Info("attestation written to ", outfile)
 		}
 
 		if ro.ArchivistaOptions.Enable {

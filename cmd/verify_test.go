@@ -84,7 +84,7 @@ func TestRunVerifyCA(t *testing.T) {
 		SignerOptions: so,
 		WorkingDir:    workingDir,
 		Attestations:  []string{},
-		OutFilePath:   s1FilePath,
+		OutFile:       s1FilePath,
 		StepName:      "step01",
 		Tracing:       false,
 	}
@@ -110,7 +110,7 @@ func TestRunVerifyCA(t *testing.T) {
 		SignerOptions: so,
 		WorkingDir:    workingDir,
 		Attestations:  []string{},
-		OutFilePath:   s2FilePath,
+		OutFile:       s2FilePath,
 		StepName:      "step02",
 		Tracing:       false,
 	}
@@ -182,7 +182,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		SignerOptions: so,
 		WorkingDir:    workingDir,
 		Attestations:  []string{},
-		OutFilePath:   s1FilePath,
+		OutFile:       s1FilePath,
 		StepName:      "step01",
 		Tracing:       false,
 	}
@@ -208,7 +208,7 @@ func TestRunVerifyKeyPair(t *testing.T) {
 		SignerOptions: so,
 		WorkingDir:    workingDir,
 		Attestations:  []string{},
-		OutFilePath:   s2FilePath,
+		OutFile:       s2FilePath,
 		StepName:      "step02",
 		Tracing:       false,
 	}
