@@ -16,3 +16,5 @@ test/log
 node_modules
 .DS_Store
 docs-website/.docusaurus
+profile.cov
+.vscode/
