@@ -4,8 +4,6 @@ go 1.21
 
 toolchain go1.21.4
 
-replace github.com/in-toto/go-witness => ../go-witness
-
 require (
 	github.com/in-toto/go-witness v0.3.2-0.20240410013552-4e37a0480f95
 	github.com/olekukonko/tablewriter v0.0.5
