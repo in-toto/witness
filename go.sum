@@ -216,6 +216,8 @@ github.com/in-toto/attestation v1.0.2 h1:ICqV41bfaDC3ixVUzAtFxFu+Dy56EPcjiIrJQe+
 github.com/in-toto/attestation v1.0.2/go.mod h1:3uRayZSKuCHDDZOxLm5UfYulqqd1L1NdzYvxX/jyZEM=
 github.com/in-toto/go-witness v0.3.2-0.20240406230535-33f390599129 h1:+Q3o1J2FM+l3cTROo+y22y/fKmWgvJCoE9UHyLKbiLw=
 github.com/in-toto/go-witness v0.3.2-0.20240406230535-33f390599129/go.mod h1:V9KKzgKWJtBgcyo6wQUleSVtcho9J5oL+IygEM+CF18=
+github.com/in-toto/go-witness v0.3.2-0.20240410013552-4e37a0480f95 h1:jo80O86AyNkM2Z9w3PpwuHuA59uyTZhCwxl2LmkKR5w=
+github.com/in-toto/go-witness v0.3.2-0.20240410013552-4e37a0480f95/go.mod h1:V9KKzgKWJtBgcyo6wQUleSVtcho9J5oL+IygEM+CF18=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
