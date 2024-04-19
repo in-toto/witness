@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.4
 
 require (
-	github.com/in-toto/go-witness v0.3.2-0.20240410013552-4e37a0480f95
+	github.com/in-toto/go-witness v0.3.2-0.20240419144943-5ae979c2d1e6
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
