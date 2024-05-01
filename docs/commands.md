@@ -50,6 +50,7 @@ witness run [cmd] [flags]
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --attestor-sbom-export                          Export the SBOM predicate in its own attestation
       --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
+      --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
       --enable-archivista                             Use Archivista to store or retrieve attestations
       --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
