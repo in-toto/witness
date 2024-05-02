@@ -13,7 +13,19 @@
 # limitations under the License.
 
 name: release
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "docs-site/**"
 
 permissions:
   contents: read  # This is required for actions/checkout
@@ -57,6 +69,20 @@ jobs:
       artifact-upload-name: profile.cov
       artifact-upload-path: profile.cov
 
+  e2e-test:
+    needs: [fmt]
+    uses: ./.github/workflows/witness.yml
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
+    with:
+      pull_request: ${{ github.event_name == 'pull_request' }}
+      step: e2e-test
+      attestations: "git github environment"
+      command: cd test/ && ./test.sh
+      artifact-upload-name: profile.cov
+      artifact-upload-path: profile.cov
+
   release:
     permissions:
       id-token: write
@@ -68,7 +94,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           fetch-depth: 0
 
@@ -76,7 +102,7 @@ jobs:
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
           go-version: 1.21.x
-      - uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: |
             ~/go/pkg/mod
@@ -86,14 +112,14 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
 
       - name: Download GoReleaser
         run: go install github.com/goreleaser/goreleaser@v1.23.0
