@@ -38,8 +38,6 @@ type RunOptions struct {
 
 var RequiredRunFlags = []string{
 	"step",
-	// we're going to require an out file path specified as stdout is an unreliable default
-	"outfile",
 }
 
 var OneRequiredPKSignFlags = []string{
