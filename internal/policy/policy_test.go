@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package policy
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/witness/internal/archivista"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -27,7 +28,7 @@ import (
 // Mock archivista client
 type ArchivistaClienterMock struct {
 	mock.Mock
-	ArchivistaClienter
+	archivista.Clienter
 }
 
 func (m *ArchivistaClienterMock) Download(ctx context.Context, path string) (dsse.Envelope, error) {
@@ -54,7 +55,7 @@ func (ut *UTPolicySuite) SetupTest() {
 // Test LoadPolicy with file
 func (ut *UTPolicySuite) TestLoadPolicyFile() {
 	ctx := context.Background()
-	policy := "../test/policy-hello-signed.json"
+	policy := "../../test/policy-hello-signed.json"
 
 	// Load policy from file
 	policyEnvelope, err := LoadPolicy(ctx, policy, nil)

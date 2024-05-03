@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package policy
 
 import (
 	"context"
@@ -22,12 +22,13 @@ import (
 
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
+	"github.com/in-toto/witness/internal/archivista"
 )
 
 // Load policy from a file or Archivista
 //
 // It prefers to load from a file, if it fails, it tries to load from Archivista
-func LoadPolicy(ctx context.Context, policy string, ac ArchivistaClienter) (dsse.Envelope, error) {
+func LoadPolicy(ctx context.Context, policy string, ac archivista.Clienter) (dsse.Envelope, error) {
 	policyEnvelope := dsse.Envelope{}
 
 	filePolicy, err := os.Open(policy)
@@ -41,7 +42,7 @@ func LoadPolicy(ctx context.Context, policy string, ac ArchivistaClienter) (dsse
 			if err != nil {
 				return policyEnvelope, fmt.Errorf("failed to fetch policy from archivista: %w", err)
 			}
-			log.Debug("folicy " + policy + " downloaded from archivista")
+			log.Debug("policy " + policy + " downloaded from archivista")
 		}
 
 	} else {

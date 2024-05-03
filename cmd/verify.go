@@ -26,8 +26,9 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
+	archivista_client "github.com/in-toto/witness/internal/archivista"
+	"github.com/in-toto/witness/internal/policy"
 	"github.com/in-toto/witness/options"
-	"github.com/in-toto/witness/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -94,7 +95,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		verifiers = append(verifiers, v)
 	}
 
-	policyEnvelope, err := pkg.LoadPolicy(ctx, vo.PolicyFilePath, pkg.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
+	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivista_client.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
 	if err != nil {
 		return fmt.Errorf("failed to open policy file: %w", err)
 	}

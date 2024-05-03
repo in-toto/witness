@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pkg
+package archivista
 
 import (
 	"context"
@@ -21,38 +21,38 @@ import (
 	"github.com/in-toto/go-witness/dsse"
 )
 
-type archivistaClient struct {
+type aClient struct {
 	url    string
-	client ArchivistaClienter
+	client Clienter
 }
 
 // Define Client Interface for Archivista
-type ArchivistaClienter interface {
+type Clienter interface {
 	Download(ctx context.Context, gitoid string) (dsse.Envelope, error)
 	Store(ctx context.Context, env dsse.Envelope) (string, error)
 	SearchGitoids(ctx context.Context, vars archivista.SearchGitoidVariables) ([]string, error)
 }
 
-func NewArchivistaClient(url string, client *archivista.Client) ArchivistaClienter {
+func NewArchivistaClient(url string, client *archivista.Client) Clienter {
 
 	if client == nil {
 		return nil
 	}
 
-	return &archivistaClient{
+	return &aClient{
 		url:    url,
 		client: client,
 	}
 }
 
-func (ac *archivistaClient) Download(ctx context.Context, gitoid string) (dsse.Envelope, error) {
+func (ac *aClient) Download(ctx context.Context, gitoid string) (dsse.Envelope, error) {
 	return ac.client.Download(ctx, gitoid)
 }
 
-func (ac *archivistaClient) Store(ctx context.Context, env dsse.Envelope) (string, error) {
+func (ac *aClient) Store(ctx context.Context, env dsse.Envelope) (string, error) {
 	return ac.client.Store(ctx, env)
 }
 
-func (ac *archivistaClient) SearchGitoids(ctx context.Context, vars archivista.SearchGitoidVariables) ([]string, error) {
+func (ac *aClient) SearchGitoids(ctx context.Context, vars archivista.SearchGitoidVariables) ([]string, error) {
 	return ac.client.SearchGitoids(ctx, vars)
 }
