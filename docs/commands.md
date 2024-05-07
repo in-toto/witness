@@ -80,8 +80,8 @@ witness run [cmd] [flags]
       --signer-vault-ttl duration                     Time to live for the generated certificate. Defaults to the vault role policy's configured TTL if not provided
       --signer-vault-url string                       Base url of the Vault instance to connect to
   -s, --step string                                   Name of the step being run
-      --timestamp-servers strings                     Timestamp Authority Servers to use when signing envelope
-      --trace                                         Enable tracing for the command
+  -t, --timestamp-servers strings                     Timestamp Authority Servers to use when signing envelope
+  -r, --trace                                         Enable tracing for the command
   -d, --workingdir string                             Directory from which commands will run
 ```
 
