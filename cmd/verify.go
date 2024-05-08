@@ -126,7 +126,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivista.New(vo.ArchivistaOptions.Url)))
 	}
 
-	result, verifiedEvidence, err := witness.Verify(
+	verifiedEvidence, err := witness.Verify(
 		ctx,
 		policyEnvelope,
 		verifiers,
@@ -134,32 +134,31 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		witness.VerifyWithCollectionSource(collectionSource),
 	)
 	if err != nil {
+		if verifiedEvidence != nil {
+			log.Error("Verification failed")
+			log.Error("Evidence:")
+			for step, result := range verifiedEvidence {
+				log.Error("Step: ", step)
+				for _, p := range result.Rejected {
+					if p.Collection.Collection.Name != "" {
+						return fmt.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
+					} else {
+						return fmt.Errorf("verification failure: Reason: %s", p.Reason)
+					}
+				}
+			}
+		}
 		return fmt.Errorf("failed to verify policy: %w", err)
 	}
 
-	if result {
-		log.Info("Verification succeeded")
-		log.Info("Evidence:")
-		num := 0
-		for step, result := range verifiedEvidence {
-			log.Info("Step: ", step)
-			for _, p := range result.Passed {
-				log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
-				num++
-			}
-		}
-	} else {
-		log.Error("Verification failed")
-		log.Error("Evidence:")
-		for step, result := range verifiedEvidence {
-			log.Error("Step: ", step)
-			for _, p := range result.Rejected {
-				if p.Collection.Collection.Name != "" {
-					return fmt.Errorf("collection Rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
-				} else {
-					return fmt.Errorf("verification Failure: Reason: %s", p.Reason)
-				}
-			}
+	log.Info("Verification succeeded")
+	log.Info("Evidence:")
+	num := 0
+	for step, result := range verifiedEvidence {
+		log.Info("Step: ", step)
+		for _, p := range result.Passed {
+			log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
+			num++
 		}
 	}
 	return nil
