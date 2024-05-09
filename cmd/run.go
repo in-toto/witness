@@ -149,6 +149,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return fmt.Errorf("failed to marshal envelope: %w", err)
 	}
 
+	log.Infof("Writing signed envelope to %s\n", ro.OutFilePath)
 	if _, err := out.Write(signedBytes); err != nil {
 		return fmt.Errorf("failed to write envelope to out file: %w", err)
 	}
