@@ -17,6 +17,9 @@ vet: ## Run go vet
 test: ## Run go tests
 	go test -v -coverprofile=profile.cov -covermode=atomic ./...
 
+coverage: ## Show the coverage
+	go tool cover -html=profile.cov
+
 docgen: ## Generate the docs
 	go run ./docgen
 

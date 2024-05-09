@@ -14,7 +14,9 @@
 
 package options
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 type VerifyOptions struct {
 	VerifierOptions            VerifierOptions
@@ -28,6 +30,21 @@ type VerifyOptions struct {
 	CAPaths                    []string
 }
 
+var RequiredVerifyFlags = []string{
+	"policy",
+}
+
+var OneRequiredPKVerifyFlags = []string{
+	"publickey",
+	"policy-ca",
+	"verifier-kms-ref",
+}
+
+var OneRequiredSubjectFlags = []string{
+	"artifactfile",
+	"subjects",
+}
+
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	vo.VerifierOptions.AddFlags(cmd)
 	vo.ArchivistaOptions.AddFlags(cmd)
@@ -38,4 +55,8 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&vo.ArtifactFilePath, "artifactfile", "f", "", "Path to the artifact to verify")
 	cmd.Flags().StringSliceVarP(&vo.AdditionalSubjects, "subjects", "s", []string{}, "Additional subjects to lookup attestations")
 	cmd.Flags().StringSliceVarP(&vo.CAPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy")
+
+	cmd.MarkFlagsRequiredTogether(RequiredVerifyFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredPKVerifyFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredSubjectFlags...)
 }
