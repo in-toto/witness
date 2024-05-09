@@ -52,6 +52,12 @@
           },
           "type": "array"
         },
+        "remotes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "tags": {
           "items": {
             "$ref": "#/$defs/Tag"

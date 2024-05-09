@@ -237,6 +237,12 @@
             "$ref": "#/$defs/ObjectIdentifier"
           },
           "type": "array"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/$defs/OID"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -285,7 +291,8 @@
         "PermittedURIDomains",
         "ExcludedURIDomains",
         "CRLDistributionPoints",
-        "PolicyIdentifiers"
+        "PolicyIdentifiers",
+        "Policies"
       ]
     },
     "Extension": {
@@ -457,6 +464,11 @@
         "Names",
         "ExtraNames"
       ]
+    },
+    "OID": {
+      "properties": {},
+      "additionalProperties": false,
+      "type": "object"
     },
     "ObjectIdentifier": {
       "items": {

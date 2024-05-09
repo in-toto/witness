@@ -64,6 +64,12 @@ The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.or
           },
           "type": "array"
         },
+        "remotes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "tags": {
           "items": {
             "$ref": "#/$defs/Tag"

@@ -244,6 +244,12 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
             "$ref": "#/$defs/ObjectIdentifier"
           },
           "type": "array"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/$defs/OID"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -292,7 +298,8 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
         "PermittedURIDomains",
         "ExcludedURIDomains",
         "CRLDistributionPoints",
-        "PolicyIdentifiers"
+        "PolicyIdentifiers",
+        "Policies"
       ]
     },
     "Extension": {
@@ -464,6 +471,11 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
         "Names",
         "ExtraNames"
       ]
+    },
+    "OID": {
+      "properties": {},
+      "additionalProperties": false,
+      "type": "object"
     },
     "ObjectIdentifier": {
       "items": {
