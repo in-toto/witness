@@ -1,15 +1,12 @@
-# GitLab Attestor
+# Github Attestor
 
-The [GitLab](https://about.gitlab.com/) Attestor records information about the GitLab CI/CD job execution in which
-TestifySec Witness was run. Witness verifies the JWT ([JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)) provided in `CI_JOB_JWT` against the
-instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity at execution time.
+The [Github](https://github.com/about) Attestor records information about the [GitHub Actions](https://docs.github.com/en/actions) workflow execution in which Witness was run. Witness verifies the JWT ([JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)) provided by the token service (configured with the `ACTIONS_ID_TOKEN_REQUEST_URL` environment variable) against the Github's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity at execution time.
 
 ## Subjects
 
 | Subject | Description |
 | ------- | ----------- |
 | `pipelineurl` | URL of the CI/CD pipeline to which this job belonged  |
-| `joburl` | URL of the CI/CD job that this attestor describes |
 | `projecturl` | URL of the project that owns the CI/CD pipeline and job |
 
 ## Schema
@@ -26,28 +23,13 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
         "ciconfigpath": {
           "type": "string"
         },
-        "jobid": {
-          "type": "string"
-        },
-        "jobimage": {
-          "type": "string"
-        },
-        "jobname": {
-          "type": "string"
-        },
-        "jobstage": {
-          "type": "string"
-        },
-        "joburl": {
-          "type": "string"
-        },
         "pipelineid": {
           "type": "string"
         },
-        "pipelineurl": {
+        "pipelinename": {
           "type": "string"
         },
-        "projectid": {
+        "pipelineurl": {
           "type": "string"
         },
         "projecturl": {
@@ -61,24 +43,27 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
         },
         "ciserverurl": {
           "type": "string"
+        },
+        "runnerarch": {
+          "type": "string"
+        },
+        "runneros": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
       "type": "object",
       "required": [
         "ciconfigpath",
-        "jobid",
-        "jobimage",
-        "jobname",
-        "jobstage",
-        "joburl",
         "pipelineid",
+        "pipelinename",
         "pipelineurl",
-        "projectid",
         "projecturl",
         "runnerid",
         "cihost",
-        "ciserverurl"
+        "ciserverurl",
+        "runnerarch",
+        "runneros"
       ]
     }
   }

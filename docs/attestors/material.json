@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {},
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}
+ 

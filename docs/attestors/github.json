@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "jwt": {
+          "$ref": "#/$defs/Attestor"
+        },
+        "ciconfigpath": {
+          "type": "string"
+        },
+        "pipelineid": {
+          "type": "string"
+        },
+        "pipelinename": {
+          "type": "string"
+        },
+        "pipelineurl": {
+          "type": "string"
+        },
+        "projecturl": {
+          "type": "string"
+        },
+        "runnerid": {
+          "type": "string"
+        },
+        "cihost": {
+          "type": "string"
+        },
+        "ciserverurl": {
+          "type": "string"
+        },
+        "runnerarch": {
+          "type": "string"
+        },
+        "runneros": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "ciconfigpath",
+        "pipelineid",
+        "pipelinename",
+        "pipelineurl",
+        "projecturl",
+        "runnerid",
+        "cihost",
+        "ciserverurl",
+        "runnerarch",
+        "runneros"
+      ]
+    }
+  }
+}
+ 
