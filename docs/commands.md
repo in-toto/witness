@@ -44,15 +44,15 @@ witness run [cmd] [flags]
 ```
       --archivista-server string                      URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -a, --attestations strings                          Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
+      --attestor-link-export                          Export the Link predicate in its own attestation
       --attestor-maven-pom-path string                The path to the Project Object Model (POM) XML file used for task being attested (default "pom.xml"). (default "pom.xml")
       --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
+      --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
       --enable-archivista                             Use Archivista to store or retrieve attestations
       --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
-  -o, --outfile string                                (Deprecated for --output) File to which to write signed data.  Defaults to stdout
-      --output string                                 The filepath to output the attestations to. The names of the files will follow a standard scheme unless --output-prefix is specified
-      --output-prefix string                          The prefix to use for the output file names. If not specified, the step name will be used
+  -o, --outfile string                                File to write signed data to
       --signer-file-cert-path string                  Path to the file containing the certificate for the private key
       --signer-file-intermediate-paths strings        Paths to files containing intermediates required to establish trust of the signer's certificate to a root
   -k, --signer-file-key-path string                   Path to the file containing the private key
