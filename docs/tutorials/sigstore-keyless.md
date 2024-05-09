@@ -13,7 +13,7 @@ successfully, you will need the following:
 - [openssl](https://www.openssl.org/)
 - [base64](https://www.gnu.org/software/coreutils/manual/html_node/base64-invocation.html) (which is part of GNU coreutils)
 
-You will also of course need to have witness installed, which can be achieved by following the [Quick Start](../README.md#quick-start).
+You will also of course need to have witness installed, which can be achieved by following the [Quick Start](/README.md#quick-start).
 
 ### Get Rid of the Old Stuff
 If you tried any of our other tutorials, you might have some files lying around in the your working directory that will interfere with this tutorial. Be sure to get rid of them, particularly `test.txt`, as Witness will not record file hashes for products that exist in the filesystem before its invocation.

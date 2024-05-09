@@ -1,6 +1,9 @@
 bin/
+build/
 vendor/
 .dccache
+.vscode
+.profile.cov
 test/testapp
 test/test-attestation.json
 test/policy-signed.json
@@ -12,3 +15,6 @@ test/scorecard.json
 log
 sarif-report.json
 test/log
+node_modules
+.DS_Store
+docs-website/.docusaurus

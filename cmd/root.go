@@ -19,6 +19,8 @@ import (
 	"os"
 
 	"github.com/in-toto/go-witness/log"
+	_ "github.com/in-toto/go-witness/signer/kms/aws"
+	_ "github.com/in-toto/go-witness/signer/kms/gcp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )
@@ -42,6 +44,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(RunCmd())
 	cmd.AddCommand(CompletionCmd())
 	cmd.AddCommand(versionCmd())
+	cmd.AddCommand(AttestorsCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
 	return cmd
 }

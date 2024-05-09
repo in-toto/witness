@@ -16,6 +16,7 @@ package options
 
 import (
 	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/kms"
 	"github.com/spf13/cobra"
 )
 
@@ -24,4 +25,15 @@ type SignerOptions map[string][]func(signer.SignerProvider) (signer.SignerProvid
 func (so *SignerOptions) AddFlags(cmd *cobra.Command) {
 	signerRegistrations := signer.RegistryEntries()
 	*so = addFlagsFromRegistry("signer", signerRegistrations, cmd)
+}
+
+type KMSSignerProviderOptions map[string][]func(signer.SignerProvider) (signer.SignerProvider, error)
+
+func (ko *KMSSignerProviderOptions) AddFlags(cmd *cobra.Command) {
+	kmsProviderOpts := kms.ProviderOptions()
+	for k := range kmsProviderOpts {
+		if kmsProviderOpts[k] != nil {
+			*ko = addFlags("signer", kmsProviderOpts[k].ProviderName(), kmsProviderOpts[k].Init(), *ko, cmd)
+		}
+	}
 }
