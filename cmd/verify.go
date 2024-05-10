@@ -80,7 +80,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
-	if vo.ArchivistaOptions.Enable == false && len(vo.AttestationFilePaths) == 0 {
+	if !vo.ArchivistaOptions.Enable && len(vo.AttestationFilePaths) == 0 {
 		return fmt.Errorf("must either specify attestation file paths or enable archivista as an attestation source")
 	}
 
