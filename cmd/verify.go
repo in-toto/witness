@@ -151,17 +151,17 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 			}
 		}
 		return fmt.Errorf("failed to verify policy: %w", err)
-	}
-
-	log.Info("Verification succeeded")
-	log.Info("Evidence:")
-	num := 0
-	for step, result := range verifiedEvidence.StepResults {
-		log.Info("Step: ", step)
-		for _, p := range result.Passed {
-			log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
-			num++
+	} else {
+		log.Info("Verification succeeded")
+		log.Info("Evidence:")
+		num := 0
+		for step, result := range verifiedEvidence.StepResults {
+			log.Info("Step: ", step)
+			for _, p := range result.Passed {
+				log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
+				num++
+			}
 		}
+		return nil
 	}
-	return nil
 }
