@@ -1,4 +1,4 @@
-// Copyright 2021 The Witness Contributors
+// Copyright 2021-2024 The Witness Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import (
 	"context"
 	"crypto"
 	"crypto/x509"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -26,10 +25,11 @@ import (
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
 	"github.com/in-toto/go-witness/timestamp"
+	archivista_client "github.com/in-toto/witness/internal/archivista"
+	"github.com/in-toto/witness/internal/policy"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )
@@ -48,6 +48,10 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Lookup("policy-ca").Changed {
+				log.Warn("The flag `--policy-ca` is deprecated and will be removed in a future release. Please use `--policy-ca-root` and `--policy-ca-intermediate` instead.")
+			}
+
 			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, vo.KMSVerifierProviderOptions, providersFromFlags("verifier", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signer: %w", err)
@@ -66,6 +70,18 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
+	var (
+		collectionSource source.Sourcer
+		archivistaClient *archivista.Client
+	)
+	memSource := source.NewMemorySource()
+
+	collectionSource = memSource
+	if vo.ArchivistaOptions.Enable {
+		archivistaClient = archivista.New(vo.ArchivistaOptions.Url)
+		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivistaClient))
+	}
+
 	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(verifiers) == 0 {
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
@@ -136,16 +152,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 	}
 
-	inFile, err := os.Open(vo.PolicyFilePath)
+	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivista_client.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
 	if err != nil {
-		return fmt.Errorf("failed to open file to sign: %w", err)
-	}
-
-	defer inFile.Close()
-	policyEnvelope := dsse.Envelope{}
-	decoder := json.NewDecoder(inFile)
-	if err := decoder.Decode(&policyEnvelope); err != nil {
-		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
+		return fmt.Errorf("failed to open policy file: %w", err)
 	}
 
 	subjects := []cryptoutil.DigestSet{}
@@ -166,20 +175,13 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return errors.New("at least one subject is required, provide an artifact file or subject")
 	}
 
-	var collectionSource source.Sourcer
-	memSource := source.NewMemorySource()
 	for _, path := range vo.AttestationFilePaths {
 		if err := memSource.LoadFile(path); err != nil {
 			return fmt.Errorf("failed to load attestation file: %w", err)
 		}
 	}
 
-	collectionSource = memSource
-	if vo.ArchivistaOptions.Enable {
-		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivista.New(vo.ArchivistaOptions.Url)))
-	}
-
-	verifiedEvidence, err := witness.Verify(
+	verifiedResult, err := witness.Verify(
 		ctx,
 		policyEnvelope,
 		verifiers,
@@ -197,17 +199,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 	log.Info("Verification succeeded")
 	log.Infof("Evidence:")
 	num := 0
-	for step, stepEvidence := range verifiedEvidence {
-		for _, e := range stepEvidence {
-			log.Info(fmt.Sprintf("step %d: %s", num, step))
-			log.Info(fmt.Sprintf("reference: %s", e.Reference))
-			for _, v := range e.Verifiers {
-				k, err := v.KeyID()
-				if err != nil {
-					return fmt.Errorf("failed to get verifier key id: %w", err)
-				}
-				log.Info(fmt.Sprintf("Verified Key IDs: %s", k))
-			}
+	for _, stepEvidence := range verifiedResult.StepResults {
+		for _, e := range stepEvidence.Passed {
+			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
 			num++
 		}
 	}

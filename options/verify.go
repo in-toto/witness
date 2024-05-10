@@ -14,11 +14,13 @@
 
 package options
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 type VerifyOptions struct {
 	ArchivistaOptions          ArchivistaOptions
-  VerifierOptions            VerifierOptions
+	VerifierOptions            VerifierOptions
 	KMSVerifierProviderOptions KMSVerifierProviderOptions
 	KeyPath                    string
 	AttestationFilePaths       []string
@@ -33,6 +35,21 @@ type VerifyOptions struct {
 	PolicyEmails               []string
 	PolicyOrganizations        []string
 	PolicyURIs                 []string
+}
+
+var RequiredVerifyFlags = []string{
+	"policy",
+}
+
+var OneRequiredPKVerifyFlags = []string{
+	"publickey",
+	"policy-ca",
+	"verifier-kms-ref",
+}
+
+var OneRequiredSubjectFlags = []string{
+	"artifactfile",
+	"subjects",
 }
 
 func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
@@ -52,4 +69,9 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVar(&vo.PolicyEmails, "policy-emails", []string{"*"}, "The DNS names to use when verifying a policy signed with x.509")
 	cmd.Flags().StringSliceVar(&vo.PolicyOrganizations, "policy-organizations", []string{"*"}, "The organizations to use when verifying a policy signed with x.509")
 	cmd.Flags().StringSliceVar(&vo.PolicyURIs, "policy-uris", []string{"*"}, "The URIs to use when verifying a policy signed with x.509")
+	cmd.Flags().StringSliceVarP(&vo.PolicyCARootPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy (deprecated: use --policy-ca-roots instead)")
+
+	cmd.MarkFlagsRequiredTogether(RequiredVerifyFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredPKVerifyFlags...)
+	cmd.MarkFlagsOneRequired(OneRequiredSubjectFlags...)
 }
