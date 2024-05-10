@@ -128,7 +128,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 	}
 
-	verifiedResult, err := witness.Verify(
+	verifiedEvidence, err := witness.Verify(
 		ctx,
 		policyEnvelope,
 		verifiers,
