@@ -13,7 +13,7 @@
 <img src="https://raw.githubusercontent.com/in-toto/witness/main/docs/assets/logo.png" align="right"
      alt="Witness project logo" width="200"></img>
 
-### What does Witness do?
+### What does Witness do?1
 ✏️ **Attests** - <span class="tip-text">Witness is a dynamic CLI tool that integrates into pipelines and infrastructure to create an
 audit trail for your software's entire journey through the software development lifecycle (SDLC) using the in-toto specification.</span>
 
