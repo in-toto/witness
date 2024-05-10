@@ -143,9 +143,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 				log.Error("Step: ", step)
 				for _, p := range result.Rejected {
 					if p.Collection.Collection.Name != "" {
-						return fmt.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
+						log.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
 					} else {
-						return fmt.Errorf("verification failure: Reason: %s", p.Reason)
+						log.Errorf("verification failure: Reason: %s", p.Reason)
 					}
 				}
 			}
