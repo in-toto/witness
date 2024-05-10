@@ -143,25 +143,25 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 				log.Error("Step: ", step)
 				for _, p := range result.Rejected {
 					if p.Collection.Collection.Name != "" {
-						return fmt.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
+						log.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
 					} else {
-						return fmt.Errorf("verification failure: Reason: %s", p.Reason)
+						log.Errorf("verification failure: Reason: %s", p.Reason)
 					}
 				}
 			}
 		}
 		return fmt.Errorf("failed to verify policy: %w", err)
-	}
-
-	log.Info("Verification succeeded")
-	log.Info("Evidence:")
-	num := 0
-	for step, result := range verifiedEvidence.StepResults {
-		log.Info("Step: ", step)
-		for _, p := range result.Passed {
-			log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
-			num++
+	} else {
+		log.Info("Verification succeeded")
+		log.Info("Evidence:")
+		num := 0
+		for step, result := range verifiedEvidence.StepResults {
+			log.Info("Step: ", step)
+			for _, p := range result.Passed {
+				log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
+				num++
+			}
 		}
+		return nil
 	}
-	return nil
 }

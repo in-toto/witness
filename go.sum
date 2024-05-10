@@ -208,8 +208,10 @@ github.com/hashicorp/hcl v1.0.1-vault-3 h1:V95v5KSTu6DB5huDSKiq4uAfILEuNigK/+qPE
 github.com/hashicorp/hcl v1.0.1-vault-3/go.mod h1:XYhtn6ijBSAj6n4YqAaf7RBPS4I06AItNorpy+MoQNM=
 github.com/in-toto/archivista v0.4.0 h1:5g79iqmyXblnnwuD+768lrEbeoE0V5H7URYJFnr0p4I=
 github.com/in-toto/archivista v0.4.0/go.mod h1:HgqAu7az0Ql0Jf844Paf0Ji5PdUMKxO5JIBh4hOjMs8=
-github.com/in-toto/go-witness v0.3.1 h1:Z2GSjGJ0o6FZ+mySSnz+Gc7JQ160/O5eeihMIpiTz8U=
-github.com/in-toto/go-witness v0.3.1/go.mod h1:xPxYQ+G37T+tHqW460iGAgdpF6c2EnUZiQJj+PFqxFY=
+github.com/in-toto/attestation v1.0.1 h1:DgX1XuBkryTpj1Piq8AiMK3CMfEcec3Qv6+Ku+uI3WY=
+github.com/in-toto/attestation v1.0.1/go.mod h1:hCR5COCuENh5+VfojEkJnt7caOymbEgvyZdKifD6pOw=
+github.com/in-toto/go-witness v0.3.2-0.20240509152614-87975b4168e0 h1:8HhlzOFtPbF0dwHbR/IkJqMfMJb7U9oeNk+K1NCz4+Y=
+github.com/in-toto/go-witness v0.3.2-0.20240509152614-87975b4168e0/go.mod h1:inBxgdAup1od08yUYWEMdGVOIRy3hnPVRCkKrtBArTg=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
@@ -394,8 +396,8 @@ go.opentelemetry.io/otel/trace v1.24.0 h1:CsKnnL4dUAr/0llH9FKuc698G04IrpWV0MQA/Y
 go.opentelemetry.io/otel/trace v1.24.0/go.mod h1:HPc3Xr/cOApsBI154IU0OI0HJexz+aw5uPdbs3UCjNU=
 go.opentelemetry.io/proto/otlp v1.0.0 h1:T0TX0tmXU8a3CbNXzEKGeU5mIVOdf0oykP+u2lIVU/I=
 go.opentelemetry.io/proto/otlp v1.0.0/go.mod h1:Sy6pihPLfYHkr3NkUbEhGHFhINUSI/v80hjKIs5JXpM=
-go.step.sm/crypto v0.44.2 h1:t3p3uQ7raP2jp2ha9P6xkQF85TJZh+87xmjSLaib+jk=
-go.step.sm/crypto v0.44.2/go.mod h1:x1439EnFhadzhkuaGX7sz03LEMQ+jV4gRamf5LCZJQQ=
+go.step.sm/crypto v0.44.8 h1:jDSHL6FdB1UTA0d56ECNx9XtLVkewzeg38Vy3HWB3N8=
+go.step.sm/crypto v0.44.8/go.mod h1:QEmu4T9YewrDuaJnrV1I0zWZ15aJ/mqRUfL5w3R2WgU=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
