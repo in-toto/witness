@@ -71,11 +71,6 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		return fmt.Errorf("no signers found")
 	}
 
-	out, err := loadOutfile(ro.OutFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to open out file: %w", err)
-	}
-
 	timestampers := []timestamp.Timestamper{}
 	for _, url := range ro.TimestampServers {
 		timestampers = append(timestampers, timestamp.NewTimestamper(timestamp.TimestampWithUrl(url)))
@@ -117,7 +112,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			continue
 		}
 
-		attestor, err = registry.SetOptions(attestor, setters...)
+		attestor, err := registry.SetOptions(attestor, setters...)
 		if err != nil {
 			return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
 		}
@@ -132,36 +127,47 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
-	defer out.Close()
-	result, err := witness.Run(
+	results, err := witness.RunWithExports(
 		ro.StepName,
-		signers[0],
 		witness.RunWithAttestors(attestors),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
+		witness.RunWithSigners(signers...),
 	)
 	if err != nil {
 		return err
 	}
 
-	signedBytes, err := json.Marshal(&result.SignedEnvelope)
-	if err != nil {
-		return fmt.Errorf("failed to marshal envelope: %w", err)
-	}
+	for _, result := range results {
+		signedBytes, err := json.Marshal(&result.SignedEnvelope)
+		if err != nil {
+			return fmt.Errorf("failed to marshal envelope: %w", err)
+		}
 
-	log.Infof("Writing signed envelope to %s\n", ro.OutFilePath)
-	if _, err := out.Write(signedBytes); err != nil {
-		return fmt.Errorf("failed to write envelope to out file: %w", err)
-	}
+		// TODO: Find out explicit way to describe "prefix" in CLI options
+		outfile := ro.OutFilePath
+		if result.AttestorName != "" {
+			outfile += "-" + result.AttestorName + ".json"
+		}
 
-	if ro.ArchivistaOptions.Enable {
-		archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
-		if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
-			return fmt.Errorf("failed to store artifact in archivista: %w", err)
-		} else {
-			log.Infof("Stored in archivista as %v\n", gitoid)
+		out, err := loadOutfile(outfile)
+		if err != nil {
+			return fmt.Errorf("failed to open out file: %w", err)
+		}
+		defer out.Close()
+
+		if _, err := out.Write(signedBytes); err != nil {
+			return fmt.Errorf("failed to write envelope to out file: %w", err)
+		}
+
+		if ro.ArchivistaOptions.Enable {
+			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
+			if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
+				return fmt.Errorf("failed to store artifact in archivista: %w", err)
+			} else {
+				log.Infof("Stored in archivista as %v\n", gitoid)
+			}
 		}
 	}
-
 	return nil
 }

@@ -124,7 +124,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 	}
 
-	verifiedEvidence, err := witness.Verify(
+	verifiedResult, err := witness.Verify(
 		ctx,
 		policyEnvelope,
 		verifiers,
@@ -138,8 +138,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 	log.Info("Verification succeeded")
 	log.Info("Evidence:")
 	num := 0
-	for _, stepEvidence := range verifiedEvidence {
-		for _, e := range stepEvidence {
+	for _, stepEvidence := range verifiedResult.StepResults {
+		for _, e := range stepEvidence.Passed {
 			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
 			num++
 		}
