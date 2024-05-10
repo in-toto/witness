@@ -1,4 +1,4 @@
-// Copyright 2021 The Witness Contributors
+// Copyright 2021-2024 The Witness Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package cmd
 import (
 	"context"
 	"crypto"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -25,9 +24,10 @@ import (
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
+	archivista_client "github.com/in-toto/witness/internal/archivista"
+	"github.com/in-toto/witness/internal/policy"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )
@@ -64,6 +64,18 @@ const (
 // todo: this logic should be broken out and moved to pkg/
 // we need to abstract where keys are coming from, etc
 func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...cryptoutil.Verifier) error {
+	var (
+		collectionSource source.Sourcer
+		archivistaClient *archivista.Client
+	)
+	memSource := source.NewMemorySource()
+
+	collectionSource = memSource
+	if vo.ArchivistaOptions.Enable {
+		archivistaClient = archivista.New(vo.ArchivistaOptions.Url)
+		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivistaClient))
+	}
+
 	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
@@ -87,16 +99,9 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		verifiers = append(verifiers, v)
 	}
 
-	inFile, err := os.Open(vo.PolicyFilePath)
+	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivista_client.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
 	if err != nil {
-		return fmt.Errorf("failed to open file to sign: %w", err)
-	}
-
-	defer inFile.Close()
-	policyEnvelope := dsse.Envelope{}
-	decoder := json.NewDecoder(inFile)
-	if err := decoder.Decode(&policyEnvelope); err != nil {
-		return fmt.Errorf("could not unmarshal policy envelope: %w", err)
+		return fmt.Errorf("failed to open policy file: %w", err)
 	}
 
 	subjects := []cryptoutil.DigestSet{}
@@ -117,17 +122,10 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return errors.New("at least one subject is required, provide an artifact file or subject")
 	}
 
-	var collectionSource source.Sourcer
-	memSource := source.NewMemorySource()
 	for _, path := range vo.AttestationFilePaths {
 		if err := memSource.LoadFile(path); err != nil {
 			return fmt.Errorf("failed to load attestation file: %w", err)
 		}
-	}
-
-	collectionSource = memSource
-	if vo.ArchivistaOptions.Enable {
-		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivista.New(vo.ArchivistaOptions.Url)))
 	}
 
 	verifiedEvidence, err := witness.Verify(
