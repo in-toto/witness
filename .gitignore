@@ -2,6 +2,8 @@ bin/
 build/
 vendor/
 .dccache
+.vscode
+.profile.cov
 test/testapp
 test/test-attestation.json
 test/policy-signed.json
