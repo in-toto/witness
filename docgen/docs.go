@@ -83,7 +83,11 @@ func main() {
 		}
 
 		schemaContent := "## Schema" + "\n```json\n" + indented.String() + "```\n"
-		os.WriteFile(fmt.Sprintf("%s/attestors/%s.json", directory, att.Name()), []byte(indented.String()+"\n "), 0644)
+		err = os.WriteFile(fmt.Sprintf("%s/attestors/%s.json", directory, att.Name()), []byte(indented.String()+"\n "), 0644)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			os.Exit(1)
+		}
 		log.Printf("Schema for %s written to %s/attestors/%s.json\n", att.Name(), directory, att.Name())
 		f, err := os.ReadFile(fmt.Sprintf("%s/attestors/%s.md", directory, att.Name()))
 		if err != nil {
