@@ -172,31 +172,38 @@ witness verify [flags]
 ### Options
 
 ```
-      --archivista-server string                   URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
-  -f, --artifactfile string                        Path to the artifact to verify
-  -a, --attestations strings                       Attestation files to test against the policy
-      --enable-archivista                          Use Archivista to store or retrieve attestations
-  -h, --help                                       help for verify
-  -p, --policy string                              Path to the policy to verify
-      --policy-ca-intermediates strings            Paths to CA intermediate certificates to use for verifying a policy signed with x.509
-      --policy-ca-roots strings                    Paths to CA root certificates to use for verifying a policy signed with x.509
-      --policy-commonname string                   The common name to use when verifying a policy signed with x.509 (default "*")
-      --policy-dns-names strings                   The DNS names to use when verifying a policy signed with x.509 (default [*])
-      --policy-emails strings                      The DNS names to use when verifying a policy signed with x.509 (default [*])
-      --policy-organizations strings               The organizations to use when verifying a policy signed with x.509 (default [*])
-      --policy-timestamp-servers strings           Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy signed with x.509
-      --policy-uris strings                        The URIs to use when verifying a policy signed with x.509 (default [*])
-  -k, --publickey string                           Path to the policy signer's public key
-  -s, --subjects strings                           Additional subjects to lookup attestations
-      --verifier-kms-aws-config-file string        The shared configuration file to use with the AWS KMS signer provider
-      --verifier-kms-aws-credentials-file string   The shared credentials file to use with the AWS KMS signer provider
-      --verifier-kms-aws-insecure-skip-verify      Skip verification of the server's certificate chain and host name
-      --verifier-kms-aws-profile string            The shared configuration profile to use with the AWS KMS signer provider
-      --verifier-kms-aws-remote-verify             verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
-      --verifier-kms-gcp-credentials-file string   The credentials file to use with the GCP KMS signer provider
-      --verifier-kms-hashType string               The hash type used for verifying (default "sha256")
-      --verifier-kms-keyVersion string             The key version to use for signing
-      --verifier-kms-ref string                    The KMS Reference URI to use for connecting to the KMS service
+      --archivista-server string                            URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
+  -f, --artifactfile string                                 Path to the artifact to verify
+  -a, --attestations strings                                Attestation files to test against the policy
+      --enable-archivista                                   Use Archivista to store or retrieve attestations
+  -h, --help                                                help for verify
+  -p, --policy string                                       Path to the policy to verify
+      --policy-ca strings                                   Paths to CA certificates to use for verifying the policy (deprecated: use --policy-ca-roots instead)
+      --policy-ca-intermediates strings                     Paths to CA intermediate certificates to use for verifying a policy signed with x.509
+      --policy-ca-roots strings                             Paths to CA root certificates to use for verifying a policy signed with x.509
+      --policy-commonname string                            The common name to use when verifying a policy signed with x.509 (default "*")
+      --policy-dns-names strings                            The DNS names to use when verifying a policy signed with x.509 (default [*])
+      --policy-emails strings                               The DNS names to use when verifying a policy signed with x.509 (default [*])
+      --policy-fulcio-build-trigger string                  Event or action that initiated the build.
+      --policy-fulcio-oidc-issuer string                    The OIDC issuer expected in a valid Fulcio certificate, e.g. https://token.actions.githubusercontent.com or https://oauth2.sigstore.dev/auth. Either --certificate-oidc-issuer or --certificate-oidc-issuer-regexp must be set for keyless flows.
+      --policy-fulcio-run-invocation-uri string             Run Invocation URL to uniquely identify the build execution.
+      --policy-fulcio-source-repository-digest string       Immutable reference to a specific version of the source code that the build was based upon.
+      --policy-fulcio-source-repository-identifier string   Immutable identifier for the source repository the workflow was based upon.
+      --policy-fulcio-source-repository-ref string          Source Repository Ref that the build run was based upon.
+      --policy-organizations strings                        The organizations to use when verifying a policy signed with x.509 (default [*])
+      --policy-timestamp-servers strings                    Paths to the CA certificates for Timestamp Authority Servers to use when verifying policy signed with x.509
+      --policy-uris strings                                 The URIs to use when verifying a policy signed with x.509 (default [*])
+  -k, --publickey string                                    Path to the policy signer's public key
+  -s, --subjects strings                                    Additional subjects to lookup attestations
+      --verifier-kms-aws-config-file string                 The shared configuration file to use with the AWS KMS signer provider
+      --verifier-kms-aws-credentials-file string            The shared credentials file to use with the AWS KMS signer provider
+      --verifier-kms-aws-insecure-skip-verify               Skip verification of the server's certificate chain and host name
+      --verifier-kms-aws-profile string                     The shared configuration profile to use with the AWS KMS signer provider
+      --verifier-kms-aws-remote-verify                      verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
+      --verifier-kms-gcp-credentials-file string            The credentials file to use with the GCP KMS signer provider
+      --verifier-kms-hashType string                        The hash type used for verifying (default "sha256")
+      --verifier-kms-keyVersion string                      The key version to use for signing
+      --verifier-kms-ref string                             The KMS Reference URI to use for connecting to the KMS service
 ```
 
 ### Options inherited from parent commands
