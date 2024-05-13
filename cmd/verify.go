@@ -86,6 +86,10 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
+	if !vo.ArchivistaOptions.Enable && len(vo.AttestationFilePaths) == 0 {
+		return fmt.Errorf("must either specify attestation file paths or enable archivista as an attestation source")
+	}
+
 	if vo.KeyPath != "" {
 		keyFile, err := os.Open(vo.KeyPath)
 		if err != nil {
@@ -181,7 +185,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 	}
 
-	verifiedResult, err := witness.Verify(
+	verifiedEvidence, err := witness.Verify(
 		ctx,
 		policyEnvelope,
 		verifiers,
@@ -194,18 +198,32 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		witness.VerifyWithPolicyFulcioCertExtensions(vo.PolicyFulcioCertExtensions),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to verify policy: %w", err)
-	}
-
-	log.Info("Verification succeeded")
-	log.Infof("Evidence:")
-	num := 0
-	for _, stepEvidence := range verifiedResult.StepResults {
-		for _, e := range stepEvidence.Passed {
-			log.Info(fmt.Sprintf("%d: %s", num, e.Reference))
-			num++
+		if verifiedEvidence.StepResults != nil {
+			log.Error("Verification failed")
+			log.Error("Evidence:")
+			for step, result := range verifiedEvidence.StepResults {
+				log.Error("Step: ", step)
+				for _, p := range result.Rejected {
+					if p.Collection.Collection.Name != "" {
+						log.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
+					} else {
+						log.Errorf("verification failure: Reason: %s", p.Reason)
+					}
+				}
+			}
 		}
+		return fmt.Errorf("failed to verify policy: %w", err)
+	} else {
+		log.Info("Verification succeeded")
+		log.Info("Evidence:")
+		num := 0
+		for step, result := range verifiedEvidence.StepResults {
+			log.Info("Step: ", step)
+			for _, p := range result.Passed {
+				log.Info(fmt.Sprintf("%d: %s", num, p.Reference))
+				num++
+			}
+		}
+		return nil
 	}
-
-	return nil
 }
