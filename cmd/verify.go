@@ -191,6 +191,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		witness.VerifyWithPolicyCARoots(policyRoots),
 		witness.VerifyWithPolicyCAIntermediates(policyIntermediates),
 		witness.VerifyWithPolicyCertConstraints(vo.PolicyCommonName, vo.PolicyDNSNames, vo.PolicyEmails, vo.PolicyOrganizations, vo.PolicyURIs),
+		witness.VerifyWithPolicyFulcioCertExtensions(vo.PolicyFulcioCertExtensions),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to verify policy: %w", err)

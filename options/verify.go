@@ -46,6 +46,8 @@ var RequiredVerifyFlags = []string{
 var OneRequiredPKVerifyFlags = []string{
 	"publickey",
 	"policy-ca",
+	"policy-ca-roots",
+	"policy-ca-intermediates",
 	"verifier-kms-ref",
 }
 
@@ -72,34 +74,26 @@ func (vo *VerifyOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVar(&vo.PolicyOrganizations, "policy-organizations", []string{"*"}, "The organizations to use when verifying a policy signed with x.509")
 	cmd.Flags().StringSliceVar(&vo.PolicyURIs, "policy-uris", []string{"*"}, "The URIs to use when verifying a policy signed with x.509")
 	cmd.Flags().StringSliceVarP(&vo.PolicyCARootPaths, "policy-ca", "", []string{}, "Paths to CA certificates to use for verifying the policy (deprecated: use --policy-ca-roots instead)")
+
 	// -- Fulcio Cert extensions begin --
 	// Source: https://github.com/sigstore/fulcio/blob/main/docs/oid-info.md
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.CertIdentity, "policy-fulcio-certificate-identity", "",
-		"The identity expected in a valid Fulcio certificate. Valid values include email address, DNS names, IP addresses, and URIs. Either --certificate-identity or --certificate-identity-regexp must be set for keyless flows.")
-
-	// cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.CertIdentityRegexp, "policy-fulcio-certificate-identity-regexp", "",
-	// 	"A regular expression alternative to --certificate-identity. Accepts the Go regular expression syntax described at https://golang.org/s/re2syntax. Either --certificate-identity or --certificate-identity-regexp must be set for keyless flows.")
-
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.Issuer, "policy-fulcio-certificate-oidc-issuer", "",
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.Issuer, "policy-fulcio-oidc-issuer", "",
 		"The OIDC issuer expected in a valid Fulcio certificate, e.g. https://token.actions.githubusercontent.com or https://oauth2.sigstore.dev/auth. Either --certificate-oidc-issuer or --certificate-oidc-issuer-regexp must be set for keyless flows.")
 
-	// cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions., "policy-fulcio-certificate-oidc-issuer-regexp", "",
-	// 	"A regular expression alternative to --policy-fulcio-certificate-oidc-issuer. Accepts the Go regular expression syntax described at https://golang.org/s/re2syntax. Either --certificate-oidc-issuer or --certificate-oidc-issuer-regexp must be set for keyless flows.")
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.BuildTrigger, "policy-fulcio-build-trigger", "",
+		"Event or action that initiated the build.")
 
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.GithubWorkflowTrigger, "policy-fulcio-certificate-github-workflow-trigger", "",
-		"contains the event_name claim from the GitHub OIDC Identity token that contains the name of the event that triggered the workflow run")
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.SourceRepositoryDigest, "policy-fulcio-source-repository-digest", "",
+		"Immutable reference to a specific version of the source code that the build was based upon.")
 
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.GithubWorkflowSHA, "policy-fulcio-certificate-github-workflow-sha", "",
-		"contains the sha claim from the GitHub OIDC Identity token that contains the commit SHA that the workflow run was based upon.")
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.RunInvocationURI, "policy-fulcio-run-invocation-uri", "",
+		"Run Invocation URL to uniquely identify the build execution.")
 
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.GithubWorkflowName, "policy-fulcio-certificate-github-workflow-name", "",
-		"contains the workflow claim from the GitHub OIDC Identity token that contains the name of the executed workflow.")
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.SourceRepositoryIdentifier, "policy-fulcio-source-repository-identifier", "",
+		"Immutable identifier for the source repository the workflow was based upon.")
 
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.GithubWorkflowRepository, "policy-fulcio-certificate-github-workflow-repository", "",
-		"contains the repository claim from the GitHub OIDC Identity token that contains the repository that the workflow run was based upon")
-
-	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.GithubWorkflowRef, "policy-fulcio-certificate-github-workflow-ref", "",
-		"contains the ref claim from the GitHub OIDC Identity token that contains the git ref that the workflow run was based upon.")
+	cmd.Flags().StringVar(&vo.PolicyFulcioCertExtensions.SourceRepositoryRef, "policy-fulcio-source-repository-ref", "",
+		"Source Repository Ref that the build run was based upon.")
 	// -- Fulcio Cert extensions end --
 
 	cmd.MarkFlagsRequiredTogether(RequiredVerifyFlags...)
