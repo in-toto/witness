@@ -100,7 +100,7 @@ func TestVerifyPolicyWrongCAFile(t *testing.T) {
 		ArtifactFilePath:       filepath.Join(cwd, "../test/test.txt"),
 	}
 
-	require.ErrorContains(t, runVerify(context.Background(), vo), "failed to verify policy: failed to verify policy signature: could not verify policy: no valid signatures for the provided verifiers found")
+	require.ErrorContains(t, runVerify(context.Background(), vo), "failed to verify policy: attestors failed with error messages\nfailed to verify policy signature: could not verify policy: no valid signatures for the provided verifiers found for keyids:\n")
 }
 
 func TestRunVerifyCA(t *testing.T) {
