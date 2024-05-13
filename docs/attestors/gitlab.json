@@ -1,21 +1,3 @@
-# GCP Instance Identity Attestor
-
-The [Google Cloud Platform](https://console.cloud.google.com/getting-started?supportedpurview=project) (GCP) Instance Identity Attestor communicates with the [GCP metadata server](https://cloud.google.com/appengine/docs/standard/java/accessing-instance-metadata) to collect information
-about the instance on which TestifySec Witness is being exected. The instance identity JSON Web Token signature is validated
-against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity.
-
-## Subjects
-
-| Subject | Description |
-| ------- | ----------- |
-| `instanceid` | ID of the Google Compute instance on which Witness was executed |
-| `instancename` | Name of the Compute instance on which Witness was executed |
-| `projectid` | The ID of the project to which the instance belonged |
-| `projectnumber` | Number of the project to which the instance belonged |
-| `clusteruid` | UID of the cluster if the execution environment was a [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine) (GKE) cluster |
-
-## Schema
-```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$ref": "#/$defs/Attestor",
@@ -518,59 +500,64 @@ against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/j
             }
           }
         },
-        "project_id": {
+        "ciconfigpath": {
           "type": "string"
         },
-        "project_number": {
+        "jobid": {
           "type": "string"
         },
-        "zone": {
+        "jobimage": {
           "type": "string"
         },
-        "instance_id": {
+        "jobname": {
           "type": "string"
         },
-        "instance_hostname": {
+        "jobstage": {
           "type": "string"
         },
-        "instance_creation_timestamp": {
+        "joburl": {
           "type": "string"
         },
-        "instance_confidentiality": {
+        "pipelineid": {
           "type": "string"
         },
-        "licence_id": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "cluster_name": {
+        "pipelineurl": {
           "type": "string"
         },
-        "cluster_uid": {
+        "projectid": {
           "type": "string"
         },
-        "cluster_location": {
+        "projecturl": {
+          "type": "string"
+        },
+        "runnerid": {
+          "type": "string"
+        },
+        "cihost": {
+          "type": "string"
+        },
+        "ciserverurl": {
           "type": "string"
         }
       },
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "jwt",
-        "project_id",
-        "project_number",
-        "zone",
-        "instance_id",
-        "instance_hostname",
-        "instance_creation_timestamp",
-        "instance_confidentiality",
-        "licence_id",
-        "cluster_name",
-        "cluster_uid",
-        "cluster_location"
+        "ciconfigpath",
+        "jobid",
+        "jobimage",
+        "jobname",
+        "jobstage",
+        "joburl",
+        "pipelineid",
+        "pipelineurl",
+        "projectid",
+        "projecturl",
+        "runnerid",
+        "cihost",
+        "ciserverurl"
       ]
     }
   }
-}```
+}
+ 

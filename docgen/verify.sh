@@ -20,6 +20,10 @@ set -e
 tmpdir=$(mktemp -d)
 tmpdir2=$(mktemp -d)
 cp docs/commands.md "$tmpdir2/"
+mkdir "$tmpdir2/attestors"
+mkdir "$tmpdir/attestors"
+cp docs/attestors/* "$tmpdir2/attestors/"
+cp docs/attestors/*.md "$tmpdir/attestors/"
 go run ./docgen --dir "$tmpdir"
 echo "###########################################"
 echo "If diffs are found, run: make docgen"

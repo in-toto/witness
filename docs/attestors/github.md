@@ -1,18 +1,13 @@
-# GCP Instance Identity Attestor
+# Github Attestor
 
-The [Google Cloud Platform](https://console.cloud.google.com/getting-started?supportedpurview=project) (GCP) Instance Identity Attestor communicates with the [GCP metadata server](https://cloud.google.com/appengine/docs/standard/java/accessing-instance-metadata) to collect information
-about the instance on which TestifySec Witness is being exected. The instance identity JSON Web Token signature is validated
-against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity.
+The [Github](https://github.com/about) Attestor records information about the [GitHub Actions](https://docs.github.com/en/actions) workflow execution in which Witness was run. Witness verifies the JWT ([JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)) provided by the token service (configured with the `ACTIONS_ID_TOKEN_REQUEST_URL` environment variable) against the Github's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)) to ensure authenticity at execution time.
 
 ## Subjects
 
 | Subject | Description |
 | ------- | ----------- |
-| `instanceid` | ID of the Google Compute instance on which Witness was executed |
-| `instancename` | Name of the Compute instance on which Witness was executed |
-| `projectid` | The ID of the project to which the instance belonged |
-| `projectnumber` | Number of the project to which the instance belonged |
-| `clusteruid` | UID of the cluster if the execution environment was a [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine) (GKE) cluster |
+| `pipelineurl` | URL of the CI/CD pipeline to which this job belonged  |
+| `projecturl` | URL of the project that owns the CI/CD pipeline and job |
 
 ## Schema
 ```json
@@ -518,58 +513,50 @@ against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/j
             }
           }
         },
-        "project_id": {
+        "ciconfigpath": {
           "type": "string"
         },
-        "project_number": {
+        "pipelineid": {
           "type": "string"
         },
-        "zone": {
+        "pipelinename": {
           "type": "string"
         },
-        "instance_id": {
+        "pipelineurl": {
           "type": "string"
         },
-        "instance_hostname": {
+        "projecturl": {
           "type": "string"
         },
-        "instance_creation_timestamp": {
+        "runnerid": {
           "type": "string"
         },
-        "instance_confidentiality": {
+        "cihost": {
           "type": "string"
         },
-        "licence_id": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "cluster_name": {
+        "ciserverurl": {
           "type": "string"
         },
-        "cluster_uid": {
+        "runnerarch": {
           "type": "string"
         },
-        "cluster_location": {
+        "runneros": {
           "type": "string"
         }
       },
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "jwt",
-        "project_id",
-        "project_number",
-        "zone",
-        "instance_id",
-        "instance_hostname",
-        "instance_creation_timestamp",
-        "instance_confidentiality",
-        "licence_id",
-        "cluster_name",
-        "cluster_uid",
-        "cluster_location"
+        "ciconfigpath",
+        "pipelineid",
+        "pipelinename",
+        "pipelineurl",
+        "projecturl",
+        "runnerid",
+        "cihost",
+        "ciserverurl",
+        "runnerarch",
+        "runneros"
       ]
     }
   }
