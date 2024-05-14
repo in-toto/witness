@@ -1,0 +1,71 @@
+{
+  "expires": "2025-12-17T23:57:40-05:00",
+  "steps": {
+    "build": {
+      "name": "build",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestations/material/v0.1",
+          "regopolicies": []
+        },
+        {
+          "type": "https://witness.dev/attestations/command-run/v0.1",
+          "regopolicies": [
+            {
+              "name": "expected command",
+              "module": "cGFja2FnZSBjb21tYW5kcnVuLmNtZAoKZGVueVttc2ddIHsKCWlucHV0LmNtZCAhPSBbImdvIiwgImJ1aWxkIiwgIi1vPXRlc3RhcHAiLCAiLiJdCgltc2cgOj0gInVuZXhwZWN0ZWQgY21kIgp9Cg=="
+            }
+          ]
+        },
+        {
+          "type": "https://witness.dev/attestations/product/v0.1",
+          "regopolicies": []
+        }
+      ],
+      "functionaries": [
+        {
+          "type": "publickey",
+          "publickeyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"
+        }
+      ]
+    },
+    "package": {
+      "name": "package",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestations/material/v0.1",
+          "regopolicies": []
+        },
+        {
+          "type": "https://witness.dev/attestations/command-run/v0.1",
+          "regopolicies": [
+            {
+              "name": "expected command",
+              "module": "cGFja2FnZSBjb21tYW5kcnVuLmNtZAoKZGVueVttc2ddIHsKCWlucHV0LmNtZCAhPSBbInRhciIsICJjemYiLCAiLi90ZXN0YXBwLnRhci50Z3oiLCAiLi90ZXN0YXBwIl0KCW1zZyA6PSAidW5leHBlY3RlZCBjbWQiCn0K"
+            }
+          ]
+        },
+        {
+          "type": "https://witness.dev/attestations/product/v0.1",
+          "regopolicies": []
+        }
+      ],
+      "functionaries": [
+        {
+          "type": "publickey",
+          "publickeyid": "5e8c57df8ae58fe9a29b29f9993e2fc3b25bd75eb2754f353880bad4b9ebfdb3"
+        }
+      ]
+    }
+  },
+  "publickeys": {
+    "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647": {
+      "keyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647",
+      "key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQWYyOW9QUDhVZ2hCeUc4NTJ1QmRPeHJKS0tuN01NNWhUYlA5ZXNnT1ovazA9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+    },
+    "5e8c57df8ae58fe9a29b29f9993e2fc3b25bd75eb2754f353880bad4b9ebfdb3": {
+      "keyid": "5e8c57df8ae58fe9a29b29f9993e2fc3b25bd75eb2754f353880bad4b9ebfdb3",
+      "key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUFvRTZ6TDdvMG5jY3ZLbjBJVFNEUApSWUFhTnR6ZlYzOVJaUVh1aTVpTXljTWFzU3JWR2Y3bEhKTFR2YWZrQWNMU3huY3RTdWdad3prMlo4a2FjK0FkCksxV2cwemtBd2VocjJzVVZ1cWY5d0ZQTUdueWVJUXJQTnhtY1hGbnp5WjZ3ZTRxQnBVQmhrdGZacWI5bm05cUUKVDA4SmJvUkdVdlpHamx3ckloZmJYR2RTYnA2cG1XQUVqNUdWOUd0bGswTWg4YmFrNUxid3hyZUYzVXZhUE1sSwpWVWdsNDVFYVYxWVpRWjI3NmFVSStpWitnMnh1QjlyTGd5a04vUlZMSUh5VDAyS0xBYXo5K0xONkVhaEQzWHFICkptUlVJZmsyQ0VlZTBiUHJIL0c2Z21HRVoxQ1dLL3dMQ2hsMkVpOU5MYnUvMjIzZSt0TVpmc1MvU0RrR1hlQ3UKR3BTUzgrK3VyYkpFZnkyZEpsUitiOGlCMzV0bldSOVhNUTRzV0MwanBIQW53Rm1ZOXNQTTMweEl2QnJ6TElRdwpHK1FDTXBhRFlDMGhXakJzb09WT0xpbnJCSDFXSGVmTEdWdWRmQ2Y4d1pXNzUrRnpPRHRhMG5lWERYWVRCU2FFCmVDb2NGUStLTTJsaDhlTjFIb1pjTkZ2TzhhTCttWkNQSTFXOTUwMTlzeVFmTWgrekhLeDNZV3VnZjNvbjAycHQKSGV6TlZjQTYrVkQ2WnJpNGVpZEkranBjamdOek16bnRzSWQ4RFpUdWVPRXVHdUZFY1MrTlFnNnhtRzQzVHRtNgpwVmwzakFidEVBbEwzeUpPaTF4b1M1Zm12bFNPTlVEbmhYckxLNkpXTnh6YU04RlBFVndzbXRLcXdoaS84Tk4rCmpCTXpqREtaQmdqOXFuekJXSHdONWxjQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+    }
+  }
+}
