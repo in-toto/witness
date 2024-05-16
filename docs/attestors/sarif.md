@@ -788,4 +788,5 @@ The Sarif attestor records the contents of any [products](./product.md) that are
       ]
     }
   }
-}```
+}
+```

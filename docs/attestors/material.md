@@ -29,4 +29,5 @@ of all files before any changes are made by a command.
   "required": [
     "Materials"
   ]
-}```
+}
+```

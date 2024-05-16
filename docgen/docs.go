@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/in-toto/witness/cmd"
+	"github.com/invopop/jsonschema"
 	"github.com/spf13/cobra/doc"
 
 	_ "github.com/in-toto/go-witness"
@@ -82,7 +83,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		schemaContent := "## Schema" + "\n```json\n" + indented.String() + "```\n"
+		schemaContent := "## Schema" + "\n```json\n" + indented.String() + "\n```\n"
 		err = os.WriteFile(fmt.Sprintf("%s/attestors/%s.json", directory, att.Name()), []byte(indented.String()+"\n "), 0644)
 		if err != nil {
 			fmt.Println("Error writing to file:", err)
@@ -121,5 +122,51 @@ func main() {
 
 		log.Printf("Schema for %s written to %s/attestors/%s.md\n", att.Name(), directory, att.Name())
 
+	}
+
+	log.Println("Generating schema for the Witness Collection")
+	coll := jsonschema.Reflect(attestation.Collection{})
+	schemaJson, err := coll.MarshalJSON()
+	if err != nil {
+		fmt.Println("Error marshalling JSON schema:", err)
+		os.Exit(1)
+	}
+	var indented bytes.Buffer
+	err = json.Indent(&indented, schemaJson, "", "  ")
+	if err != nil {
+		fmt.Println("Error marshalling JSON schema:", err)
+		os.Exit(1)
+	}
+	schemaContent := "## Schema" + "\n```json\n" + indented.String() + "\n```\n"
+	f, err := os.ReadFile(fmt.Sprintf("%s/concepts/collection.md", directory))
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		os.Exit(1)
+	}
+
+	// Find the index of "## Schema" string
+	index := strings.Index(string(f), "## Schema")
+	if index == -1 {
+		f = append(f, schemaContent...)
+
+		err = os.WriteFile(fmt.Sprintf("%s/concepts/collection.md", directory), f, 0644)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			os.Exit(1)
+		}
+	} else {
+
+		// Truncate the content to remove everything after "## Schema"
+		f = f[:index]
+
+		f = append(f, schemaContent...)
+
+		err = os.WriteFile(fmt.Sprintf("%s/concepts/collection.md", directory), f, 0644)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			os.Exit(1)
+		}
+
+		log.Printf("Schema for collection written to %s/concepts/collection.md\n", directory)
 	}
 }
