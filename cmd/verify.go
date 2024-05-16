@@ -17,6 +17,7 @@ package cmd
 import (
 	"context"
 	"crypto"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"os"
@@ -26,6 +27,7 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
+	"github.com/in-toto/go-witness/timestamp"
 	archivista_client "github.com/in-toto/witness/internal/archivista"
 	"github.com/in-toto/witness/internal/policy"
 	"github.com/in-toto/witness/options"
@@ -46,6 +48,10 @@ func VerifyCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Lookup("policy-ca").Changed {
+				log.Warn("The flag `--policy-ca` is deprecated and will be removed in a future release. Please use `--policy-ca-root` and `--policy-ca-intermediate` instead.")
+			}
+
 			verifiers, err := loadVerifiers(cmd.Context(), vo.VerifierOptions, vo.KMSVerifierProviderOptions, providersFromFlags("verifier", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signer: %w", err)
@@ -76,7 +82,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivistaClient))
 	}
 
-	if vo.KeyPath == "" && len(vo.CAPaths) == 0 && len(verifiers) == 0 {
+	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(verifiers) == 0 {
 		return fmt.Errorf("must supply either a public key, CA certificates or a verifier")
 	}
 
@@ -97,6 +103,57 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 
 		verifiers = append(verifiers, v)
+	}
+
+	var policyRoots []*x509.Certificate
+	if len(vo.PolicyCARootPaths) > 0 {
+		for _, caPath := range vo.PolicyCARootPaths {
+			caFile, err := os.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read root CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to parse root CA certificate: %w", err)
+			}
+
+			policyRoots = append(policyRoots, cert)
+		}
+	}
+
+	var policyIntermediates []*x509.Certificate
+	if len(vo.PolicyCAIntermediatePaths) > 0 {
+		for _, caPath := range vo.PolicyCAIntermediatePaths {
+			caFile, err := os.ReadFile(caPath)
+			if err != nil {
+				return fmt.Errorf("failed to read intermediate CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(caFile)
+			if err != nil {
+				return fmt.Errorf("failed to parse intermediate CA certificate: %w", err)
+			}
+
+			policyRoots = append(policyIntermediates, cert)
+		}
+	}
+
+	ptsVerifiers := make([]timestamp.TimestampVerifier, 0)
+	if len(vo.PolicyTimestampServers) > 0 {
+		for _, server := range vo.PolicyTimestampServers {
+			f, err := os.ReadFile(server)
+			if err != nil {
+				return fmt.Errorf("failed to open Timestamp Server CA certificate file: %w", err)
+			}
+
+			cert, err := cryptoutil.TryParseCertificate(f)
+			if err != nil {
+				return fmt.Errorf("failed to parse Timestamp Server CA certificate: %w", err)
+			}
+
+			ptsVerifiers = append(ptsVerifiers, timestamp.NewVerifier(timestamp.VerifyWithCerts([]*x509.Certificate{cert})))
+		}
 	}
 
 	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivista_client.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
@@ -134,6 +191,11 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		verifiers,
 		witness.VerifyWithSubjectDigests(subjects),
 		witness.VerifyWithCollectionSource(collectionSource),
+		witness.VerifyWithPolicyTimestampAuthorities(ptsVerifiers),
+		witness.VerifyWithPolicyCARoots(policyRoots),
+		witness.VerifyWithPolicyCAIntermediates(policyIntermediates),
+		witness.VerifyWithPolicyCertConstraints(vo.PolicyCommonName, vo.PolicyDNSNames, vo.PolicyEmails, vo.PolicyOrganizations, vo.PolicyURIs),
+		witness.VerifyWithPolicyFulcioCertExtensions(vo.PolicyFulcioCertExtensions),
 	)
 	if err != nil {
 		if verifiedEvidence.StepResults != nil {
