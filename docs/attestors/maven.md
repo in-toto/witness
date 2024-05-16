@@ -71,4 +71,5 @@ The [Maven](https://maven.apache.org/) Attestor records project and dependency i
       ]
     }
   }
-}```
+}
+```

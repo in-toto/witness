@@ -90,4 +90,5 @@ The Link Attestor generates an [in-toto Link attestation](https://in-toto.readth
       ]
     }
   }
-}```
+}
+```
