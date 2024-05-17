@@ -5,7 +5,8 @@ go 1.22.0
 toolchain go1.22.2
 
 require (
-	github.com/in-toto/go-witness v0.3.2-0.20240514141512-777497a51359
+	github.com/in-toto/go-witness v0.4.0
+	github.com/invopop/jsonschema v0.12.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sigstore/fulcio v1.4.5
 	github.com/sirupsen/logrus v1.9.3
@@ -92,7 +93,6 @@ require (
 	github.com/in-toto/archivista v0.4.0 // indirect
 	github.com/in-toto/attestation v1.0.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/invopop/jsonschema v0.12.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jellydator/ttlcache/v3 v3.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
