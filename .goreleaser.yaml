@@ -68,5 +68,9 @@ docker_signs:
 sboms:
   - id: archive
     cmd: syft
-    args: ["$artifact", "--output", "spdx-json=$document"]
     artifacts: archive
+    args: ["$artifact", "--output", "spdx-json=$document"]
+  - id: source
+    cmd: syft
+    artifacts: source
+    args: ["$artifact", "--output", "spdx-json=$document"]
