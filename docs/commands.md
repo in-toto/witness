@@ -179,8 +179,9 @@ witness verify [flags]
 
 ```
       --archivista-server string                            URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
-  -f, --artifactfile string                                 Path to the artifact to verify
+  -f, --artifactfile string                                 Path to the artifact subject to verify
   -a, --attestations strings                                Attestation files to test against the policy
+      --directory-path string                               Path to the directory subject to verify
       --enable-archivista                                   Use Archivista to store or retrieve attestations
   -h, --help                                                help for verify
   -p, --policy string                                       Path to the policy to verify
