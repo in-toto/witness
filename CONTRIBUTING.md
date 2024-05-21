@@ -32,14 +32,14 @@ the development process:
  (excluding Windows), but you can check if it is installed by running `make --version`
  on your terminal. If this command is unsuccessful, you will need to find the standard
  method for installing it for your system. For installing `make` on Windows, please see
- [here](https://gnuwin32.sourceforge.net/packages/make.html).
+ [here](https://gnuwin32.sourceforge.net/packages/make.htm).
  
 * Go v1.19: Witness is written in [Go](https://golang.org/), so you 
  will need this installed in order to compile and run the source code.
 
 #### Getting the Witness source code
 
-[Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo>) the repository on GitHub and
+[Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) the repository on GitHub and
 [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) it to
 your local machine: 
 ```console
@@ -49,7 +49,7 @@ your local machine:
 about how to set SSH up with Github [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).*
 
 
-Add a [remote](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork) and
+Add a [remote](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-repository-for-a-fork) and
 regularly [sync](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork) to make sure
 you stay up-to-date with our repository:
 
