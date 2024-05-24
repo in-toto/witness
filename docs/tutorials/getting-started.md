@@ -26,7 +26,7 @@ openssl pkey -in testkey.pem -pubout > testpub.pem
 > including Github Actions </span>
 
 - This file generally resides in your source code repository along with the public keys generated above.
-- `.witness yaml` is the default location for the configuration file
+- `.witness.yaml` is the default location for the configuration file
 - `witness help` will show all configuration options
 - command-line arguments overrides configuration file values.
 
