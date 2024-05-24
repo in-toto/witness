@@ -47,12 +47,15 @@ verify:
 ><span class="tip-text">💡 Tip: You can upload the recorded attestations to an [Archivista](https://github.com/in-toto/archivista) server by using the `--enable-archivista` flag!</span>
 - The `-a {attestor}` flag allows you to define which attestors run
 - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
+- Witness has a set of attestors that are always run. You can see them in the output of the `witness attestors list` command.
 - Defining step names is important, these will be used in the policy.
 - This should happen as a part of a CI step
 
 ```
-witness run --step build -o test-att.json -- go build -o=testapp .
+witness run --step build -o test-att.json -a slsa -- go build -o=testapp .
 ```
+
+><span class="tip-text">💡 Tip: The `-a slsa` option allows to generate the [SLSA Provenace](https://slsa.dev/spec/v1.0/provenance) predicate in the attestation. This is a mandatory requirement for SLSA 1</span>
 
 ### 4. View the attestation data in the signed DSSE Envelope
 
