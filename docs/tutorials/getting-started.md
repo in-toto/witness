@@ -55,7 +55,7 @@ verify:
 witness run --step build -o test-att.json -a slsa -- go build -o=testapp .
 ```
 
-><span class="tip-text">💡 Tip: The `-a slsa` option allows to generate the [SLSA Provenace](https://slsa.dev/spec/v1.0/provenance) predicate in the attestation. This is a mandatory requirement for SLSA Level 1</span>
+><span class="tip-text">💡 Tip: The `-a slsa` option allows to generate the [SLSA Provenace](https://slsa.dev/spec/v1.0/provenance) predicate in the attestation. The `--attestor-slsa-export` option allows to write the Provenance in a dedicated file. This is a mandatory requirement for SLSA Level 1</span>
 
 ### 4. View the attestation data in the signed DSSE Envelope
 
