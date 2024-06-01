@@ -65,3 +65,12 @@ docker_signs:
       - "sign"
       - "${artifact}"
       - "--yes" # needed on cosign 2.0.0+
+sboms:
+  - id: archive
+    cmd: syft
+    artifacts: archive
+    args: ["$artifact", "--output", "spdx-json=$document"]
+  - id: source
+    cmd: syft
+    artifacts: source
+    args: ["$artifact", "--output", "spdx-json=$document"]
