@@ -120,6 +120,8 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
+github.com/fkautz/omnitrail-go v0.0.0-20230808061951-37d34c23539d h1:p4DOjnN5IAuUhtksK+RuwR2q3VclzeI1+zh+AfNFFjw=
+github.com/fkautz/omnitrail-go v0.0.0-20230808061951-37d34c23539d/go.mod h1:To+426All36lUwebm2u5Qptl3daW1Nnk+LHrkTFhiWQ=
 github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8vw=
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
 github.com/foxcpp/go-mockdns v1.0.0 h1:7jBqxd3WDWwi/6WhDvacvH1XsN3rOLXyHM1uhvIx6FI=
@@ -218,6 +220,10 @@ github.com/in-toto/attestation v1.0.2 h1:ICqV41bfaDC3ixVUzAtFxFu+Dy56EPcjiIrJQe+
 github.com/in-toto/attestation v1.0.2/go.mod h1:3uRayZSKuCHDDZOxLm5UfYulqqd1L1NdzYvxX/jyZEM=
 github.com/in-toto/go-witness v0.4.1-0.20240608134736-6f2f501dd2bd h1:sPGd1tzOrrEjxHXqbtatexyNKu1tcrllppdKkOlpV1c=
 github.com/in-toto/go-witness v0.4.1-0.20240608134736-6f2f501dd2bd/go.mod h1:G3tdf4O1bjP9F0BdZ3jfpGhZ4P+8b+O8Adcdw5FNE6M=
+github.com/in-toto/go-witness v0.4.1-0.20240612145707-93c2d04134ec h1:NLX7Mtim7ZyEog9sn7n4IOx+3hFHGj/j3e5bawsh/jE=
+github.com/in-toto/go-witness v0.4.1-0.20240612145707-93c2d04134ec/go.mod h1:6naOxeUWknoYAxGysHav9y8EIff0kGEeFxHqZMchfho=
+github.com/in-toto/go-witness v0.4.1-0.20240612191953-430d30c0e675 h1:+BYfIJclVcZEqjh+8kChaCMn8V9/lH/tOJ8yIXdHYy8=
+github.com/in-toto/go-witness v0.4.1-0.20240612191953-430d30c0e675/go.mod h1:6naOxeUWknoYAxGysHav9y8EIff0kGEeFxHqZMchfho=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/invopop/jsonschema v0.12.0 h1:6ovsNSuvn9wEQVOyc72aycBMVQFKz7cPdMJn10CvzRI=
@@ -271,6 +277,8 @@ github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9G
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
+github.com/omnibor/omnibor-go v0.0.0-20230521145532-a77de61a16cd h1:25EpGVgctk6V3DUa1gqFHvjVbmdWqM+jBZAed7p/krQ=
+github.com/omnibor/omnibor-go v0.0.0-20230521145532-a77de61a16cd/go.mod h1:ArlQivzDQvZnFe8itjlA3ndPTXd9iWOgqzF31OyIEFQ=
 github.com/onsi/gomega v1.31.0 h1:54UJxxj6cPInHS3a35wm6BK/F9nHYueZ1NVujHDrnXE=
 github.com/onsi/gomega v1.31.0/go.mod h1:DW9aCi7U6Yi40wNVAvT6kzFnEVEI5n3DloYBiKiT6zk=
 github.com/open-policy-agent/opa v0.61.0 h1:nhncQ2CAYtQTV/SMBhDDPsCpCQsUW+zO/1j+T5V7oZg=

@@ -133,7 +133,6 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		witness.RunWithAttestors(attestors),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
-		witness.RunWithSigners(signers...),
 	)
 	if err != nil {
 		return err
