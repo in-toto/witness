@@ -1,0 +1,38 @@
+{
+  "expires": "2025-12-17T23:57:40-05:00",
+  "steps": {
+    "sbom": {
+      "name": "sbom",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestations/material/v0.1",
+          "regopolicies": []
+        },
+        {
+          "type": "https://witness.dev/attestations/command-run/v0.1",
+          "regopolicies": []
+        },
+        {
+          "type": "https://witness.dev/attestations/command-run/v0.1",
+          "regopolicies": []
+        },
+        {
+          "type": "https://witness.dev/attestations/product/v0.1",
+          "regopolicies": []
+        }
+      ],
+      "functionaries": [
+        {
+          "type": "publickey",
+          "publickeyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647"
+        }
+      ]
+    }
+  },
+  "publickeys": {
+    "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647": {
+      "keyid": "ae2dcc989ea9c109a36e8eba5c4bc16d8fafcfe8e1a614164670d50aedacd647",
+      "key": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQWYyOW9QUDhVZ2hCeUc4NTJ1QmRPeHJKS0tuN01NNWhUYlA5ZXNnT1ovazA9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+    }
+  }
+}

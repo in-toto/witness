@@ -56,3 +56,6 @@ if ../bin/witness -c $test_config verify -a ./fail.attestation.json -a ./package
 	echo "expected verify to fail"
 	exit 1
 fi
+
+# test policy with multi-type attestor (ie. SBOM)
+../bin/witness verify -p sbom-policy-signed.json -a spdx-att.json -k testpub.pem -f sbom.spdx.json --log-level debug
