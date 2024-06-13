@@ -218,8 +218,8 @@ github.com/in-toto/archivista v0.5.1 h1:mAPt1lW9VAMnEGiS38OGvej4t2AZ4Irfh8+y5koq
 github.com/in-toto/archivista v0.5.1/go.mod h1:wzOSEgvDdV27CZUWm6H72sQ+vzAWjQLX1qhBJIJUSYI=
 github.com/in-toto/attestation v1.0.2 h1:ICqV41bfaDC3ixVUzAtFxFu+Dy56EPcjiIrJQe+4LVM=
 github.com/in-toto/attestation v1.0.2/go.mod h1:3uRayZSKuCHDDZOxLm5UfYulqqd1L1NdzYvxX/jyZEM=
-github.com/in-toto/go-witness v0.5.0 h1:ViES51SWrgOByFdZTny+ZRFPClJcFQ8WId/YlxdPG7Q=
-github.com/in-toto/go-witness v0.5.0/go.mod h1:RN10WG5hFnK9OSHFlQD4mql54uCrtWdZ08/bl1vPuMI=
+github.com/in-toto/go-witness v0.5.1 h1:lrnFttDWEZqHxSfupcDGWTxSw8Uk/pNtVM1Wr3St0fo=
+github.com/in-toto/go-witness v0.5.1/go.mod h1:RN10WG5hFnK9OSHFlQD4mql54uCrtWdZ08/bl1vPuMI=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/invopop/jsonschema v0.12.0 h1:6ovsNSuvn9wEQVOyc72aycBMVQFKz7cPdMJn10CvzRI=
