@@ -203,6 +203,10 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 			log.Error("Evidence:")
 			for step, result := range verifiedEvidence.StepResults {
 				log.Error("Step: ", step)
+				if len(result.Passed) > 0 {
+					log.Infof("Passed with evidence: %s", result.Passed[0].Reference)
+					continue
+				}
 				for _, p := range result.Rejected {
 					if p.Collection.Collection.Name != "" {
 						log.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
