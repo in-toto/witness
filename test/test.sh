@@ -20,31 +20,42 @@ DIR="$(
 	cd -- "$(dirname "$0")" >/dev/null 2>&1
 	pwd -P
 )"
+
 . "$DIR/common.sh"
 
 if ! checkprograms make tar; then
 	exit 1
 fi
 
+test_config=test.yaml
+
+# if Darwin use test-mac.yaml
+if [ "$(uname)" = "Darwin" ]; then
+	test_config=test-mac.yaml
+fi
+
 make -C ../ build
 rm -f ./policy-signed.json ./build.attestation.json ./package.attestation.json ./fail.attestation.json ./testapp ./testapp.tar.tgz
 echo "testing signing policy"
-../bin/witness -c test.yaml -l debug sign -f policy.json
+../bin/witness -c $test_config -l debug sign -f policy.json
 
 # successful test
 echo "testing witness run on build step"
-../bin/witness -c test.yaml run -o build.attestation.json -- go build -o=testapp .
+../bin/witness -c $test_config run -o build.attestation.json -- go build -o=testapp .
 echo "testing witness run on packaging step"
-../bin/witness -c test.yaml run -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
+../bin/witness -c $test_config run -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
 echo "testing witness verify"
-../bin/witness -c test.yaml verify
+../bin/witness -c $test_config verify
 
 # make sure we fail if we run with a key not in the policy
 echo "testing that witness verify fails with a key not in the policy"
-../bin/witness -c test.yaml run -k failkey.pem -o ./fail.attestation.json -- go build -o=testapp .
-../bin/witness -c test.yaml run -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
+../bin/witness -c $test_config run -k failkey.pem -o ./fail.attestation.json -- go build -o=testapp .
+../bin/witness -c $test_config run -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
 set +e
-if ../bin/witness -c test.yaml verify -a ./fail.attestation.json -a ./package.attestation.json; then
+if ../bin/witness -c $test_config verify -a ./fail.attestation.json -a ./package.attestation.json; then
 	echo "expected verify to fail"
 	exit 1
 fi
+
+# test policy with multi-type attestor (ie. SBOM)
+../bin/witness verify -p sbom-policy-signed.json -a spdx-att.json -k testpub.pem -f sbom.spdx.json --log-level debug

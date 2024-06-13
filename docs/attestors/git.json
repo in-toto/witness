@@ -63,6 +63,9 @@
             "$ref": "#/$defs/Tag"
           },
           "type": "array"
+        },
+        "branch": {
+          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -129,4 +132,3 @@
     }
   }
 }
- 
