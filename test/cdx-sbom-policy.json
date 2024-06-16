@@ -13,7 +13,7 @@
           "regopolicies": []
         },
         {
-          "type": "https://witness.dev/attestations/command-run/v0.1",
+          "type": "https://cyclonedx.org/bom",
           "regopolicies": []
         },
         {
