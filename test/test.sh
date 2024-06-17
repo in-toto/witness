@@ -58,4 +58,7 @@ if ../bin/witness -c $test_config verify -a ./fail.attestation.json -a ./package
 fi
 
 # test policy with multi-type attestor (ie. SBOM)
-../bin/witness verify -p sbom-policy-signed.json -a spdx-att.json -k testpub.pem -f sbom.spdx.json --log-level debug
+# test SPDX with subject digest for the name
+../bin/witness verify -p spdx-sbom-policy-signed.json -a spdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
+# test CycloneDX with subject digest for the name
+../bin/witness verify -p cdx-sbom-policy-signed.json -a cdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
