@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.2
 
 require (
-	github.com/in-toto/go-witness v0.5.3-0.20240616040228-41efb4a8dbf8
+	github.com/in-toto/go-witness v0.6.0
 	github.com/invopop/jsonschema v0.12.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sigstore/fulcio v1.4.5
