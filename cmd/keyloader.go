@@ -40,6 +40,17 @@ func providersFromFlags(prefix string, flags *pflag.FlagSet) map[string]struct{}
 			return
 		}
 
+		// we want to only initialize KMS provider if the ref is supplied
+		if parts[1] == "kms" {
+			if len(parts) < 3 {
+				return
+			}
+
+			if parts[2] != "ref" {
+				return
+			}
+		}
+
 		providers[parts[1]] = struct{}{}
 	})
 
@@ -99,30 +110,31 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.K
 
 		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
 		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
+			var vp signer.SignerProvider
 			for _, opt := range ksp.Options {
 				pn := opt.ProviderName()
 				for _, setter := range ko[pn] {
-					vp, err := setter(ksp)
+					vp, err = setter(ksp)
 					if err != nil {
 						continue
 					}
-
-					// NOTE: KMS SignerProvider can also be a VerifierProvider. This is a nasty hack to cast things back in a way that we can add to the loaded verifiers.
-					// This must be refactored.
-					kspv, ok := vp.(*kms.KMSSignerProvider)
-					if !ok {
-						return nil, fmt.Errorf("provided verifier provider is not a KMS verifier provider")
-					}
-
-					s, err := kspv.Verifier(ctx)
-					if err != nil {
-						log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
-						continue
-					}
-					verifiers = append(verifiers, s)
-					return verifiers, nil
 				}
 			}
+
+			// NOTE: KMS SignerProvider can also be a VerifierProvider. This is a nasty hack to cast things back in a way that we can add to the loaded verifiers.
+			// This must be refactored.
+			kspv, ok := vp.(*kms.KMSSignerProvider)
+			if !ok {
+				return nil, fmt.Errorf("provided verifier provider is not a KMS verifier provider")
+			}
+
+			s, err := kspv.Verifier(ctx)
+			if err != nil {
+				log.Errorf("failed to create %v verifier: %w", verifierProvider, err)
+				continue
+			}
+			verifiers = append(verifiers, s)
+			return verifiers, nil
 		}
 
 		s, err := sp.Verifier(ctx)

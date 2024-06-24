@@ -196,6 +196,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		witness.VerifyWithPolicyCAIntermediates(policyIntermediates),
 		witness.VerifyWithPolicyCertConstraints(vo.PolicyCommonName, vo.PolicyDNSNames, vo.PolicyEmails, vo.PolicyOrganizations, vo.PolicyURIs),
 		witness.VerifyWithPolicyFulcioCertExtensions(vo.PolicyFulcioCertExtensions),
+		witness.VerifyWithKMSProviderOptions(vo.KMSVerifierProviderOptions),
 	)
 	if err != nil {
 		if verifiedEvidence.StepResults != nil {
