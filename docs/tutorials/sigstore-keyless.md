@@ -216,8 +216,8 @@ While it might be fun for some to do this manually (I'm looking at you VIM power
 cat << 'EOF' > template-policy.sh
 
 email="$1"
-fulcio_root="$(cat fulcio.pem | jq -r '.chains.[0].certificates.[0]')"
-fulcio_int="$(cat fulcio.pem | jq -r '.chains.[0].certificates.[1]')"
+fulcio_root="$(cat fulcio.pem | jq -r '.chains[0].certificates[0]')"
+fulcio_int="$(cat fulcio.pem | jq -r '.chains[0].certificates[1]')"
 freetsa_root="$(cat freetsa.pem)"
 fulcio_root_b64="$(echo "$fulcio_root" | openssl base64 -A)"
 fulcio_int_b64="$(echo "$fulcio_int" | openssl base64 -A)"
@@ -226,10 +226,10 @@ freetsa_root_b64="$(echo "$freetsa_root" | openssl base64 -A)"
 cp policy-template.json policy.json
 
 # Use double quotes around variables in sed commands to preserve newlines
-sed -i '' "s|{{FULCIO_ROOT}}|$fulcio_root_b64|g" policy.json
-sed -i '' "s|{{FULCIO_INT}}|$fulcio_int_b64|g" policy.json
-sed -i '' "s|{{FREETSA_ROOT}}|$freetsa_root_b64|g" policy.json
-sed -i '' "s|{{EMAIL}}|$email|g" policy.json
+sed -i "s|{{FULCIO_ROOT}}|$fulcio_root_b64|g" policy.json
+sed -i "s|{{FULCIO_INT}}|$fulcio_int_b64|g" policy.json
+sed -i "s|{{FREETSA_ROOT}}|$freetsa_root_b64|g" policy.json
+sed -i "s|{{EMAIL}}|$email|g" policy.json
 
 # Calculate SHA256 hash (macOS and Linux compatible)
 if [[ "$(uname)" == "Darwin" ]]; then
