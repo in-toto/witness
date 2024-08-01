@@ -74,12 +74,31 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		collectionSource source.Sourcer
 		archivistaClient *archivista.Client
 	)
-	memSource := source.NewMemorySource()
 
-	collectionSource = memSource
+	var memSource *source.MemorySource
+	if len(vo.AttestationFilePaths) > 0 {
+		memSource = source.NewMemorySource()
+		for _, path := range vo.AttestationFilePaths {
+			if err := memSource.LoadFile(path); err != nil {
+				return fmt.Errorf("failed to load attestation file: %w", err)
+			}
+		}
+	}
+
+	var archivistaSource *source.ArchivistaSource
 	if vo.ArchivistaOptions.Enable {
 		archivistaClient = archivista.New(vo.ArchivistaOptions.Url)
-		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivistaClient))
+		archivistaSource = source.NewArchvistSource(archivistaClient)
+	}
+
+	if memSource != nil && archivistaSource != nil {
+		collectionSource = source.NewMultiSource(memSource, archivistaSource)
+	} else if memSource != nil {
+		collectionSource = memSource
+	} else if archivistaSource != nil {
+		collectionSource = archivistaSource
+	} else {
+		return fmt.Errorf("either `--enable-archivista` or `--attestation-file-paths` flags must be used")
 	}
 
 	if vo.KeyPath == "" && len(vo.PolicyCARootPaths) == 0 && len(verifiers) == 0 {
@@ -179,12 +198,6 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return errors.New("at least one subject is required, provide an artifact file or subject")
 	}
 
-	for _, path := range vo.AttestationFilePaths {
-		if err := memSource.LoadFile(path); err != nil {
-			return fmt.Errorf("failed to load attestation file: %w", err)
-		}
-	}
-
 	verifiedEvidence, err := witness.Verify(
 		ctx,
 		policyEnvelope,
@@ -209,10 +222,14 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 				}
 				for _, p := range result.Rejected {
 					if p.Collection.Collection.Name != "" {
-						log.Errorf("collection rejected: %s, Reason: %s ", p.Collection.Collection.Name, p.Reason)
+						log.Errorf("collection rejected: %s, reference: %s, reason: %s ", p.Collection.Collection.Name, p.Collection.Reference, p.Reason)
 					} else {
-						log.Errorf("verification failure: Reason: %s", p.Reason)
+						log.Errorf("verification failure: reason: %s", p.Reason)
 					}
+				}
+				if len(result.Passed) == 0 && len(result.Rejected) == 0 {
+					log.Errorf("verification failure: no collections found")
+					continue
 				}
 			}
 		}
