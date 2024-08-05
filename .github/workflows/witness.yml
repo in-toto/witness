@@ -62,7 +62,7 @@ jobs:
               path: /tmp
 
           - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@85ddab8b46a86b2905a3b547a1806ab264fbb810
+            uses: testifysec/witness-run-action@f77c0a5b024ed206a6d2e7426611e4306af4dd66
             with:
               step: pre-${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
@@ -71,7 +71,7 @@ jobs:
             run: ${{ inputs.pre-command }}
 
           - if: ${{ inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@85ddab8b46a86b2905a3b547a1806ab264fbb810
+            uses: testifysec/witness-run-action@f77c0a5b024ed206a6d2e7426611e4306af4dd66
             with:
               step: ${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
@@ -80,7 +80,7 @@ jobs:
             run: ${{ inputs.command }}
 
           - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
-            uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
+            uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
             with:
               name: ${{ inputs.artifact-upload-name }}
               path: ${{ inputs.artifact-upload-path }}
