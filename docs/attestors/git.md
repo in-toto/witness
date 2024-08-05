@@ -75,6 +75,9 @@ The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.or
             "$ref": "#/$defs/Tag"
           },
           "type": "array"
+        },
+        "branch": {
+          "type": "string"
         }
       },
       "additionalProperties": false,

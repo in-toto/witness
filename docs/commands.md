@@ -46,6 +46,7 @@ witness run [cmd] [flags]
       --attestor-maven-pom-path string                The path to the Project Object Model (POM) XML file used for task being attested (default "pom.xml"). (default "pom.xml")
       --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
+      --attestor-sbom-export                          Export the SBOM predicate in its own attestation
       --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
       --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
       --enable-archivista                             Use Archivista to store or retrieve attestations
@@ -80,8 +81,8 @@ witness run [cmd] [flags]
       --signer-vault-ttl duration                     Time to live for the generated certificate. Defaults to the vault role policy's configured TTL if not provided
       --signer-vault-url string                       Base url of the Vault instance to connect to
   -s, --step string                                   Name of the step being run
-      --timestamp-servers strings                     Timestamp Authority Servers to use when signing envelope
-      --trace                                         Enable tracing for the command
+  -t, --timestamp-servers strings                     Timestamp Authority Servers to use when signing envelope
+  -r, --trace                                         Enable tracing for the command
   -d, --workingdir string                             Directory from which commands will run
 ```
 

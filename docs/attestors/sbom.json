@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/go-witness/attestation/sbom/sbom-attestor",
+  "$ref": "#/$defs/SBOMAttestor",
+  "$defs": {
+    "SBOMAttestor": {
+      "properties": {
+        "SBOMDocument": true
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "SBOMDocument"
+      ]
+    }
+  }
+}

@@ -80,7 +80,11 @@ cd "$TEMPDIR"
 curl -s -LO "$DOWNLOAD_URL"
 
 # Verify the checksum
-FILE_CHECKSUM=$(sha256sum -b "witness_${VERSION}_${OS}_${ARCH}.tar.gz" | awk '{print $1}')
+if command -v sha256sum >/dev/null 2>&1; then
+    FILE_CHECKSUM=$(sha256sum -b "witness_${VERSION}_${OS}_${ARCH}.tar.gz" | awk '{print $1}')
+else
+    FILE_CHECKSUM=$(shasum -a 256 "witness_${VERSION}_${OS}_${ARCH}.tar.gz" | awk '{print $1}')
+fi
 
 echo file checksum: "    $FILE_CHECKSUM"
 

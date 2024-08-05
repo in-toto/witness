@@ -29,7 +29,7 @@ openssl pkey -in testkey.pem -pubout > testpub.pem
 > including Github Actions </span>
 
 - This file generally resides in your source code repository along with the public keys generated above.
-- `.witness yaml` is the default location for the configuration file
+- `.witness.yaml` is the default location for the configuration file
 - `witness help` will show all configuration options
 - command-line arguments overrides configuration file values.
 
@@ -52,14 +52,16 @@ verify:
 
 - The `-a {attestor}` flag allows you to define which attestors run
 - ex. `-a maven -a gcp -a gitlab` would be used for a maven build running on a GitLab runner on GCP.
+- Witness has a set of attestors that are always run. You can see them in the output of the `witness attestors list` command.
 - Defining step names is important, these will be used in the policy.
 - This should happen as a part of a CI step
 
 ```shell
-witness run --step build -o test-att.json -- go build -o=testapp .
+witness run --step build -o test-att.json -a slsa --attestor-slsa-export -- go build -o=testapp .
 ```
 
 ><span class="tip-text">💡 Tip: When you run a step with many files as the product of that step, like node_modules, it could be beneficial to collapse the result into a hash of the directory content. You can use `--dirhash-glob <glob-pattern>` to match the directory or use it multiple times to use different glob patterns. E.g. `--dirhash-glob node_modules/*`</span>
+><span class="tip-text">💡 Tip: The `-a slsa` option allows to generate the [SLSA Provenace](https://slsa.dev/spec/v1.0/provenance) predicate in the attestation. The `--attestor-slsa-export` option allows to write the Provenance in a dedicated file. This is a mandatory requirement for SLSA Level 1</span>
 
 ### 4. View the attestation data in the signed DSSE Envelope
 
