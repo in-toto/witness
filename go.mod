@@ -1,6 +1,7 @@
 module github.com/in-toto/witness
 
-go 1.22.4
+go 1.22.5
+
 require (
 	github.com/in-toto/go-witness v0.6.0
 	github.com/invopop/jsonschema v0.12.0
