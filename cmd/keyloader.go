@@ -120,7 +120,6 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.K
 						continue
 					}
 					verifiers = append(verifiers, s)
-					return verifiers, nil
 				}
 			}
 		}
