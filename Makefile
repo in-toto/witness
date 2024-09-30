@@ -11,6 +11,9 @@ clean: ## Clean the binary directory
 build:
 	CGO_ENABLED=0 go build $(BUILDFLAGS) -o $(BINDIR)/$(BINNAME) ./main.go
 
+build-goreleaser:
+	goreleaser build --snapshot --clean
+
 vet: ## Run go vet
 	go vet ./...
 
