@@ -17,6 +17,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
+	"runtime/pprof"
 
 	"github.com/in-toto/go-witness/log"
 	_ "github.com/in-toto/go-witness/signer/kms/aws"
@@ -25,7 +27,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ro = &options.RootOptions{}
+var (
+	ro             = &options.RootOptions{}
+	cpuProfileFile *os.File
+)
 
 func New() *cobra.Command {
 	cmd := &cobra.Command{
@@ -46,6 +51,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(versionCmd())
 	cmd.AddCommand(AttestorsCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
+	cobra.OnFinalize((func() { postRoot(ro, logger) }))
 	return cmd
 }
 
@@ -63,6 +69,40 @@ func preRoot(cmd *cobra.Command, ro *options.RootOptions, logger *logrusLogger) 
 
 	if err := initConfig(cmd, ro); err != nil {
 		logger.l.Fatal(err)
+	}
+
+	var err error
+	if len(ro.CpuProfileFile) > 0 {
+		cpuProfileFile, err = os.Create(ro.CpuProfileFile)
+		if err != nil {
+			logger.l.Fatalf("could not create CPU profile: %v", err)
+		}
+
+		if err = pprof.StartCPUProfile(cpuProfileFile); err != nil {
+			logger.l.Fatalf("could not start CPU profile: %v", err)
+		}
+	}
+}
+
+func postRoot(ro *options.RootOptions, logger *logrusLogger) {
+	if cpuProfileFile != nil {
+		pprof.StopCPUProfile()
+		if err := cpuProfileFile.Close(); err != nil {
+			logger.l.Fatalf("could not close cpu profile file: %v", err)
+		}
+	}
+
+	if len(ro.MemProfileFile) > 0 {
+		memProfileFile, err := os.Create(ro.MemProfileFile)
+		if err != nil {
+			logger.l.Fatalf("could not create memory profile file: %v", err)
+		}
+
+		defer memProfileFile.Close()
+		runtime.GC()
+		if err := pprof.WriteHeapProfile(memProfileFile); err != nil {
+			logger.l.Fatalf("could not write memory profile: %v", err)
+		}
 	}
 }
 
