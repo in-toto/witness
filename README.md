@@ -49,6 +49,8 @@ latest release:
 bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)
 ```
 
+If you want install it manually and verify its integrity follow the instructions in the [INSTALL.md](./INSTALL.md).
+
 ### Tutorials
 Check out our Tutorials:
 
