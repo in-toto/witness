@@ -23,9 +23,12 @@ source:
   enabled: true
 signs:
   - cmd: cosign
+    certificate: '${artifact}.pem'
+    signature: '${artifact}.sig'
     args:
       - "sign-blob"
       - "--output-signature=${signature}"
+      - '--output-certificate=${certificate}'
       - "${artifact}"
       - "--yes" # needed on cosign 2.0.0+
     artifacts: all
