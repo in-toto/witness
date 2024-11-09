@@ -1,17 +1,3 @@
-// Copyright 2021 The Witness Contributors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
@@ -127,13 +113,35 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
-	results, err := witness.RunWithExports(
-		ro.StepName,
+	// Add the `RunWithUserDefinedSubject` option if user-defined subjects are provided
+	runOptions := []witness.RunOption{
 		witness.RunWithSigners(signers...),
 		witness.RunWithAttestors(attestors),
 		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
-	)
+	}
+
+	// Aggregate all user-defined subjects into a single map
+	allSubjects := make(map[string]cryptoutil.DigestSet)
+
+	// Iterate over user-defined subjects and add them to the aggregated map
+	for _, userDefinedSubject := range ro.UserDefinedSubjects {
+		fmt.Printf("User-defined subject: %v\n", userDefinedSubject)
+		ds, err := cryptoutil.CalculateDigestSetFromBytes([]byte(userDefinedSubject), roHashes)
+		if err != nil {
+			log.Debugf("(witness) failed to record user-defined subject %v: %v", userDefinedSubject, err)
+			continue
+		}
+		// Add the user-defined subject to the aggregated map
+		allSubjects["https://witness.dev/internal/user:"+userDefinedSubject] = ds
+	}
+
+	// Add the aggregated subjects to the run options
+	if len(allSubjects) > 0 {
+		runOptions = append(runOptions, witness.RunWithUserDefinedSubject(allSubjects))
+	}
+
+	results, err := witness.RunWithExports(ro.StepName, runOptions...)
 	if err != nil {
 		return err
 	}
