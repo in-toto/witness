@@ -23,6 +23,7 @@ type SignOptions struct {
 	OutFilePath              string
 	InFilePath               string
 	TimestampServers         []string
+	UserDefinedSubjects      []string
 }
 
 var RequiredSignFlags = []string{
@@ -37,6 +38,6 @@ func (so *SignOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&so.OutFilePath, "outfile", "o", "", "File to write signed data. Defaults to stdout")
 	cmd.Flags().StringVarP(&so.InFilePath, "infile", "f", "", "Witness policy file to sign")
 	cmd.Flags().StringSliceVar(&so.TimestampServers, "timestamp-servers", []string{}, "Timestamp Authority Servers to use when signing envelope")
-
+	cmd.Flags().StringSliceVarP(&so.UserDefinedSubjects, "user-defined-subject", "u", []string{}, "User-defined linked subjects to include in the attestation")
 	cmd.MarkFlagsRequiredTogether(RequiredSignFlags...)
 }

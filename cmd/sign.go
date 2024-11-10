@@ -16,12 +16,14 @@ package cmd
 
 import (
 	"context"
+	"crypto"
 	"fmt"
 	"os"
 
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -81,5 +83,27 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 	}
 
 	defer outFile.Close()
-	return witness.Sign(inFile, so.DataType, outFile, dsse.SignWithSigners(signers[0]), dsse.SignWithTimestampers(timestampers...))
+
+	// Aggregate all user-defined subjects into a single map
+	allSubjects := make(map[string]cryptoutil.DigestSet)
+
+	// Iterate over user-defined subjects and add them to the aggregated map
+	for _, userDefinedSubject := range so.UserDefinedSubjects {
+		fmt.Printf("User-defined subject: %v\n", userDefinedSubject)
+		ds, err := cryptoutil.CalculateDigestSetFromBytes([]byte(userDefinedSubject),
+			[]cryptoutil.DigestValue{{
+				Hash:   crypto.SHA256,
+				GitOID: false,
+			}})
+
+		if err != nil {
+			log.Debugf("(witness) failed to record user-defined subject %v: %v", userDefinedSubject, err)
+			continue
+		}
+		// Add the user-defined subject to the aggregated map
+		allSubjects["https://witness.dev/internal/user:"+userDefinedSubject] = ds
+	}
+
+	return witness.Sign(inFile, so.DataType, outFile, dsse.SignWithSigners(signers[0]),
+		dsse.SignWithTimestampers(timestampers...), dsse.SignWithUserDefinedSubject(allSubjects))
 }

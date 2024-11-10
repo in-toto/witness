@@ -1,17 +1,4 @@
-// Copyright 2022 The Witness Contributors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+// options/run.go
 package options
 
 import (
@@ -34,6 +21,7 @@ type RunOptions struct {
 	Tracing                  bool
 	TimestampServers         []string
 	AttestorOptSetters       map[string][]func(attestation.Attestor) (attestation.Attestor, error)
+	UserDefinedSubjects      []string
 }
 
 var RequiredRunFlags = []string{
@@ -56,6 +44,8 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVarP(&ro.Tracing, "trace", "r", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVarP(&ro.TimestampServers, "timestamp-servers", "t", []string{}, "Timestamp Authority Servers to use when signing envelope")
+
+	cmd.Flags().StringSliceVarP(&ro.UserDefinedSubjects, "user-defined-subject", "u", []string{}, "User-defined linked subjects to include in the attestation")
 
 	cmd.MarkFlagsRequiredTogether(RequiredRunFlags...)
 
