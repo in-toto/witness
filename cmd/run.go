@@ -117,7 +117,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	runOptions := []witness.RunOption{
 		witness.RunWithSigners(signers...),
 		witness.RunWithAttestors(attestors),
-		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
+		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir),
+			attestation.WithHashes(roHashes)),
 		witness.RunWithTimestampers(timestampers...),
 	}
 
