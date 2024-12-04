@@ -19,7 +19,7 @@ ARCH=amd64
 # One of: linux, darwin, freebsd
 OS=linux
 # See https://github.com/in-toto/witness/releases for the latest version
-VERSION=0.6.0
+VERSION=0.7.0
 cd $(mktemp -d)
 
 curl -LO https://github.com/in-toto/witness/releases/download/v${VERSION}/witness_${VERSION}_${OS}_${ARCH}
