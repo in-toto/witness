@@ -4,6 +4,15 @@
   "$defs": {
     "Attestor": {
       "properties": {
+        "gittool": {
+          "type": "string"
+        },
+        "gitbinpath": {
+          "type": "string"
+        },
+        "gitbinhash": {
+          "$ref": "#/$defs/DigestSet"
+        },
         "commithash": {
           "type": "string"
         },
@@ -71,6 +80,7 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
+        "gittool",
         "commithash",
         "author",
         "authoremail",
@@ -132,3 +142,4 @@
     }
   }
 }
+ 

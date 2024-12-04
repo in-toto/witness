@@ -16,6 +16,15 @@ The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.or
   "$defs": {
     "Attestor": {
       "properties": {
+        "gittool": {
+          "type": "string"
+        },
+        "gitbinpath": {
+          "type": "string"
+        },
+        "gitbinhash": {
+          "$ref": "#/$defs/DigestSet"
+        },
         "commithash": {
           "type": "string"
         },
@@ -83,6 +92,7 @@ The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.or
       "additionalProperties": false,
       "type": "object",
       "required": [
+        "gittool",
         "commithash",
         "author",
         "authoremail",
