@@ -131,7 +131,13 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		ro.StepName,
 		witness.RunWithSigners(signers...),
 		witness.RunWithAttestors(attestors),
-		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
+		witness.RunWithAttestationOpts(
+			attestation.WithWorkingDir(ro.WorkingDir),
+			attestation.WithHashes(roHashes),
+			attestation.WithEnvCapturer(
+				ro.EnvAddSensitiveKeys, ro.EnvExcludeSensitiveKeys, ro.EnvDisableSensitiveVars, ro.EnvFilterSensitiveVars,
+			),
+		),
 		witness.RunWithTimestampers(timestampers...),
 	)
 	if err != nil {
