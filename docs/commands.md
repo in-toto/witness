@@ -50,6 +50,7 @@ witness run [cmd] [flags]
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --attestor-sbom-export                          Export the SBOM predicate in its own attestation
       --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
+      --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
       --enable-archivista                             Use Archivista to store or retrieve attestations
       --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
@@ -178,8 +179,9 @@ witness verify [flags]
 
 ```
       --archivista-server string                            URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
-  -f, --artifactfile string                                 Path to the artifact to verify
+  -f, --artifactfile string                                 Path to the artifact subject to verify
   -a, --attestations strings                                Attestation files to test against the policy
+      --directory-path string                               Path to the directory subject to verify
       --enable-archivista                                   Use Archivista to store or retrieve attestations
   -h, --help                                                help for verify
   -p, --policy string                                       Path to the policy to verify

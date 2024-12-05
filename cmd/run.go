@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gobwas/glob"
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/attestation"
@@ -127,11 +128,18 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
 
+	for _, dirHashGlobItem := range ro.DirHashGlobs {
+		_, err := glob.Compile(dirHashGlobItem)
+		if err != nil {
+			return fmt.Errorf("failed to compile glob: %v", err)	
+		}
+	}
+
 	results, err := witness.RunWithExports(
 		ro.StepName,
 		witness.RunWithSigners(signers...),
 		witness.RunWithAttestors(attestors),
-		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes)),
+		witness.RunWithAttestationOpts(attestation.WithWorkingDir(ro.WorkingDir), attestation.WithHashes(roHashes), attestation.WithDirHashGlob(ro.DirHashGlobs)),
 		witness.RunWithTimestampers(timestampers...),
 	)
 	if err != nil {
