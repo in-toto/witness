@@ -133,6 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
+          witness-install-dir: /usr/local/bin
           step: "build"
           attestations: "github"
           command: goreleaser release --clean

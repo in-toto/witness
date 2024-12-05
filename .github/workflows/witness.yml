@@ -64,6 +64,7 @@ jobs:
           - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
             uses: testifysec/witness-run-action@79320a907f611f2fb40ced8e13c66af988b2d9db
             with:
+              witness-install-dir: /usr/local/bin
               step: pre-${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
               command: /bin/sh -c "${{ inputs.pre-command }}"
@@ -73,6 +74,7 @@ jobs:
           - if: ${{ inputs.pull_request == false }}
             uses: testifysec/witness-run-action@79320a907f611f2fb40ced8e13c66af988b2d9db
             with:
+              witness-install-dir: /usr/local/bin
               step: ${{ inputs.step }}
               attestations: ${{ inputs.attestations }}
               command: /bin/sh -c "${{ inputs.command }}"
