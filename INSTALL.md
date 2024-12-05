@@ -5,7 +5,7 @@
 > test the release workflow.
 
 This repository provides pre-built binaries that are signed and published using
-[GoReleaser]. The signature for these binaries are generated using [Sigstore],
+[GoReleaser](https://goreleaser.com/). The signature for these binaries are generated using [Sigstore](https://sigstore.dev/),
 using the release workflow's identity. Make sure you have [cosign] installed on
 your system, then you will be able to securely download and verify the gittuf
 release:
