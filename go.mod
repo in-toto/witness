@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	github.com/gobwas/glob v0.2.3
 	github.com/in-toto/go-witness v0.7.0
-	github.com/invopop/jsonschema v0.12.0
+	github.com/invopop/jsonschema v0.13.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sigstore/fulcio v1.6.5
 	github.com/sirupsen/logrus v1.9.3
