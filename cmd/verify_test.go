@@ -32,6 +32,7 @@ import (
 	"github.com/in-toto/go-witness/attestation/commandrun"
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/policy"
 	"github.com/in-toto/go-witness/signer"
 	"github.com/in-toto/go-witness/signer/file"
@@ -208,6 +209,9 @@ func TestRunVerifyCA(t *testing.T) {
 }
 
 func TestRunVerifyKeyPair(t *testing.T) {
+	logger := newLogger()
+	log.SetLogger(logger)
+
 	policy, funcPriv := makepolicyRSAPub(t)
 	signedPolicy, pub := signPolicyRSA(t, policy)
 	workingDir := t.TempDir()
