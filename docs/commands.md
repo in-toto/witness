@@ -52,6 +52,10 @@ witness run [cmd] [flags]
       --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
       --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
       --enable-archivista                             Use Archivista to store or retrieve attestations
+      --env-add-sensitive-key strings                 Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.
+      --env-disable-default-sensitive-vars            Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.
+      --env-exclude-sensitive-key strings             Exclude specific keys from the list of sensitive environment keys. Note: This does not support globs.
+      --env-filter-sensitive-vars                     Switch from obfuscate to filtering variables which removes them from the output completely.
       --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                          help for run
   -o, --outfile string                                File to write signed data to
