@@ -8,7 +8,6 @@ Both staged and unstaged states are recorded.
 The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.org/wiki/SHA-1)) git commit hash as a subject.
 
 ## Schema
-
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
