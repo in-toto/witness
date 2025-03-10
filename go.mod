@@ -6,7 +6,7 @@ toolchain go1.23.5
 
 require (
 	github.com/gobwas/glob v0.2.3
-	github.com/in-toto/go-witness v0.8.0
+	github.com/in-toto/go-witness v0.8.1
 	github.com/invopop/jsonschema v0.13.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sigstore/fulcio v1.6.6
@@ -26,7 +26,7 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.4.0 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
-	golang.org/x/oauth2 v0.25.0 // indirect
+	golang.org/x/oauth2 v0.26.0 // indirect
 )
 
 require (
@@ -134,7 +134,7 @@ require (
 	github.com/secure-systems-lab/go-securesystemslib v0.9.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/sigstore/protobuf-specs v0.4.0 // indirect
-	github.com/sigstore/sigstore v1.8.14 // indirect
+	github.com/sigstore/sigstore v1.8.15 // indirect
 	github.com/skeema/knownhosts v1.3.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spdx/tools-golang v0.5.5 // indirect
@@ -173,7 +173,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20241219192143-6b3ec007d9bb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250106144421-5f5ef82da422 // indirect
 	google.golang.org/grpc v1.69.4 // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
