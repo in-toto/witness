@@ -38,7 +38,7 @@ type RunOptions struct {
 	EnvFilterSensitiveVars   bool
 	EnvDisableSensitiveVars  bool
 	EnvAddSensitiveKeys      []string
-	EnvExcludeSensitiveKeys  []string
+	EnvAllowSensitiveKeys    []string
 }
 
 var RequiredRunFlags = []string{
@@ -67,7 +67,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&ro.EnvFilterSensitiveVars, "env-filter-sensitive-vars", "", false, "Switch from obfuscate to filtering variables which removes them from the output completely.")
 	cmd.Flags().BoolVarP(&ro.EnvDisableSensitiveVars, "env-disable-default-sensitive-vars", "", false, "Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.")
 	cmd.Flags().StringSliceVar(&ro.EnvAddSensitiveKeys, "env-add-sensitive-key", []string{}, "Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.")
-	cmd.Flags().StringSliceVar(&ro.EnvExcludeSensitiveKeys, "env-exclude-sensitive-key", []string{}, "Exclude specific keys from the list of sensitive environment keys. Note: This does not support globs.")
+	cmd.Flags().StringSliceVar(&ro.EnvAllowSensitiveKeys, "env-allow-sensitive-key", []string{}, "Allow specific keys from the list of sensitive environment keys. Note: This does not support globs.")
 
 	cmd.MarkFlagsRequiredTogether(RequiredRunFlags...)
 
