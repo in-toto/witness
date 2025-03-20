@@ -57,7 +57,7 @@ func loadSigners(ctx context.Context, so options.SignerOptions, ko options.KMSSi
 			continue
 		}
 
-		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		// NOTE: We want to initialize the KMS provider specific options if a KMS signer has been invoked
 		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
 			for _, opt := range ksp.Options {
 				for _, setter := range ko[opt.ProviderName()] {
@@ -97,7 +97,7 @@ func loadVerifiers(ctx context.Context, so options.VerifierOptions, ko options.K
 			continue
 		}
 
-		// NOTE: We want to initialze the KMS provider specific options if a KMS signer has been invoked
+		// NOTE: We want to initialize the KMS provider specific options if a KMS signer has been invoked
 		if ksp, ok := sp.(*kms.KMSSignerProvider); ok {
 			for _, opt := range ksp.Options {
 				pn := opt.ProviderName()

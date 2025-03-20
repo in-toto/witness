@@ -90,7 +90,7 @@ Policies are JSON documents that are signed and wrapped in [DSSE envelopes](http
 | `emails` | array of strings | Email addresses that the certificate must have |
 | `organizations` | array of strings | Organizations that the certificate must have |
 | `uris` | array of strings | URIs that the certificate must have |
-| `roots` | array of strings | Array of Key IDs the signer's certificate must belong to to be trusted. |
+| `roots` | array of strings | Array of Key IDs the signer's certificate must belong to be trusted. |
 
 Every attribute of the certificate must match the attributes defined by the constraint exactly. A certificate must match
 at least one constraint to pass the policy. Wildcards are allowed if they are the only element in the constraint.

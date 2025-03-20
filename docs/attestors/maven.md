@@ -7,7 +7,7 @@ The [Maven](https://maven.apache.org/) Attestor records project and dependency i
 | Subject | Description |
 | ------- | ----------- |
 | `project:group/artifact@version` | The group, artifact, and version of the project to which the pom.xml belongs |
-| `dependency:group/artifact@version` | The group, artifact, and verion of each dependency in the pom.xml |
+| `dependency:group/artifact@version` | The group, artifact, and version of each dependency in the pom.xml |
 
 ## Schema
 ```json
