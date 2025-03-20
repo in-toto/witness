@@ -204,7 +204,7 @@ Finally, there is a `timestampauthorities` field, which is where the details of 
   }
 ```
 
-It should be noted that the the Witness requires that the root and the intermidate be included in the policy file.  
+It should be noted that the Witness requires that the root and the intermidate be included in the policy file.  
 
 ### Templating the Policy
 Before we can use the policy, we need to populate it with the base64 encoded certificates that belong to Fulcio and FreeTSA, their `sha256sum`'d Key IDs, and the email address that you used to authenticate with Sigstore through the web browser.
