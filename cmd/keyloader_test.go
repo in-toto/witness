@@ -24,6 +24,7 @@ import (
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_providersFromFlags(t *testing.T) {
