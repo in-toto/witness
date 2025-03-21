@@ -65,7 +65,8 @@ func Test_providersFromFlags(t *testing.T) {
 			flags := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			for name, value := range tc.flags {
 				flags.String(name, "", "test flag")
-				flags.Set(name, value)
+				err := flags.Set(name, value)
+				require.NoError(t, err)
 			}
 
 			result := providersFromFlags(tc.prefix, flags)

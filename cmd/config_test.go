@@ -169,7 +169,8 @@ run:
 			rootCmd.AddCommand(signCmd)
 			
 			if tt.forceFile {
-				rootCmd.Flags().Set("config", configPath)
+				err := rootCmd.Flags().Set("config", configPath)
+				require.NoError(t, err)
 			}
 			
 			rootOptions := &options.RootOptions{

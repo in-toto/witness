@@ -97,7 +97,8 @@ func Test_CompletionCmd_Run(t *testing.T) {
 			
 			// Read the captured output
 			var buf bytes.Buffer
-			io.Copy(&buf, r)
+			_, err := io.Copy(&buf, r)
+			require.NoError(t, err)
 			
 			// Check the output contains the expected content
 			assert.Contains(t, buf.String(), tc.contains)

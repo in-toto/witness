@@ -52,7 +52,8 @@ func Test_versionCmd(t *testing.T) {
 	
 	// Read captured output
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
+	_, err := io.Copy(&buf, r)
+	require.NoError(t, err)
 	
 	// Verify output
 	assert.Equal(t, "witness test-version\n", buf.String())
