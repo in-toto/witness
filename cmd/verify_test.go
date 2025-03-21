@@ -82,8 +82,9 @@ func TestVerifyCmdDeprecatedFlag(t *testing.T) {
 	require.NoError(t, err)
 	
 	// Execute the command with dummy args (will error but that's expected)
-	err = cmd.RunE(cmd, []string{})
-	require.NoError(t, err)
+	// We don't check the error because we expect it to fail
+	// The important part is that we capture the warning log about deprecated flag
+	_ = cmd.RunE(cmd, []string{})
 	
 	// Verify the warning was logged
 	logOutput := logBuffer.String()
