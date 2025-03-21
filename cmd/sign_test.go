@@ -20,6 +20,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/in-toto/go-witness/cryptoutil"
@@ -27,6 +28,31 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func Test_SignCmd(t *testing.T) {
+	cmd := SignCmd()
+	require.NotNil(t, cmd)
+	assert.Equal(t, "sign [file]", cmd.Use)
+	assert.Equal(t, true, cmd.SilenceErrors)
+	assert.Equal(t, true, cmd.SilenceUsage)
+
+	// Test flags
+	flags := cmd.Flags()
+	require.NotNil(t, flags)
+
+	// Test existence of important flags
+	assert.NotNil(t, flags.Lookup("infile"))
+	assert.NotNil(t, flags.Lookup("outfile"))
+	assert.NotNil(t, flags.Lookup("datatype"))
+	
+	// Test RunE function exists
+	assert.NotNil(t, cmd.RunE)
+	
+	// Create duplicate command to verify static initialization 
+	cmd2 := SignCmd()
+	require.NotNil(t, cmd2)
+	assert.NotSame(t, cmd, cmd2, "Each call to SignCmd should create a new command")
+}
 
 func Test_runSignPolicyRSA(t *testing.T) {
 	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
@@ -47,4 +73,91 @@ func Test_runSignPolicyRSA(t *testing.T) {
 	signedBytes, err := os.ReadFile(workingDir + "outfile.txt")
 	require.NoError(t, err)
 	assert.True(t, len(signedBytes) > 0)
+}
+
+// Test runSign with error conditions
+func Test_runSignErrors(t *testing.T) {
+	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+	require.NoError(t, err)
+	signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+	
+	workingDir := t.TempDir()
+	testdata := []byte("test")
+	testFile := filepath.Join(workingDir, "test.txt")
+	require.NoError(t, os.WriteFile(testFile, testdata, 0644))
+	
+	// Test error case: no signers
+	t.Run("No signers", func(t *testing.T) {
+		signOptions := options.SignOptions{
+			DataType:    "text",
+			OutFilePath: filepath.Join(workingDir, "outfile.txt"),
+			InFilePath:  testFile,
+		}
+		
+		err := runSign(context.Background(), signOptions)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "no signers found")
+	})
+	
+	// Test error case: multiple signers
+	t.Run("Multiple signers", func(t *testing.T) {
+		// Create second signer
+		privatekey2, err := rsa.GenerateKey(rand.Reader, keybits)
+		require.NoError(t, err)
+		signer2 := cryptoutil.NewRSASigner(privatekey2, crypto.SHA256)
+		
+		signOptions := options.SignOptions{
+			DataType:    "text",
+			OutFilePath: filepath.Join(workingDir, "outfile.txt"),
+			InFilePath:  testFile,
+		}
+		
+		err = runSign(context.Background(), signOptions, signer, signer2)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "only one signer is supported")
+	})
+	
+	// Test error case: file not found
+	t.Run("File not found", func(t *testing.T) {
+		signOptions := options.SignOptions{
+			DataType:    "text",
+			OutFilePath: filepath.Join(workingDir, "outfile.txt"),
+			InFilePath:  filepath.Join(workingDir, "nonexistent.txt"),
+		}
+		
+		err = runSign(context.Background(), signOptions, signer)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "failed to open file")
+	})
+}
+
+// Test command connection to runSign by directly calling runSign
+func Test_SignCmdRunE(t *testing.T) {
+	// Create test data
+	tempDir := t.TempDir()
+	infilePath := filepath.Join(tempDir, "infile.txt")
+	outfilePath := filepath.Join(tempDir, "outfile.txt")
+	
+	// Create test input file
+	err := os.WriteFile(infilePath, []byte("test content"), 0644)
+	require.NoError(t, err)
+	
+	// Create test key
+	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
+	require.NoError(t, err)
+	signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+	
+	// Instead of mocking loadSigners, directly call runSign
+	signOptions := options.SignOptions{
+		DataType:    "text/plain",
+		OutFilePath: outfilePath,
+		InFilePath:  infilePath,
+	}
+	
+	err = runSign(context.Background(), signOptions, signer)
+	require.NoError(t, err)
+	
+	// Verify file was created
+	_, err = os.Stat(outfilePath)
+	require.NoError(t, err)
 }

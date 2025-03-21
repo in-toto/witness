@@ -37,9 +37,71 @@ import (
 	"github.com/in-toto/go-witness/signer"
 	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/witness/options"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func Test_VerifyCmd(t *testing.T) {
+	cmd := VerifyCmd()
+	require.NotNil(t, cmd)
+	assert.Equal(t, "verify", cmd.Use)
+	assert.Equal(t, true, cmd.SilenceErrors)
+	assert.Equal(t, true, cmd.SilenceUsage)
+	
+	// Test flag addition
+	flag := cmd.Flags().Lookup("policy")
+	require.NotNil(t, flag, "Expected policy flag to be added")
+	
+	// Test help output
+	require.NotEmpty(t, cmd.Long)
+	
+	// Basic validation of the command structure
+}
+
+func TestVerifyCmdDeprecatedFlag(t *testing.T) {
+	// Create a buffer to capture log output
+	var logBuffer bytes.Buffer
+	
+	// Get original logger and restore it after test
+	originalLogger := log.GetLogger()
+	defer log.SetLogger(originalLogger)
+	
+	// Create a test logger that writes to our buffer
+	testLog := logrus.New()
+	testLog.SetOutput(&logBuffer)
+	testLogger := &logrusLogger{l: testLog}
+	log.SetLogger(testLogger)
+	
+	// Create the command
+	cmd := VerifyCmd()
+	
+	// Set the deprecated flag
+	err := cmd.Flags().Set("policy-ca", "dummy.pem")
+	require.NoError(t, err)
+	
+	// Execute the command with dummy args (will error but that's expected)
+	cmd.RunE(cmd, []string{})
+	
+	// Verify the warning was logged
+	logOutput := logBuffer.String()
+	assert.Contains(t, logOutput, "The flag `--policy-ca` is deprecated")
+}
+
+func TestRunVerifyBasicValidation(t *testing.T) {
+	// Test missing key, CA and verifier
+	err := runVerify(context.Background(), options.VerifyOptions{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "must supply either a public key, CA certificates or a verifier")
+	
+	// Test missing attestation source
+	err = runVerify(context.Background(), options.VerifyOptions{
+		PolicyCARootPaths: []string{"some-path"}, // Mock a CA path to pass initial validation
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "must either specify attestation file paths or enable archivista")
+}
 
 func TestVerifyPolicyWithFulcio(t *testing.T) {
 	workingDir := t.TempDir()
