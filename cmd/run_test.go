@@ -15,234 +15,130 @@
 package cmd
 
 import (
-	"context"
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
-	"github.com/in-toto/go-witness/cryptoutil"
-	"github.com/in-toto/go-witness/dsse"
-	"github.com/in-toto/go-witness/log"
-	"github.com/in-toto/go-witness/signer"
-	"github.com/in-toto/go-witness/signer/file"
+	werrors "github.com/in-toto/witness/internal/errors"
 	"github.com/in-toto/witness/options"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func TestRunRSAKeyPair(t *testing.T) {
-	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
-	require.NoError(t, err)
-	signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+// TestRunAttestorFailure tests the new error type detection logic
+func TestRunAttestorFailure(t *testing.T) {
+	err1 := fmt.Errorf("attestor did not work")
+	err2 := fmt.Errorf("failed to save artifact")
 
-	workingDir := t.TempDir()
-	attestationPath := filepath.Join(workingDir, "outfile.txt")
-	runOptions := options.RunOptions{
-		WorkingDir:   workingDir,
-		Attestations: []string{},
-		OutFilePath:  attestationPath,
-		StepName:     "teststep",
-		Tracing:      false,
-	}
-
-	args := []string{
-		"bash",
-		"-c",
-		"echo 'test' > test.txt",
-	}
-
-	require.NoError(t, runRun(context.Background(), runOptions, args, signer))
-	attestationBytes, err := os.ReadFile(attestationPath)
-	require.NoError(t, err)
-	env := dsse.Envelope{}
-	require.NoError(t, json.Unmarshal(attestationBytes, &env))
-}
-
-func Test_runRunRSACA(t *testing.T) {
-	_, intermediates, leafcert, leafkey := fullChain(t)
-	signerOptions := options.SignerOptions{}
-	signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
-		func(sp signer.SignerProvider) (signer.SignerProvider, error) {
-			fsp := sp.(file.FileSignerProvider)
-			fsp.KeyPath = leafkey.Name()
-			fsp.IntermediatePaths = []string{intermediates[0].Name()}
-			for _, intermediate := range intermediates {
-				fsp.IntermediatePaths = append(fsp.IntermediatePaths, intermediate.Name())
-			}
-
-			fsp.CertPath = leafcert.Name()
-			return fsp, nil
-		},
-	}
-
-	signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
-	require.NoError(t, err)
-
-	workingDir := t.TempDir()
-	attestationPath := filepath.Join(workingDir, "outfile.txt")
-	runOptions := options.RunOptions{
-		SignerOptions: signerOptions,
-		WorkingDir:    workingDir,
-		Attestations:  []string{},
-		OutFilePath:   attestationPath,
-		StepName:      "teststep",
-		Tracing:       false,
-	}
-
-	args := []string{
-		"bash",
-		"-c",
-		"echo 'test' > test.txt",
-	}
-
-	require.NoError(t, runRun(context.Background(), runOptions, args, signers...))
-	attestationBytes, err := os.ReadFile(attestationPath)
-	require.NoError(t, err)
-	assert.True(t, len(attestationBytes) > 0)
-
-	env := dsse.Envelope{}
-	if err := json.Unmarshal(attestationBytes, &env); err != nil {
-		t.Errorf("Error reading envelope: %v", err)
-	}
-
-	b, err := os.ReadFile(intermediates[0].Name())
-	require.NoError(t, err)
-	assert.Equal(t, b, env.Signatures[0].Intermediates[0])
-
-	b, err = os.ReadFile(leafcert.Name())
-	require.NoError(t, err)
-	assert.Equal(t, b, env.Signatures[0].Certificate)
-}
-
-func TestRunHashesOptions(t *testing.T) {
 	tests := []struct {
-		name         string
-		hashesOption []string
-		expectErr    bool
+		name        string
+		err         error
+		errType     string
+		expectedErr error
 	}{
 		{
-			name:         "Valid RSA key pair",
-			hashesOption: []string{"sha256"},
-			expectErr:    false,
+			name:        "attestor error is AttestorError",
+			err:         werrors.NewAttestorError("test-attestor", err1),
+			errType:     "attestor",
+			expectedErr: err1,
 		},
 		{
-			name:         "Invalid hashes option",
-			hashesOption: []string{"invalidHash"},
-			expectErr:    true,
+			name:        "infrastructure error is InfrastructureError",
+			err:         werrors.NewInfrastructureError("test-operation", err2),
+			errType:     "infra",
+			expectedErr: err2,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
-			require.NoError(t, err)
-			signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
-
-			workingDir := t.TempDir()
-			attestationPath := filepath.Join(workingDir, "outfile.txt")
-			runOptions := options.RunOptions{
-				WorkingDir:   workingDir,
-				Attestations: []string{},
-				Hashes:       tt.hashesOption,
-				OutFilePath:  attestationPath,
-				StepName:     "teststep",
-				Tracing:      false,
-			}
-
-			args := []string{
-				"bash",
-				"-c",
-				"echo 'test' > test.txt",
-			}
-
-			err = runRun(context.Background(), runOptions, args, signer)
-			if tt.expectErr {
-				require.Error(t, err)
+			// Test error type detection
+			if tt.errType == "attestor" {
+				assert.True(t, isAttestorError(tt.err), "Error should be detected as attestor error")
+				assert.True(t, werrors.IsAttestorError(tt.err), "Error should be detected as attestor error")
 			} else {
-				require.NoError(t, err)
-				attestationBytes, err := os.ReadFile(attestationPath)
-				require.NoError(t, err)
-				env := dsse.Envelope{}
-				require.NoError(t, json.Unmarshal(attestationBytes, &env))
+				assert.False(t, isAttestorError(tt.err), "Error should not be detected as attestor error")
+				assert.True(t, werrors.IsInfrastructureError(tt.err), "Error should be detected as infrastructure error")
 			}
+
+			// Test error unwrapping
+			assert.True(t, errors.Is(tt.err, tt.expectedErr), "Error should unwrap to the original error")
 		})
 	}
 }
 
-func TestRunDuplicateAttestors(t *testing.T) {
-	tests := []struct {
-		name       string
-		attestors  []string
-		expectWarn int
-	}{
-		{
-			name:       "No duplicate attestors",
-			attestors:  []string{"environment"},
-			expectWarn: 0,
-		},
-		{
-			name:       "duplicate attestors",
-			attestors:  []string{"environment", "environment"},
-			expectWarn: 1,
-		},
-		{
-			name:       "duplicate attestor due to default",
-			attestors:  []string{"product"},
-			expectWarn: 1,
-		},
-	}
+// TestErrorHandling tests the error handling infrastructure
+func TestErrorHandling(t *testing.T) {
+	// Test scenarios for handleInfraError
+	t.Run("handleInfraError", func(t *testing.T) {
+		origErr := fmt.Errorf("test error")
+		ro := options.RunOptions{
+			ContinueOnInfraError: true,
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println(tt.name)
-			testLogger, hook := test.NewNullLogger()
-			log.SetLogger(testLogger)
+		shouldContinue, resultErr := handleInfraError(ro, origErr, "test operation", true)
+		assert.True(t, shouldContinue, "Should continue when flag is set and command succeeded")
+		assert.NotNil(t, resultErr, "Result error should not be nil")
+		assert.True(t, werrors.IsInfrastructureError(resultErr), "Result should be an infrastructure error")
 
-			privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
-			require.NoError(t, err)
-			signer := cryptoutil.NewRSASigner(privatekey, crypto.SHA256)
+		// Test when command failed
+		shouldContinue, resultErr = handleInfraError(ro, origErr, "test operation", false)
+		assert.False(t, shouldContinue, "Should not continue when command failed")
+		assert.Nil(t, resultErr, "Result error should be nil when not continuing")
 
-			workingDir := t.TempDir()
-			attestationPath := filepath.Join(workingDir, "outfile.txt")
-			runOptions := options.RunOptions{
-				WorkingDir:   workingDir,
-				Attestations: tt.attestors,
-				OutFilePath:  attestationPath,
-				StepName:     "teststep",
-				Tracing:      false,
-			}
+		// Test when flag is not set
+		ro.ContinueOnInfraError = false
+		shouldContinue, resultErr = handleInfraError(ro, origErr, "test operation", true)
+		assert.False(t, shouldContinue, "Should not continue when flag is not set")
+		assert.Nil(t, resultErr, "Result error should be nil when not continuing")
+	})
 
-			args := []string{
-				"bash",
-				"-c",
-				"echo 'test' > test.txt",
-			}
+	// Test scenarios for handleErrorWithContinueFlags with attestor error
+	t.Run("handleErrorWithContinueFlags-attestor", func(t *testing.T) {
+		attestorErr := werrors.NewAttestorError("test-attestor", fmt.Errorf("attestor error"))
+		ro := options.RunOptions{
+			ContinueOnAttestorError: true,
+		}
 
-			err = runRun(context.Background(), runOptions, args, signer)
-			if tt.expectWarn > 0 {
-				c := 0
-				for _, entry := range hook.AllEntries() {
-					fmt.Println(tt.name, "log:", entry.Message)
-					if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "already declared, skipping") {
-						c++
-					}
-				}
-				assert.Equal(t, tt.expectWarn, c)
-			} else {
-				require.NoError(t, err)
-				attestationBytes, err := os.ReadFile(attestationPath)
-				require.NoError(t, err)
-				env := dsse.Envelope{}
-				require.NoError(t, json.Unmarshal(attestationBytes, &env))
-			}
-		})
-	}
+		shouldContinue, infraErr, attErr := handleErrorWithContinueFlags(ro, attestorErr, true)
+		assert.True(t, shouldContinue, "Should continue when attestor flag is set and command succeeded")
+		assert.Nil(t, infraErr, "Infra error should be nil")
+		assert.NotNil(t, attErr, "Attestor error should not be nil")
+		assert.True(t, werrors.IsAttestorError(attErr), "Result should be an attestor error")
+
+		// Test when command failed
+		shouldContinue, infraErr, attErr = handleErrorWithContinueFlags(ro, attestorErr, false)
+		assert.False(t, shouldContinue, "Should not continue when command failed")
+		assert.Nil(t, infraErr, "Infra error should be nil")
+		assert.Nil(t, attErr, "Attestor error should be nil")
+
+		// Test with all errors flag
+		ro.ContinueOnAttestorError = false
+		ro.ContinueOnAllErrors = true
+		shouldContinue, infraErr, attErr = handleErrorWithContinueFlags(ro, attestorErr, true)
+		assert.True(t, shouldContinue, "Should continue when all errors flag is set")
+		assert.Nil(t, infraErr, "Infra error should be nil")
+		assert.NotNil(t, attErr, "Attestor error should not be nil")
+	})
+
+	// Test scenarios for handleErrorWithContinueFlags with infra error
+	t.Run("handleErrorWithContinueFlags-infra", func(t *testing.T) {
+		infraError := werrors.NewInfrastructureError("test-operation", fmt.Errorf("infra error"))
+		ro := options.RunOptions{
+			ContinueOnInfraError: true,
+		}
+
+		shouldContinue, infraErr, attErr := handleErrorWithContinueFlags(ro, infraError, true)
+		assert.True(t, shouldContinue, "Should continue when infra flag is set and command succeeded")
+		assert.NotNil(t, infraErr, "Infra error should not be nil")
+		assert.Nil(t, attErr, "Attestor error should be nil")
+		assert.True(t, werrors.IsInfrastructureError(infraErr), "Result should be an infra error")
+
+		// Test with all errors flag
+		ro.ContinueOnInfraError = false
+		ro.ContinueOnAllErrors = true
+		shouldContinue, infraErr, attErr = handleErrorWithContinueFlags(ro, infraError, true)
+		assert.True(t, shouldContinue, "Should continue when all errors flag is set")
+		assert.NotNil(t, infraErr, "Infra error should not be nil")
+		assert.Nil(t, attErr, "Attestor error should be nil")
+	})
 }

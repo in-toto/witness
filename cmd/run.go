@@ -30,6 +30,7 @@ import (
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/registry"
 	"github.com/in-toto/go-witness/timestamp"
+	"github.com/in-toto/witness/internal/errors"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
 )
@@ -63,14 +64,90 @@ func RunCmd() *cobra.Command {
 	return cmd
 }
 
+// isAttestorError determines if an error is attestor-related
+func isAttestorError(err error) bool {
+	return errors.IsAttestorError(err)
+}
+
+// handleInfraError handles infrastructure operation errors based on continue flags
+// Returns true if execution should continue, and the error if it should be tracked
+func handleInfraError(ro options.RunOptions, err error, operationDesc string, commandSucceeded bool) (bool, error) {
+	if !commandSucceeded {
+		return false, nil
+	}
+	
+	// Wrap the error with infrastructure error type
+	infraErr := errors.NewInfrastructureError(operationDesc, err)
+	
+	if ro.ContinueOnAllErrors {
+		log.Warnf("Failed to %s: %v", operationDesc, err)
+		log.Warnf("Continuing due to --continue-on-errors flag")
+		return true, infraErr
+	} else if ro.ContinueOnInfraError {
+		log.Warnf("Failed to %s: %v", operationDesc, err)
+		log.Warnf("Continuing due to --continue-on-infra-error flag")
+		return true, infraErr
+	}
+	
+	return false, nil
+}
+
+// handleErrorWithContinueFlags applies the appropriate error handling logic based on flags
+// Returns true if execution should continue, false if the error should be returned
+func handleErrorWithContinueFlags(ro options.RunOptions, err error, commandSucceeded bool) (bool, error, error) {
+	var infraError, attestorError error
+	
+	// If command didn't succeed or no continue flags are set, don't continue
+	if !commandSucceeded {
+		return false, nil, nil
+	}
+	
+	// Check if the all-errors flag is set, which takes precedence
+	if ro.ContinueOnAllErrors {
+		log.Warnf("Encountered error: %v", err)
+		log.Warnf("Continuing due to --continue-on-errors flag")
+		
+		// Still classify the error for summary purposes
+		if isAttestorError(err) {
+			attestorError = err
+		} else {
+			// Default to infrastructure error if not an attestor error
+			infraError = errors.NewInfrastructureError("run command", err)
+		}
+		return true, infraError, attestorError
+	}
+	
+	// Check specific error type flags
+	isAttestor := isAttestorError(err)
+	if isAttestor && ro.ContinueOnAttestorError {
+		log.Warnf("Encountered attestor error: %v", err)
+		log.Warnf("Continuing due to --continue-on-attestor-error flag")
+		attestorError = err
+		return true, infraError, attestorError
+	} else if !isAttestor && ro.ContinueOnInfraError {
+		log.Warnf("Encountered infrastructure error: %v", err)
+		log.Warnf("Continuing due to --continue-on-infra-error flag")
+		infraError = errors.NewInfrastructureError("run command", err)
+		return true, infraError, attestorError
+	}
+	
+	// No applicable flag was set, don't continue
+	return false, nil, nil
+}
+
 func runRun(ctx context.Context, ro options.RunOptions, args []string, signers ...cryptoutil.Signer) error {
 	if len(signers) > 1 {
-		return fmt.Errorf("only one signer is supported")
+		return errors.NewInfrastructureError("signer validation", fmt.Errorf("only one signer is supported"))
 	}
 
 	if len(signers) == 0 {
-		return fmt.Errorf("no signers found")
+		return errors.NewInfrastructureError("signer validation", fmt.Errorf("no signers found"))
 	}
+
+	// Track if wrapped command succeeded but we had errors
+	var commandSucceeded bool
+	var infraError error
+	var attestorError error
 
 	timestampers := []timestamp.Timestamper{}
 	for _, url := range ro.TimestampServers {
@@ -101,7 +178,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if !duplicate {
 			attestor, err := attestation.GetAttestor(a)
 			if err != nil {
-				return fmt.Errorf("failed to create attestor: %w", err)
+				return errors.NewAttestorError(a, fmt.Errorf("failed to create attestor: %w", err))
 			}
 			attestors = append(attestors, attestor)
 		}
@@ -115,7 +192,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 
 		attestor, err := registry.SetOptions(attestor, setters...)
 		if err != nil {
-			return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
+			return errors.NewAttestorError(attestor.Name(), fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err))
 		}
 	}
 
@@ -123,7 +200,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	for _, hashStr := range ro.Hashes {
 		hash, err := cryptoutil.HashFromString(hashStr)
 		if err != nil {
-			return fmt.Errorf("failed to parse hash: %w", err)
+			return errors.NewInfrastructureError("parse hash", fmt.Errorf("failed to parse hash: %w", err))
 		}
 		roHashes = append(roHashes, cryptoutil.DigestValue{Hash: hash, GitOID: false})
 	}
@@ -131,7 +208,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	for _, dirHashGlobItem := range ro.DirHashGlobs {
 		_, err := glob.Compile(dirHashGlobItem)
 		if err != nil {
-			return fmt.Errorf("failed to compile glob: %v", err)	
+			return errors.NewInfrastructureError("compile glob", fmt.Errorf("failed to compile glob: %v", err))	
 		}
 	}
 
@@ -149,14 +226,49 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		),
 		witness.RunWithTimestampers(timestampers...),
 	)
+	
+	// Check if command ran successfully
+	if len(args) > 0 { // Only check for command success if a command was run
+		for _, result := range results {
+			if result.AttestorName == "command-run" {
+				// Command completed and we have the attestation, so it succeeded
+				commandSucceeded = true
+				break
+			}
+		}
+	} else {
+		// If no command was specified, we're just collecting attestations
+		// In this case, treat as if command succeeded for flag purposes
+		commandSucceeded = true
+	}
+	
 	if err != nil {
-		return err
+		// Apply error handling logic based on flags
+		shouldContinue, newInfraErr, newAttestorErr := handleErrorWithContinueFlags(ro, err, commandSucceeded)
+		if shouldContinue {
+			// Update the error tracking variables
+			if newInfraErr != nil {
+				infraError = newInfraErr
+			}
+			if newAttestorErr != nil {
+				attestorError = newAttestorErr
+			}
+		} else {
+			// If we shouldn't continue, return the error
+			return err
+		}
 	}
 
 	for _, result := range results {
 		signedBytes, err := json.Marshal(&result.SignedEnvelope)
 		if err != nil {
-			return fmt.Errorf("failed to marshal envelope: %w", err)
+			shouldContinue, newInfraErr := handleInfraError(ro, err, "marshal envelope", commandSucceeded)
+			if shouldContinue {
+				infraError = newInfraErr
+				continue // Skip to next result
+			} else {
+				return fmt.Errorf("failed to marshal envelope: %w", err)
+			}
 		}
 
 		// TODO: Find out explicit way to describe "prefix" in CLI options
@@ -167,22 +279,68 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 
 		out, err := loadOutfile(outfile)
 		if err != nil {
-			return fmt.Errorf("failed to open out file: %w", err)
+			shouldContinue, newInfraErr := handleInfraError(ro, err, fmt.Sprintf("open out file %s", outfile), commandSucceeded)
+			if shouldContinue {
+				infraError = newInfraErr
+				continue // Skip to next result
+			} else {
+				return fmt.Errorf("failed to open out file: %w", err)
+			}
 		}
 		defer out.Close()
 
 		if _, err := out.Write(signedBytes); err != nil {
-			return fmt.Errorf("failed to write envelope to out file: %w", err)
+			shouldContinue, newInfraErr := handleInfraError(ro, err, fmt.Sprintf("write envelope to file %s", outfile), commandSucceeded)
+			if shouldContinue {
+				infraError = newInfraErr
+				continue // Skip to next result
+			} else {
+				return fmt.Errorf("failed to write envelope to out file: %w", err)
+			}
 		}
 
 		if ro.ArchivistaOptions.Enable {
 			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
-			if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
-				return fmt.Errorf("failed to store artifact in archivista: %w", err)
+			gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope)
+			if err != nil {
+				shouldContinue, newInfraErr := handleInfraError(ro, err, "store artifact in archivista", commandSucceeded)
+				if shouldContinue {
+					infraError = newInfraErr
+				} else {
+					return fmt.Errorf("failed to store artifact in archivista: %w", err)
+				}
 			} else {
 				log.Infof("Stored in archivista as %v\n", gitoid)
 			}
 		}
+	}
+	
+	// Display summary warnings if we had errors but continued
+	if commandSucceeded && (attestorError != nil || infraError != nil) {
+		// Show a combined message if we used the combined flag
+		if ro.ContinueOnAllErrors {
+			log.Warnf("Command completed successfully, but encountered errors")
+			if attestorError != nil {
+				log.Warnf("Some attestations may be missing")
+			}
+			if infraError != nil {
+				log.Warnf("Some attestation functionality may have been compromised")
+			}
+		} else {
+			// Show specific messages for specific flags
+			if attestorError != nil && ro.ContinueOnAttestorError {
+				log.Warnf("Command completed successfully, but encountered attestor errors")
+				log.Warnf("Some attestations may be missing")
+			}
+			
+			if infraError != nil && ro.ContinueOnInfraError {
+				log.Warnf("Command completed successfully, but encountered infrastructure errors")
+				log.Warnf("Some attestation functionality may have been compromised")
+			}
+		}
+		
+		// We had errors but continued, so return success
+		return nil
 	}
 	return nil
 }
