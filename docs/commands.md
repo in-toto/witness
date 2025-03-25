@@ -50,6 +50,9 @@ witness run [cmd] [flags]
       --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
       --attestor-sbom-export                          Export the SBOM predicate in its own attestation
       --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
+      --continue-on-attestor-error                    Continue execution even if one or more attestors fail as long as the wrapped command exits successfully
+  -x, --continue-on-errors                            Continue execution even if there are any errors (both attestor and infrastructure) as long as the wrapped command exits successfully
+      --continue-on-infra-error                       Continue execution even if there are infrastructure errors (signing, Fulcio, Archivista) as long as the wrapped command exits successfully
       --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
       --enable-archivista                             Use Archivista to store or retrieve attestations
       --env-add-sensitive-key strings                 Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.

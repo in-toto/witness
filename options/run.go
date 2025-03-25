@@ -39,6 +39,9 @@ type RunOptions struct {
 	EnvDisableSensitiveVars  bool
 	EnvAddSensitiveKeys      []string
 	EnvExcludeSensitiveKeys  []string
+	ContinueOnInfraError     bool
+	ContinueOnAttestorError  bool
+	ContinueOnAllErrors      bool
 }
 
 var RequiredRunFlags = []string{
@@ -68,6 +71,11 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&ro.EnvDisableSensitiveVars, "env-disable-default-sensitive-vars", "", false, "Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.")
 	cmd.Flags().StringSliceVar(&ro.EnvAddSensitiveKeys, "env-add-sensitive-key", []string{}, "Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.")
 	cmd.Flags().StringSliceVar(&ro.EnvExcludeSensitiveKeys, "env-exclude-sensitive-key", []string{}, "Exclude specific keys from the list of sensitive environment keys. Note: This does not support globs.")
+
+	// Error handling flags
+	cmd.Flags().BoolVar(&ro.ContinueOnInfraError, "continue-on-infra-error", false, "Continue execution even if there are infrastructure errors (signing, Fulcio, Archivista) as long as the wrapped command exits successfully")
+	cmd.Flags().BoolVar(&ro.ContinueOnAttestorError, "continue-on-attestor-error", false, "Continue execution even if one or more attestors fail as long as the wrapped command exits successfully")
+	cmd.Flags().BoolVarP(&ro.ContinueOnAllErrors, "continue-on-errors", "x", false, "Continue execution even if there are any errors (both attestor and infrastructure) as long as the wrapped command exits successfully")
 
 	cmd.MarkFlagsRequiredTogether(RequiredRunFlags...)
 
