@@ -23,6 +23,8 @@ import (
 	"encoding/pem"
 	"math/big"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -39,15 +41,56 @@ const (
 )
 
 func Test_loadOutfile(t *testing.T) {
-	outfile := "/tmp/outfile.txt"
+	// Test with a specific file path
+	t.Run("specific output file", func(t *testing.T) {
+		tempDir := t.TempDir()
+		outfile := filepath.Join(tempDir, "outfile.txt")
 
-	f, err := loadOutfile(outfile)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
+		f, err := loadOutfile(outfile)
+		require.NoError(t, err)
+		assert.Equal(t, outfile, f.Name())
+		f.Close()
+		os.Remove(outfile)
+	})
+
+	// Test with empty path (should use stdout)
+	t.Run("stdout", func(t *testing.T) {
+		f, err := loadOutfile("")
+		require.NoError(t, err)
+		assert.Equal(t, os.Stdout, f)
+	})
+}
+
+func Test_New(t *testing.T) {
+	cmd := New()
+	require.NotNil(t, cmd)
+	
+	// Basic validation of command properties
+	assert.Equal(t, "witness", cmd.Use)
+	assert.Equal(t, true, cmd.SilenceErrors)
+	assert.Equal(t, true, cmd.DisableAutoGenTag)
+	
+	// Verify that the expected subcommands are present
+	expectedCmds := []string{"run", "sign", "verify", "completion", "version", "attestors"}
+	
+	// Get all command names
+	foundCmds := make([]string, 0, len(cmd.Commands()))
+	for _, subcmd := range cmd.Commands() {
+		// Get just the first part of the Use string (e.g., "run" from "run [cmd]")
+		parts := strings.Split(subcmd.Use, " ")
+		foundCmds = append(foundCmds, parts[0])
 	}
-
-	if f.Name() != "/tmp/outfile.txt" {
-		t.Errorf("expected outfile to be /tmp/outfile.txt, got %s", f.Name())
+	
+	// Check that all expected commands are found
+	for _, expected := range expectedCmds {
+		found := false
+		for _, cmdName := range foundCmds {
+			if cmdName == expected {
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "Expected subcommand not found: %s", expected)
 	}
 }
 
