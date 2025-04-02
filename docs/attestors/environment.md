@@ -24,7 +24,7 @@ you can use `--env-add-sensitive-key 'FOO'` for `FOO` or
 
 There could be cases where you really want to have a specific key that is part
 of the default sensitive vars list to be captured. You can do so by using the
-`--env-exclude-sensitive-key`.
+`--env-allow-sensitive-key`.
 
 ## Default sensitive vars
 
