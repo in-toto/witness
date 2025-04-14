@@ -105,9 +105,9 @@ func runList(ctx context.Context) error {
 
 func runSchema(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("You must specify an attestor to view the schema of. Use 'witness attestors' for a list of available attestors.")
+		return fmt.Errorf("you must specify an attestor to view the schema of. Use 'witness attestors' for a list of available attestors")
 	} else if len(args) > 1 {
-		return fmt.Errorf("You can only get one attestor schema at a time.")
+		return fmt.Errorf("you can only get one attestor schema at a time")
 	}
 
 	attestor, err := attestation.GetAttestor(args[0])

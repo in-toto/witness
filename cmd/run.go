@@ -131,7 +131,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	for _, dirHashGlobItem := range ro.DirHashGlobs {
 		_, err := glob.Compile(dirHashGlobItem)
 		if err != nil {
-			return fmt.Errorf("failed to compile glob: %v", err)	
+			return fmt.Errorf("failed to compile glob: %v", err)
 		}
 	}
 
@@ -169,7 +169,12 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if err != nil {
 			return fmt.Errorf("failed to open out file: %w", err)
 		}
-		defer out.Close()
+
+		defer func() {
+			if err := out.Close(); err != nil {
+				log.Errorf("failed to write result to disk: %v", err)
+			}
+		}()
 
 		if _, err := out.Write(signedBytes); err != nil {
 			return fmt.Errorf("failed to write envelope to out file: %w", err)

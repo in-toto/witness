@@ -22,6 +22,7 @@ import (
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/timestamp"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -80,6 +81,11 @@ func runSign(ctx context.Context, so options.SignOptions, signers ...cryptoutil.
 		return err
 	}
 
-	defer outFile.Close()
+	defer func() {
+		if err := outFile.Close(); err != nil {
+			log.Errorf("failed to write result to disk: %v", err)
+		}
+	}()
+
 	return witness.Sign(inFile, so.DataType, outFile, dsse.SignWithSigners(signers[0]), dsse.SignWithTimestampers(timestampers...))
 }
