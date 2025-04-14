@@ -95,7 +95,12 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		if err != nil {
 			return fmt.Errorf("failed to open key file: %w", err)
 		}
-		defer keyFile.Close()
+
+		defer func() {
+			if err := keyFile.Close(); err != nil {
+				log.Errorf("failed to close key file: %w", err)
+			}
+		}()
 
 		v, err := cryptoutil.NewVerifierFromReader(keyFile)
 		if err != nil {

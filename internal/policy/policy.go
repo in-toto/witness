@@ -46,7 +46,12 @@ func LoadPolicy(ctx context.Context, policy string, ac archivista.Clienter) (dss
 		}
 
 	} else {
-		defer filePolicy.Close()
+		defer func() {
+			if err := filePolicy.Close(); err != nil {
+				log.Errorf("failed to close policy file: %v", err)
+			}
+		}()
+
 		decoder := json.NewDecoder(filePolicy)
 		if err := decoder.Decode(&policyEnvelope); err != nil {
 			return policyEnvelope, fmt.Errorf("could not unmarshal policy envelope: %w", err)
