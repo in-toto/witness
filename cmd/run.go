@@ -144,7 +144,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			attestation.WithHashes(roHashes),
 			attestation.WithDirHashGlob(ro.DirHashGlobs),
 			attestation.WithEnvCapturer(
-				ro.EnvAddSensitiveKeys, ro.EnvExcludeSensitiveKeys, ro.EnvDisableSensitiveVars, ro.EnvFilterSensitiveVars,
+				ro.EnvAddSensitiveKeys, ro.EnvAllowSensitiveKeys, ro.EnvDisableSensitiveVars, ro.EnvFilterSensitiveVars,
 			),
 		),
 		witness.RunWithTimestampers(timestampers...),
