@@ -25,6 +25,9 @@ coverage: ## Show the coverage
 
 docgen: ## Generate the docs
 	go run ./docgen
+	# some configuration variables use the user's home directory in their default values.
+	# we want the documentation to just print $$HOME in these cases
+	sed -i "s|${HOME}|"'$$HOME|g' docs/commands.md
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
