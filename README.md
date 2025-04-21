@@ -42,8 +42,7 @@ ensure that your software was handled safely from source to deployment.</span>
 ## Quick Start
 
 ### Installation
-To install Witness, all you will need is the Witness binary. You can download this from the [releases]
-(https://github.com/testifysec/witness/releases) page or use the install script to download the
+To install Witness, all you will need is the Witness binary. You can download this from the [releases](https://github.com/testifysec/witness/releases) page or use the install script to download the
 latest release:
 ```
 bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)
