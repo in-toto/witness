@@ -28,8 +28,7 @@ on:
       - "docs-site/**"
 
 permissions:
-  contents: read  # This is required for actions/checkout
-
+  contents: read # This is required for actions/checkout
 
 jobs:
   fmt:
@@ -134,6 +133,7 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
           witness-install-dir: /usr/local/bin
+          version: 0.9.1
           step: "build"
           attestations: "github"
           command: goreleaser release --clean
