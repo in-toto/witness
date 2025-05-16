@@ -42,6 +42,7 @@ witness run [cmd] [flags]
 ### Options
 
 ```
+      --archivista-headers stringArray                    Headers to provide to the Archivista client when making requests
       --archivista-server string                          URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -a, --attestations strings                              Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
       --attestor-k8smanifest-context string               The kubernetes context that this step applies to (if not set in the kubeconfig)
@@ -194,6 +195,7 @@ witness verify [flags]
 ### Options
 
 ```
+      --archivista-headers stringArray                      Headers to provide to the Archivista client when making requests
       --archivista-server string                            URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -f, --artifactfile string                                 Path to the artifact subject to verify
   -a, --attestations strings                                Attestation files to test against the policy

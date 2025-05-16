@@ -21,7 +21,6 @@ import (
 
 	"github.com/gobwas/glob"
 	witness "github.com/in-toto/go-witness"
-	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/attestation"
 	"github.com/in-toto/go-witness/attestation/commandrun"
 	"github.com/in-toto/go-witness/attestation/material"
@@ -181,7 +180,11 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 
 		if ro.ArchivistaOptions.Enable {
-			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
+			archivistaClient, err := ro.ArchivistaOptions.Client()
+			if err != nil {
+				return fmt.Errorf("failed to create archivista client: %w", err)
+			}
+
 			if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
 				return fmt.Errorf("failed to store artifact in archivista: %w", err)
 			} else {

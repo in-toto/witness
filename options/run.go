@@ -15,6 +15,11 @@
 package options
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/attestation"
 	"github.com/in-toto/go-witness/log"
 	"github.com/spf13/cobra"
@@ -78,8 +83,9 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 }
 
 type ArchivistaOptions struct {
-	Enable bool
-	Url    string
+	Enable  bool
+	Url     string
+	Headers []string
 }
 
 func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
@@ -94,4 +100,30 @@ func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
 	if err := cmd.Flags().MarkHidden("archivist-server"); err != nil {
 		log.Debugf("failed to hide archivist-server flag: %w", err)
 	}
+
+	cmd.Flags().StringArrayVar(&o.Headers, "archivista-headers", []string{}, "Headers to provide to the Archivista client when making requests")
+}
+
+func (o *ArchivistaOptions) Client() (*archivista.Client, error) {
+	if !o.Enable {
+		return nil, nil
+	}
+
+	headers := http.Header{}
+	for _, hString := range o.Headers {
+		hParts := strings.SplitN(hString, ":", 2)
+		if len(hParts) != 2 {
+			return nil, fmt.Errorf("could not parse value %v as http header", hString)
+		}
+
+		headers.Set(strings.TrimSpace(hParts[0]), strings.TrimSpace(hParts[1]))
+	}
+
+	opts := make([]archivista.Option, 0)
+	if len(headers) > 0 {
+		opts = append(opts, archivista.WithHeaders(headers))
+	}
+
+	c := archivista.New(o.Url, opts...)
+	return c, nil
 }

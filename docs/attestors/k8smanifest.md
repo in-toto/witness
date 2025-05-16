@@ -67,6 +67,15 @@
         "nodes"
       ]
     },
+    "NodeSwapStatus": {
+      "properties": {
+        "capacity": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
     "NodeSystemInfo": {
       "properties": {
         "machineID": {
@@ -98,6 +107,9 @@
         },
         "architecture": {
           "type": "string"
+        },
+        "swap": {
+          "$ref": "#/$defs/NodeSwapStatus"
         }
       },
       "additionalProperties": false,
