@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/in-toto/go-witness/dsse"
-	"github.com/in-toto/witness/internal/archivista"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -28,7 +27,7 @@ import (
 // Mock archivista client
 type ArchivistaClienterMock struct {
 	mock.Mock
-	archivista.Clienter
+	ArchivistaClienter
 }
 
 func (m *ArchivistaClienterMock) Download(ctx context.Context, path string) (dsse.Envelope, error) {
@@ -49,7 +48,6 @@ func TestUTPolicySuite(t *testing.T) {
 // Setup test suite
 func (ut *UTPolicySuite) SetupTest() {
 	ut.mockedAC = &ArchivistaClienterMock{}
-
 }
 
 // Test LoadPolicy with file
