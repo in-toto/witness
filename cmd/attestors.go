@@ -94,11 +94,14 @@ func runList(ctx context.Context) error {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Type", "RunType"})
-	table.SetAutoMergeCells(false)
-	table.SetRowLine(false)
-	table.AppendBulk(items)
-	table.Render()
+	table.Header([]string{"Name", "Type", "RunType"})
+	if err := table.Bulk(items); err != nil {
+		return fmt.Errorf("Error adding items to table: %w", err)
+	}
+
+	if err := table.Render(); err != nil {
+		return fmt.Errorf("Error rendering table: %w", err)
+	}
 
 	return nil
 }
