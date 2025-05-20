@@ -121,13 +121,13 @@ jobs:
         uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
 
       - name: Install syft
-        uses: anchore/sbom-action/download-syft@9f7302141466aa6482940f15371237e9d9f4c34a # v0.19.0
+        uses: anchore/sbom-action/download-syft@e11c554f704a0b820cbf8c51673f6945e0731532 # v0.20.0
 
       - name: Download GoReleaser
         run: go install github.com/goreleaser/goreleaser@v1.23.0
 
       - name: Run GoReleaser
-        uses: testifysec/witness-run-action@79320a907f611f2fb40ced8e13c66af988b2d9db
+        uses: testifysec/witness-run-action@d5cef0eea8f8b008c91f6b25f84e8c39f454f413
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
