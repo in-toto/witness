@@ -1,6 +1,8 @@
 # Witness
 [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness) [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness?ref=badge_shield&issueType=license)
 
+> **Sponsored by [TestifySec](https://www.testifysec.com)** - We provide an enterprise platform for storing, visualizing, and managing your attestations at scale. Get centralized attestation management, advanced analytics, and professional support. [Contact us](https://www.testifysec.com/contact) to learn more.
+
 <center>
 
 **[DOCS](https://witness.dev) •
