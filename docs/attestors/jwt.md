@@ -250,6 +250,30 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
             "$ref": "#/$defs/OID"
           },
           "type": "array"
+        },
+        "InhibitAnyPolicy": {
+          "type": "integer"
+        },
+        "InhibitAnyPolicyZero": {
+          "type": "boolean"
+        },
+        "InhibitPolicyMapping": {
+          "type": "integer"
+        },
+        "InhibitPolicyMappingZero": {
+          "type": "boolean"
+        },
+        "RequireExplicitPolicy": {
+          "type": "integer"
+        },
+        "RequireExplicitPolicyZero": {
+          "type": "boolean"
+        },
+        "PolicyMappings": {
+          "items": {
+            "$ref": "#/$defs/PolicyMapping"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -299,7 +323,14 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
         "ExcludedURIDomains",
         "CRLDistributionPoints",
         "PolicyIdentifiers",
-        "Policies"
+        "Policies",
+        "InhibitAnyPolicy",
+        "InhibitAnyPolicyZero",
+        "InhibitPolicyMapping",
+        "InhibitPolicyMappingZero",
+        "RequireExplicitPolicy",
+        "RequireExplicitPolicyZero",
+        "PolicyMappings"
       ]
     },
     "Extension": {
@@ -482,6 +513,22 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
         "type": "integer"
       },
       "type": "array"
+    },
+    "PolicyMapping": {
+      "properties": {
+        "IssuerDomainPolicy": {
+          "$ref": "#/$defs/OID"
+        },
+        "SubjectDomainPolicy": {
+          "$ref": "#/$defs/OID"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "IssuerDomainPolicy",
+        "SubjectDomainPolicy"
+      ]
     },
     "VerificationInfo": {
       "properties": {

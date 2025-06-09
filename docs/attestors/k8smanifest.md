@@ -1,0 +1,207 @@
+## Schema
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/go-witness/attestation/k8smanifest/attestor",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "serversidedryrun": {
+          "type": "boolean"
+        },
+        "recordclusterinfo": {
+          "type": "boolean"
+        },
+        "kubeconfig": {
+          "type": "string"
+        },
+        "kubecontext": {
+          "type": "string"
+        },
+        "ignorefields": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "ignorefields"
+        },
+        "ignoreannotations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "recordeddocs": {
+          "items": {
+            "$ref": "#/$defs/RecordedObject"
+          },
+          "type": "array"
+        },
+        "clusterinfo": {
+          "$ref": "#/$defs/ClusterInfo"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "clusterinfo"
+      ]
+    },
+    "ClusterInfo": {
+      "properties": {
+        "server": {
+          "type": "string"
+        },
+        "nodes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/RecordedNode"
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "server",
+        "nodes"
+      ]
+    },
+    "NodeSwapStatus": {
+      "properties": {
+        "capacity": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "NodeSystemInfo": {
+      "properties": {
+        "machineID": {
+          "type": "string"
+        },
+        "systemUUID": {
+          "type": "string"
+        },
+        "bootID": {
+          "type": "string"
+        },
+        "kernelVersion": {
+          "type": "string"
+        },
+        "osImage": {
+          "type": "string"
+        },
+        "containerRuntimeVersion": {
+          "type": "string"
+        },
+        "kubeletVersion": {
+          "type": "string"
+        },
+        "kubeProxyVersion": {
+          "type": "string"
+        },
+        "operatingSystem": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "swap": {
+          "$ref": "#/$defs/NodeSwapStatus"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "machineID",
+        "systemUUID",
+        "bootID",
+        "kernelVersion",
+        "osImage",
+        "containerRuntimeVersion",
+        "kubeletVersion",
+        "kubeProxyVersion",
+        "operatingSystem",
+        "architecture"
+      ]
+    },
+    "RecordedImage": {
+      "properties": {
+        "reference": {
+          "type": "string"
+        },
+        "digest": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "reference",
+        "digest"
+      ]
+    },
+    "RecordedNode": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "nodeInfo": {
+          "$ref": "#/$defs/NodeSystemInfo"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "labels",
+        "nodeInfo"
+      ]
+    },
+    "RecordedObject": {
+      "properties": {
+        "filepath": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "data": true,
+        "subjectkey": {
+          "type": "string"
+        },
+        "recordedimages": {
+          "items": {
+            "$ref": "#/$defs/RecordedImage"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "filepath",
+        "kind",
+        "name",
+        "data",
+        "subjectkey",
+        "recordedimages"
+      ]
+    }
+  }
+}
+```

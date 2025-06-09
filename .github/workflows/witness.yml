@@ -13,76 +13,78 @@
 # limitations under the License.
 
 on:
-    workflow_call:
-        inputs:
-            pull_request:
-                required: true
-                type: boolean
-            artifact-download:
-                required: false
-                type: string
-            artifact-upload-name:
-                required: false
-                type: string
-            artifact-upload-path:
-                required: false
-                type: string
-            pre-command:
-                required: false
-                type: string
-            command:
-                required: true
-                type: string
-            step:
-                required: true
-                type: string
-            attestations:
-                required: true
-                type: string
+  workflow_call:
+    inputs:
+      pull_request:
+        required: true
+        type: boolean
+      artifact-download:
+        required: false
+        type: string
+      artifact-upload-name:
+        required: false
+        type: string
+      artifact-upload-path:
+        required: false
+        type: string
+      pre-command:
+        required: false
+        type: string
+      command:
+        required: true
+        type: string
+      step:
+        required: true
+        type: string
+      attestations:
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-    witness:
-        runs-on: ubuntu-latest
-        permissions:
-          contents: read
-          id-token: write
-        steps:
-          - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-          - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
-            with:
-              go-version: 1.23.x
+  witness:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: 1.23.x
 
-          - if: ${{ inputs.artifact-download != '' }}
-            uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
-            with:
-              name: ${{ inputs.artifact-download }}
-              path: /tmp
+      - if: ${{ inputs.artifact-download != '' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ inputs.artifact-download }}
+          path: /tmp
 
-          - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@79320a907f611f2fb40ced8e13c66af988b2d9db
-            with:
-              witness-install-dir: /usr/local/bin
-              step: pre-${{ inputs.step }}
-              attestations: ${{ inputs.attestations }}
-              command: /bin/sh -c "${{ inputs.pre-command }}"
-          - if: ${{ inputs.pre-command != '' && inputs.pull_request == true }}
-            run: ${{ inputs.pre-command }}
+      - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
+        uses: testifysec/witness-run-action@d5cef0eea8f8b008c91f6b25f84e8c39f454f413
+        with:
+          witness-install-dir: /usr/local/bin
+          version: 0.9.1
+          step: pre-${{ inputs.step }}
+          attestations: ${{ inputs.attestations }}
+          command: /bin/sh -c "${{ inputs.pre-command }}"
+      - if: ${{ inputs.pre-command != '' && inputs.pull_request == true }}
+        run: ${{ inputs.pre-command }}
 
-          - if: ${{ inputs.pull_request == false }}
-            uses: testifysec/witness-run-action@79320a907f611f2fb40ced8e13c66af988b2d9db
-            with:
-              witness-install-dir: /usr/local/bin
-              step: ${{ inputs.step }}
-              attestations: ${{ inputs.attestations }}
-              command: /bin/sh -c "${{ inputs.command }}"
-          - if: ${{ inputs.pull_request == true }}
-            run: ${{ inputs.command }}
+      - if: ${{ inputs.pull_request == false }}
+        uses: testifysec/witness-run-action@d5cef0eea8f8b008c91f6b25f84e8c39f454f413
+        with:
+          witness-install-dir: /usr/local/bin
+          version: 0.9.1
+          step: ${{ inputs.step }}
+          attestations: ${{ inputs.attestations }}
+          command: /bin/sh -c "${{ inputs.command }}"
+      - if: ${{ inputs.pull_request == true }}
+        run: ${{ inputs.command }}
 
-          - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
-            uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
-            with:
-              name: ${{ inputs.artifact-upload-name }}
-              path: ${{ inputs.artifact-upload-path }}
+      - if: ${{ inputs.artifact-upload-path != '' && inputs.artifact-upload-name != ''}}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ inputs.artifact-upload-name }}
+          path: ${{ inputs.artifact-upload-path }}

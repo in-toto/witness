@@ -265,6 +265,30 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
                     "$ref": "#/$defs/OID"
                   },
                   "type": "array"
+                },
+                "InhibitAnyPolicy": {
+                  "type": "integer"
+                },
+                "InhibitAnyPolicyZero": {
+                  "type": "boolean"
+                },
+                "InhibitPolicyMapping": {
+                  "type": "integer"
+                },
+                "InhibitPolicyMappingZero": {
+                  "type": "boolean"
+                },
+                "RequireExplicitPolicy": {
+                  "type": "integer"
+                },
+                "RequireExplicitPolicyZero": {
+                  "type": "boolean"
+                },
+                "PolicyMappings": {
+                  "items": {
+                    "$ref": "#/$defs/PolicyMapping"
+                  },
+                  "type": "array"
                 }
               },
               "additionalProperties": false,
@@ -314,7 +338,14 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
                 "ExcludedURIDomains",
                 "CRLDistributionPoints",
                 "PolicyIdentifiers",
-                "Policies"
+                "Policies",
+                "InhibitAnyPolicy",
+                "InhibitAnyPolicyZero",
+                "InhibitPolicyMapping",
+                "InhibitPolicyMappingZero",
+                "RequireExplicitPolicy",
+                "RequireExplicitPolicyZero",
+                "PolicyMappings"
               ]
             },
             "Extension": {
@@ -497,6 +528,22 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
                 "type": "integer"
               },
               "type": "array"
+            },
+            "PolicyMapping": {
+              "properties": {
+                "IssuerDomainPolicy": {
+                  "$ref": "#/$defs/OID"
+                },
+                "SubjectDomainPolicy": {
+                  "$ref": "#/$defs/OID"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "IssuerDomainPolicy",
+                "SubjectDomainPolicy"
+              ]
             },
             "VerificationInfo": {
               "properties": {

@@ -94,20 +94,23 @@ func runList(ctx context.Context) error {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Type", "RunType"})
-	table.SetAutoMergeCells(false)
-	table.SetRowLine(false)
-	table.AppendBulk(items)
-	table.Render()
+	table.Header([]string{"Name", "Type", "RunType"})
+	if err := table.Bulk(items); err != nil {
+		return fmt.Errorf("Error adding items to table: %w", err)
+	}
+
+	if err := table.Render(); err != nil {
+		return fmt.Errorf("Error rendering table: %w", err)
+	}
 
 	return nil
 }
 
 func runSchema(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("You must specify an attestor to view the schema of. Use 'witness attestors' for a list of available attestors.")
+		return fmt.Errorf("you must specify an attestor to view the schema of. Use 'witness attestors' for a list of available attestors")
 	} else if len(args) > 1 {
-		return fmt.Errorf("You can only get one attestor schema at a time.")
+		return fmt.Errorf("you can only get one attestor schema at a time")
 	}
 
 	attestor, err := attestation.GetAttestor(args[0])

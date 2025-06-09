@@ -262,6 +262,30 @@ The [Github](https://github.com/about) Attestor records information about the [G
                     "$ref": "#/$defs/OID"
                   },
                   "type": "array"
+                },
+                "InhibitAnyPolicy": {
+                  "type": "integer"
+                },
+                "InhibitAnyPolicyZero": {
+                  "type": "boolean"
+                },
+                "InhibitPolicyMapping": {
+                  "type": "integer"
+                },
+                "InhibitPolicyMappingZero": {
+                  "type": "boolean"
+                },
+                "RequireExplicitPolicy": {
+                  "type": "integer"
+                },
+                "RequireExplicitPolicyZero": {
+                  "type": "boolean"
+                },
+                "PolicyMappings": {
+                  "items": {
+                    "$ref": "#/$defs/PolicyMapping"
+                  },
+                  "type": "array"
                 }
               },
               "additionalProperties": false,
@@ -311,7 +335,14 @@ The [Github](https://github.com/about) Attestor records information about the [G
                 "ExcludedURIDomains",
                 "CRLDistributionPoints",
                 "PolicyIdentifiers",
-                "Policies"
+                "Policies",
+                "InhibitAnyPolicy",
+                "InhibitAnyPolicyZero",
+                "InhibitPolicyMapping",
+                "InhibitPolicyMappingZero",
+                "RequireExplicitPolicy",
+                "RequireExplicitPolicyZero",
+                "PolicyMappings"
               ]
             },
             "Extension": {
@@ -494,6 +525,22 @@ The [Github](https://github.com/about) Attestor records information about the [G
                 "type": "integer"
               },
               "type": "array"
+            },
+            "PolicyMapping": {
+              "properties": {
+                "IssuerDomainPolicy": {
+                  "$ref": "#/$defs/OID"
+                },
+                "SubjectDomainPolicy": {
+                  "$ref": "#/$defs/OID"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "IssuerDomainPolicy",
+                "SubjectDomainPolicy"
+              ]
             },
             "VerificationInfo": {
               "properties": {

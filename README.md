@@ -1,6 +1,8 @@
 # Witness
 [![Go Reference](https://pkg.go.dev/badge/github.com/in-toto/witness.svg)](https://pkg.go.dev/github.com/in-toto/witness) [![Go Report Card](https://goreportcard.com/badge/github.com/in-toto/witness)](https://goreportcard.com/report/github.com/in-toto/witness) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8164/badge)](https://www.bestpractices.dev/projects/8164) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/in-toto/witness/badge)](https://securityscorecards.dev/viewer/?uri=github.com/in-toto/witness) [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B41709%2Fgithub.com%2Fin-toto%2Fwitness?ref=badge_shield&issueType=license)
 
+Witness originated at **[TestifySec](https://www.testifysec.com)** and was later donated to the CNCF in-toto ecosystem. It is now maintained by the open community.
+
 <center>
 
 **[DOCS](https://witness.dev) •
@@ -42,8 +44,7 @@ ensure that your software was handled safely from source to deployment.</span>
 ## Quick Start
 
 ### Installation
-To install Witness, all you will need is the Witness binary. You can download this from the [releases]
-(https://github.com/testifysec/witness/releases) page or use the install script to download the
+To install Witness, all you will need is the Witness binary. You can download this from the [releases](https://github.com/in-toto/witness/releases) page or use the install script to download the
 latest release:
 ```
 bash <(curl -s https://raw.githubusercontent.com/in-toto/witness/main/install-witness.sh)
@@ -70,7 +71,10 @@ Check out some of the content out in the wild that gives more detail on how the 
 Join the [CNCF Slack](https://slack.cncf.io/) and join the `#in-toto-witness` channel. You might also be interested in joining the `#in-toto` channel for more general in-toto discussion, as well as
 the `#in-toto-archivista` channel for discussion regarding the [Archivista](https://github.com/in-toto/archivista) project.
 
-## Background
-This project was created by [TestifySec](https://www.testifysec.com/) before being donated to the in-toto project. The project is maintained by the TestifySec Open Source team and a community of contributors.
+## Community & Commercial Support
+
+- **Community channels** – Slack, GitHub Issues, and bi-weekly office hours are free and open to all contributors.
+- **Commercial platform & SLAs** – [TestifySec](https://www.testifysec.com) offers managed Witness/Archivista hosting, and 24 × 7 support.  
+  <sup>(These commercial services are provided by TestifySec and are not part of the CNCF sponsorship of Witness.)</sup>
 
 [demo]: https://raw.githubusercontent.com/in-toto/witness/main/docs/assets/demo.gif "Demo"
