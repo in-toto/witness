@@ -92,7 +92,7 @@ func Test_CompletionCmd_Run(t *testing.T) {
 			completionCmd.Run(completionCmd, []string{tc.shell})
 			
 			// Restore stdout
-			w.Close()
+			_ = w.Close()
 			os.Stdout = oldStdout
 			
 			// Read the captured output

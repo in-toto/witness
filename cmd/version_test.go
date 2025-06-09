@@ -47,7 +47,7 @@ func Test_versionCmd(t *testing.T) {
 	cmd.Run(&cobra.Command{}, []string{})
 	
 	// Restore stdout
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 	
 	// Read captured output

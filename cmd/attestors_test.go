@@ -57,7 +57,7 @@ func Test_runList(t *testing.T) {
 	require.NoError(t, err)
 
 	// Close the writer to get all output
-	w.Close()
+	_ = w.Close()
 	
 	// Read the output but we don't need to verify its contents
 	// as we just need to ensure it executes without error
@@ -106,7 +106,7 @@ func Test_runSchema(t *testing.T) {
 		require.NoError(t, err)
 
 		// Close the writer to get all output
-		w.Close()
+		_ = w.Close()
 		
 		// Read the output but we don't need to verify its contents
 		_, _ = io.ReadAll(r)

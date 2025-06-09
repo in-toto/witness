@@ -63,7 +63,7 @@ func Test_RunCmd(t *testing.T) {
 	require.NotNil(t, flags.Lookup("env-filter-sensitive-vars"))
 	require.NotNil(t, flags.Lookup("env-disable-default-sensitive-vars"))
 	require.NotNil(t, flags.Lookup("env-add-sensitive-key"))
-	require.NotNil(t, flags.Lookup("env-exclude-sensitive-key"))
+	require.NotNil(t, flags.Lookup("env-allow-sensitive-key"))
 	
 	// Archivista flags
 	require.NotNil(t, flags.Lookup("enable-archivista"))

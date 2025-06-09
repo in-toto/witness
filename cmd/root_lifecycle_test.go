@@ -77,7 +77,7 @@ func TestPreRootCPUProfile(t *testing.T) {
 			// Ensure cpuProfileFile is reset between tests
 			if cpuProfileFile != nil {
 				pprof.StopCPUProfile()
-				cpuProfileFile.Close()
+				_ = cpuProfileFile.Close()
 				cpuProfileFile = nil
 			}
 			
@@ -140,7 +140,7 @@ func TestPostRootMemoryProfile(t *testing.T) {
 	// Ensure no active CPU profile before test
 	if cpuProfileFile != nil {
 		pprof.StopCPUProfile()
-		cpuProfileFile.Close()
+		_ = cpuProfileFile.Close()
 		cpuProfileFile = nil
 	}
 	
@@ -176,7 +176,7 @@ func TestPostRootMemoryProfile(t *testing.T) {
 			// Ensure we're not using CPU profile from previous tests
 			if cpuProfileFile != nil {
 				pprof.StopCPUProfile()
-				cpuProfileFile.Close()
+				_ = cpuProfileFile.Close()
 				cpuProfileFile = nil
 			}
 			
@@ -226,7 +226,7 @@ func TestPostRootMemoryProfile(t *testing.T) {
 					logger.l.Fatalf("could not create memory profile file: %v", err)
 				}
 				
-				defer memProfileFile.Close()
+				defer func() { _ = memProfileFile.Close() }()
 				runtime.GC()
 				if err := pprof.WriteHeapProfile(memProfileFile); err != nil {
 					logger.l.Fatalf("could not write memory profile: %v", err)

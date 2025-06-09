@@ -49,8 +49,8 @@ func Test_loadOutfile(t *testing.T) {
 		f, err := loadOutfile(outfile)
 		require.NoError(t, err)
 		assert.Equal(t, outfile, f.Name())
-		f.Close()
-		os.Remove(outfile)
+		_ = f.Close()
+		_ = os.Remove(outfile)
 	})
 
 	// Test with empty path (should use stdout)

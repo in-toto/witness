@@ -60,7 +60,7 @@ func TestLoadOutfileExtended(t *testing.T) {
 		if err != nil {
 			t.Fatalf("loadOutfile(%s) error: %v", outPath, err)
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		
 		// Check file is created and writable
 		_, err = file.Write([]byte("test data"))

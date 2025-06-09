@@ -197,7 +197,8 @@ run:
 					cmdName := tt.cmdArgs[1]
 					for _, cmd := range rootCmd.Commands() {
 						if cmd.Name() == cmdName {
-							if cmdName == "run" {
+							switch cmdName {
+							case "run":
 								stepNameFlag := cmd.Flags().Lookup("step-name")
 								outfileFlag := cmd.Flags().Lookup("outfile")
 								if tt.cmdArgs[1] == "run" {
@@ -207,7 +208,7 @@ run:
 										t.Logf("Outfile flag value: %s", outfileFlag.Value.String())
 									}
 								}
-							} else if cmdName == "verify" {
+							case "verify":
 								keyFlag := cmd.Flags().Lookup("key")
 								if keyFlag != nil && tt.cmdArgs[1] == "verify" {
 									t.Logf("Key flag value: %s", keyFlag.Value.String())
