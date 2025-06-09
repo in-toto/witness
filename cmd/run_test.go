@@ -731,7 +731,7 @@ func TestRunEnvCapturerOptions(t *testing.T) {
 				StepName:                "teststep",
 				Tracing:                 false,
 				EnvAddSensitiveKeys:     tt.addSensitiveKeys,
-				EnvExcludeSensitiveKeys: tt.excludeSensitiveKeys,
+				EnvAllowSensitiveKeys:   tt.excludeSensitiveKeys,
 				EnvDisableSensitiveVars: tt.disableSensitiveVars,
 				EnvFilterSensitiveVars:  tt.filterSensitiveVars,
 				AttestorOptSetters:      make(map[string][]func(attestation.Attestor) (attestation.Attestor, error)),

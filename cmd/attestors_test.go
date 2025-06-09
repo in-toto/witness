@@ -68,13 +68,13 @@ func Test_runSchema(t *testing.T) {
 	t.Run("without arguments", func(t *testing.T) {
 		err := runSchema(context.Background(), []string{})
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "You must specify an attestor")
+		require.Contains(t, err.Error(), "you must specify an attestor")
 	})
 
 	t.Run("with too many arguments", func(t *testing.T) {
 		err := runSchema(context.Background(), []string{"one", "two"})
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "You can only get one attestor")
+		require.Contains(t, err.Error(), "you can only get one attestor")
 	})
 
 	t.Run("with invalid attestor", func(t *testing.T) {
