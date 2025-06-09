@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	keybits = 512
+	keybits = 1024
 )
 
 func Test_loadOutfile(t *testing.T) {
@@ -191,7 +191,6 @@ func rsakeypair(t *testing.T) (privatePem *os.File, publicPem *os.File) {
 	}
 
 	return privatePem, publicPem
-
 }
 
 // ref: https://jamielinux.com/docs/openssl-certificate-authority/appendix/intermediate-configuration-file.html
@@ -232,7 +231,7 @@ func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafP
 		t.Fatal(err)
 	}
 
-	//common name must be different than the CA name
+	// common name must be different than the CA name
 	intermediate := &x509.Certificate{
 		SerialNumber: big.NewInt(43),
 		Subject: pkix.Name{
@@ -304,7 +303,6 @@ func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafP
 	}
 
 	leafkeyPem, err = os.CreateTemp(workingDir, "leaf.key")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -317,3 +315,4 @@ func fullChain(t *testing.T) (caPem *os.File, intermediatePems []*os.File, leafP
 	return caPem, intermediatePems, leafPem, leafkeyPem
 
 }
+

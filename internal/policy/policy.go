@@ -20,15 +20,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
-	"github.com/in-toto/witness/internal/archivista"
 )
 
-// Load policy from a file or Archivista
-//
+// ArchivistaClienter defines what we need to retrieve policies from an Archivista instance
+type ArchivistaClienter interface {
+	Download(ctx context.Context, gitoid string) (dsse.Envelope, error)
+	Store(ctx context.Context, env dsse.Envelope) (string, error)
+	SearchGitoids(ctx context.Context, vars archivista.SearchGitoidVariables) ([]string, error)
+}
+
+// LoadPolicy attempts to load a policy from either a file or Archivista.
 // It prefers to load from a file, if it fails, it tries to load from Archivista
-func LoadPolicy(ctx context.Context, policy string, ac archivista.Clienter) (dsse.Envelope, error) {
+func LoadPolicy(ctx context.Context, policy string, ac ArchivistaClienter) (dsse.Envelope, error) {
 	policyEnvelope := dsse.Envelope{}
 
 	filePolicy, err := os.Open(policy)
@@ -46,7 +52,12 @@ func LoadPolicy(ctx context.Context, policy string, ac archivista.Clienter) (dss
 		}
 
 	} else {
-		defer filePolicy.Close()
+		defer func() {
+			if err := filePolicy.Close(); err != nil {
+				log.Errorf("failed to close policy file: %v", err)
+			}
+		}()
+
 		decoder := json.NewDecoder(filePolicy)
 		if err := decoder.Decode(&policyEnvelope); err != nil {
 			return policyEnvelope, fmt.Errorf("could not unmarshal policy envelope: %w", err)

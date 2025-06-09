@@ -101,7 +101,12 @@ func postRoot(ro *options.RootOptions, logger *logrusLogger) {
 			logger.l.Fatalf("could not create memory profile file: %v", err)
 		}
 
-		defer memProfileFile.Close()
+		defer func() {
+			if err := memProfileFile.Close(); err != nil {
+				logger.l.Errorf("failed to write memory profile to disk: %v", err)
+			}
+		}()
+
 		runtime.GC()
 		if err := pprof.WriteHeapProfile(memProfileFile); err != nil {
 			logger.l.Fatalf("could not write memory profile: %v", err)

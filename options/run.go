@@ -15,6 +15,11 @@
 package options
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/attestation"
 	"github.com/in-toto/go-witness/log"
 	"github.com/spf13/cobra"
@@ -38,7 +43,7 @@ type RunOptions struct {
 	EnvFilterSensitiveVars   bool
 	EnvDisableSensitiveVars  bool
 	EnvAddSensitiveKeys      []string
-	EnvExcludeSensitiveKeys  []string
+	EnvAllowSensitiveKeys    []string
 }
 
 var RequiredRunFlags = []string{
@@ -67,7 +72,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&ro.EnvFilterSensitiveVars, "env-filter-sensitive-vars", "", false, "Switch from obfuscate to filtering variables which removes them from the output completely.")
 	cmd.Flags().BoolVarP(&ro.EnvDisableSensitiveVars, "env-disable-default-sensitive-vars", "", false, "Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.")
 	cmd.Flags().StringSliceVar(&ro.EnvAddSensitiveKeys, "env-add-sensitive-key", []string{}, "Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.")
-	cmd.Flags().StringSliceVar(&ro.EnvExcludeSensitiveKeys, "env-exclude-sensitive-key", []string{}, "Exclude specific keys from the list of sensitive environment keys. Note: This does not support globs.")
+	cmd.Flags().StringSliceVar(&ro.EnvAllowSensitiveKeys, "env-allow-sensitive-key", []string{}, "Allow specific keys from the list of sensitive environment keys. Note: This does not support globs.")
 
 	cmd.MarkFlagsRequiredTogether(RequiredRunFlags...)
 
@@ -78,8 +83,9 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 }
 
 type ArchivistaOptions struct {
-	Enable bool
-	Url    string
+	Enable  bool
+	Url     string
+	Headers []string
 }
 
 func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
@@ -94,4 +100,30 @@ func (o *ArchivistaOptions) AddFlags(cmd *cobra.Command) {
 	if err := cmd.Flags().MarkHidden("archivist-server"); err != nil {
 		log.Debugf("failed to hide archivist-server flag: %w", err)
 	}
+
+	cmd.Flags().StringArrayVar(&o.Headers, "archivista-headers", []string{}, "Headers to provide to the Archivista client when making requests")
+}
+
+func (o *ArchivistaOptions) Client() (*archivista.Client, error) {
+	if !o.Enable {
+		return nil, nil
+	}
+
+	headers := http.Header{}
+	for _, hString := range o.Headers {
+		hParts := strings.SplitN(hString, ":", 2)
+		if len(hParts) != 2 {
+			return nil, fmt.Errorf("could not parse value %v as http header", hString)
+		}
+
+		headers.Set(strings.TrimSpace(hParts[0]), strings.TrimSpace(hParts[1]))
+	}
+
+	opts := make([]archivista.Option, 0)
+	if len(headers) > 0 {
+		opts = append(opts, archivista.WithHeaders(headers))
+	}
+
+	c := archivista.New(o.Url, opts...)
+	return c, nil
 }

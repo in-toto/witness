@@ -42,54 +42,67 @@ witness run [cmd] [flags]
 ### Options
 
 ```
-      --archivista-server string                      URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
-  -a, --attestations strings                          Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
-      --attestor-link-export                          Export the Link predicate in its own attestation
-      --attestor-maven-pom-path string                The path to the Project Object Model (POM) XML file used for task being attested (default "pom.xml"). (default "pom.xml")
-      --attestor-product-exclude-glob string          Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
-      --attestor-product-include-glob string          Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
-      --attestor-sbom-export                          Export the SBOM predicate in its own attestation
-      --attestor-slsa-export                          Export the SLSA provenance predicate in its own attestation
-      --dirhash-glob strings                          Dirhash glob can be used to collapse material and product hashes on matching directory matches.
-      --enable-archivista                             Use Archivista to store or retrieve attestations
-      --env-add-sensitive-key strings                 Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.
-      --env-disable-default-sensitive-vars            Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.
-      --env-exclude-sensitive-key strings             Exclude specific keys from the list of sensitive environment keys. Note: This does not support globs.
-      --env-filter-sensitive-vars                     Switch from obfuscate to filtering variables which removes them from the output completely.
-      --hashes strings                                Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
-  -h, --help                                          help for run
-  -o, --outfile string                                File to write signed data to
-      --signer-file-cert-path string                  Path to the file containing the certificate for the private key
-      --signer-file-intermediate-paths strings        Paths to files containing intermediates required to establish trust of the signer's certificate to a root
-  -k, --signer-file-key-path string                   Path to the file containing the private key
-      --signer-fulcio-oidc-client-id string           OIDC client ID to use for authentication
-      --signer-fulcio-oidc-issuer string              OIDC issuer to use for authentication
-      --signer-fulcio-oidc-redirect-url string        OIDC redirect URL (Optional). The default oidc-redirect-url is 'http://localhost:0/auth/callback'.
-      --signer-fulcio-token string                    Raw token string to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token-path)
-      --signer-fulcio-token-path string               Path to the file containing a raw token to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token)
-      --signer-fulcio-url string                      Fulcio address to sign with
-      --signer-kms-aws-config-file string             The shared configuration file to use with the AWS KMS signer provider
-      --signer-kms-aws-credentials-file string        The shared credentials file to use with the AWS KMS signer provider
-      --signer-kms-aws-insecure-skip-verify           Skip verification of the server's certificate chain and host name
-      --signer-kms-aws-profile string                 The shared configuration profile to use with the AWS KMS signer provider
-      --signer-kms-aws-remote-verify                  verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
-      --signer-kms-gcp-credentials-file string        The credentials file to use with the GCP KMS signer provider
-      --signer-kms-hashType string                    The hash type to use for signing (default "sha256")
-      --signer-kms-keyVersion string                  The key version to use for signing
-      --signer-kms-ref string                         The KMS Reference URI to use for connecting to the KMS service
-      --signer-spiffe-socket-path string              Path to the SPIFFE Workload API Socket
-      --signer-vault-altnames strings                 Alt names to use for the generated certificate. All alt names must be allowed by the vault role policy
-      --signer-vault-commonname string                Common name to use for the generated certificate. Must be allowed by the vault role policy
-      --signer-vault-namespace string                 Vault namespace to use
-      --signer-vault-pki-secrets-engine-path string   Path to the Vault PKI Secrets Engine to use (default "pki")
-      --signer-vault-role string                      Name of the Vault role to generate the certificate for
-      --signer-vault-token string                     Token to use to connect to Vault
-      --signer-vault-ttl duration                     Time to live for the generated certificate. Defaults to the vault role policy's configured TTL if not provided
-      --signer-vault-url string                       Base url of the Vault instance to connect to
-  -s, --step string                                   Name of the step being run
-  -t, --timestamp-servers strings                     Timestamp Authority Servers to use when signing envelope
-  -r, --trace                                         Enable tracing for the command
-  -d, --workingdir string                             Directory from which commands will run
+      --archivista-headers stringArray                    Headers to provide to the Archivista client when making requests
+      --archivista-server string                          URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
+  -a, --attestations strings                              Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
+      --attestor-k8smanifest-context string               The kubernetes context that this step applies to (if not set in the kubeconfig)
+      --attestor-k8smanifest-ignore-annotations strings   Additional ephemeral annotations to remove, e.g. witness.dev/another-ephemeral
+      --attestor-k8smanifest-ignore-fields strings        Additional ephemeral fields to remove (dot-separated), e.g., metadata.annotations.myorg
+      --attestor-k8smanifest-kubeconfig string            Path to the kubeconfig file (used during server-side dry-run) (default "$HOME/.kube/config")
+      --attestor-k8smanifest-record-cluster-information   Record information about the cluster that the client has a connection to (default true)
+      --attestor-k8smanifest-server-side-dry-run          Perform a server-side dry-run to normalize resource defaults before hashing
+      --attestor-link-export                              Export the Link predicate in its own attestation
+      --attestor-maven-pom-path string                    The path to the Project Object Model (POM) XML file used for task being attested (default "pom.xml"). (default "pom.xml")
+      --attestor-product-exclude-glob string              Pattern to use when recording products. Files that match this pattern will be excluded as subjects on the attestation.
+      --attestor-product-include-glob string              Pattern to use when recording products. Files that match this pattern will be included as subjects on the attestation. (default "*")
+      --attestor-sbom-export                              Export the SBOM predicate in its own attestation
+      --attestor-secretscan-allowlist-regex string        Regex pattern for content to ignore (can be specified multiple times)
+      --attestor-secretscan-allowlist-stopword string     Specific string to ignore (can be specified multiple times)
+      --attestor-secretscan-config-path string            Path to custom Gitleaks configuration file
+      --attestor-secretscan-fail-on-detection             Fail the attestation process if secrets are detected
+      --attestor-secretscan-max-decode-layers int         Maximum number of encoding layers to decode when searching for secrets (default 3)
+      --attestor-secretscan-max-file-size-mb int          Maximum file size to scan in megabytes (default 10)
+      --attestor-slsa-export                              Export the SLSA provenance predicate in its own attestation
+      --dirhash-glob strings                              Dirhash glob can be used to collapse material and product hashes on matching directory matches.
+      --enable-archivista                                 Use Archivista to store or retrieve attestations
+      --env-add-sensitive-key strings                     Add keys or globs (e.g. '*TEXT') to the list of sensitive environment keys.
+      --env-allow-sensitive-key strings                   Allow specific keys from the list of sensitive environment keys. Note: This does not support globs.
+      --env-disable-default-sensitive-vars                Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.
+      --env-filter-sensitive-vars                         Switch from obfuscate to filtering variables which removes them from the output completely.
+      --hashes strings                                    Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
+  -h, --help                                              help for run
+  -o, --outfile string                                    File to write signed data to
+      --signer-file-cert-path string                      Path to the file containing the certificate for the private key
+      --signer-file-intermediate-paths strings            Paths to files containing intermediates required to establish trust of the signer's certificate to a root
+  -k, --signer-file-key-path string                       Path to the file containing the private key
+      --signer-fulcio-oidc-client-id string               OIDC client ID to use for authentication
+      --signer-fulcio-oidc-issuer string                  OIDC issuer to use for authentication
+      --signer-fulcio-oidc-redirect-url string            OIDC redirect URL (Optional). The default oidc-redirect-url is 'http://localhost:0/auth/callback'.
+      --signer-fulcio-token string                        Raw token string to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token-path)
+      --signer-fulcio-token-path string                   Path to the file containing a raw token to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token)
+      --signer-fulcio-url string                          Fulcio address to sign with
+      --signer-kms-aws-config-file string                 The shared configuration file to use with the AWS KMS signer provider
+      --signer-kms-aws-credentials-file string            The shared credentials file to use with the AWS KMS signer provider
+      --signer-kms-aws-insecure-skip-verify               Skip verification of the server's certificate chain and host name
+      --signer-kms-aws-profile string                     The shared configuration profile to use with the AWS KMS signer provider
+      --signer-kms-aws-remote-verify                      verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
+      --signer-kms-gcp-credentials-file string            The credentials file to use with the GCP KMS signer provider
+      --signer-kms-hashType string                        The hash type to use for signing (default "sha256")
+      --signer-kms-keyVersion string                      The key version to use for signing
+      --signer-kms-ref string                             The KMS Reference URI to use for connecting to the KMS service
+      --signer-spiffe-socket-path string                  Path to the SPIFFE Workload API Socket
+      --signer-vault-altnames strings                     Alt names to use for the generated certificate. All alt names must be allowed by the vault role policy
+      --signer-vault-commonname string                    Common name to use for the generated certificate. Must be allowed by the vault role policy
+      --signer-vault-namespace string                     Vault namespace to use
+      --signer-vault-pki-secrets-engine-path string       Path to the Vault PKI Secrets Engine to use (default "pki")
+      --signer-vault-role string                          Name of the Vault role to generate the certificate for
+      --signer-vault-token string                         Token to use to connect to Vault
+      --signer-vault-ttl duration                         Time to live for the generated certificate. Defaults to the vault role policy's configured TTL if not provided
+      --signer-vault-url string                           Base url of the Vault instance to connect to
+  -s, --step string                                       Name of the step being run
+  -t, --timestamp-servers strings                         Timestamp Authority Servers to use when signing envelope
+  -r, --trace                                             Enable tracing for the command
+  -d, --workingdir string                                 Directory from which commands will run
 ```
 
 ### Options inherited from parent commands
@@ -182,6 +195,7 @@ witness verify [flags]
 ### Options
 
 ```
+      --archivista-headers stringArray                      Headers to provide to the Archivista client when making requests
       --archivista-server string                            URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -f, --artifactfile string                                 Path to the artifact subject to verify
   -a, --attestations strings                                Attestation files to test against the policy

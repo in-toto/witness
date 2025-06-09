@@ -28,7 +28,6 @@ import (
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
 	"github.com/in-toto/go-witness/timestamp"
-	archivista_client "github.com/in-toto/witness/internal/archivista"
 	"github.com/in-toto/witness/internal/policy"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -78,7 +77,11 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 
 	collectionSource = memSource
 	if vo.ArchivistaOptions.Enable {
-		archivistaClient = archivista.New(vo.ArchivistaOptions.Url)
+		archivistaClient, err := vo.ArchivistaOptions.Client()
+		if err != nil {
+			return fmt.Errorf("failed to create archivista client: %w", err)
+		}
+
 		collectionSource = source.NewMultiSource(collectionSource, source.NewArchvistSource(archivistaClient))
 	}
 
@@ -95,7 +98,12 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		if err != nil {
 			return fmt.Errorf("failed to open key file: %w", err)
 		}
-		defer keyFile.Close()
+
+		defer func() {
+			if err := keyFile.Close(); err != nil {
+				log.Errorf("failed to close key file: %w", err)
+			}
+		}()
 
 		v, err := cryptoutil.NewVerifierFromReader(keyFile)
 		if err != nil {
@@ -156,7 +164,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		}
 	}
 
-	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivista_client.NewArchivistaClient(vo.ArchivistaOptions.Url, archivistaClient))
+	policyEnvelope, err := policy.LoadPolicy(ctx, vo.PolicyFilePath, archivistaClient)
 	if err != nil {
 		return fmt.Errorf("failed to open policy file: %w", err)
 	}

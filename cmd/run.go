@@ -21,7 +21,6 @@ import (
 
 	"github.com/gobwas/glob"
 	witness "github.com/in-toto/go-witness"
-	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/attestation"
 	"github.com/in-toto/go-witness/attestation/commandrun"
 	"github.com/in-toto/go-witness/attestation/material"
@@ -131,7 +130,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 	for _, dirHashGlobItem := range ro.DirHashGlobs {
 		_, err := glob.Compile(dirHashGlobItem)
 		if err != nil {
-			return fmt.Errorf("failed to compile glob: %v", err)	
+			return fmt.Errorf("failed to compile glob: %v", err)
 		}
 	}
 
@@ -144,7 +143,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			attestation.WithHashes(roHashes),
 			attestation.WithDirHashGlob(ro.DirHashGlobs),
 			attestation.WithEnvCapturer(
-				ro.EnvAddSensitiveKeys, ro.EnvExcludeSensitiveKeys, ro.EnvDisableSensitiveVars, ro.EnvFilterSensitiveVars,
+				ro.EnvAddSensitiveKeys, ro.EnvAllowSensitiveKeys, ro.EnvDisableSensitiveVars, ro.EnvFilterSensitiveVars,
 			),
 		),
 		witness.RunWithTimestampers(timestampers...),
@@ -169,14 +168,23 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if err != nil {
 			return fmt.Errorf("failed to open out file: %w", err)
 		}
-		defer out.Close()
+
+		defer func() {
+			if err := out.Close(); err != nil {
+				log.Errorf("failed to write result to disk: %v", err)
+			}
+		}()
 
 		if _, err := out.Write(signedBytes); err != nil {
 			return fmt.Errorf("failed to write envelope to out file: %w", err)
 		}
 
 		if ro.ArchivistaOptions.Enable {
-			archivistaClient := archivista.New(ro.ArchivistaOptions.Url)
+			archivistaClient, err := ro.ArchivistaOptions.Client()
+			if err != nil {
+				return fmt.Errorf("failed to create archivista client: %w", err)
+			}
+
 			if gitoid, err := archivistaClient.Store(ctx, result.SignedEnvelope); err != nil {
 				return fmt.Errorf("failed to store artifact in archivista: %w", err)
 			} else {
