@@ -28,6 +28,7 @@ Get information about all the available attestors in Witness
 ### SEE ALSO
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
+* [witness attestors docs](witness_attestors_docs.md)	 - Show documentation for an attestor
 * [witness attestors list](witness_attestors_list.md)	 - List all available attestors
 * [witness attestors schema](witness_attestors_schema.md)	 - Show the JSON schema of a specific attestor
 
@@ -48,7 +49,7 @@ witness run [cmd] [flags]
       --attestor-k8smanifest-context string               The kubernetes context that this step applies to (if not set in the kubeconfig)
       --attestor-k8smanifest-ignore-annotations strings   Additional ephemeral annotations to remove, e.g. witness.dev/another-ephemeral
       --attestor-k8smanifest-ignore-fields strings        Additional ephemeral fields to remove (dot-separated), e.g., metadata.annotations.myorg
-      --attestor-k8smanifest-kubeconfig string            Path to the kubeconfig file (used during server-side dry-run) (default "$HOME/.kube/config")
+      --attestor-k8smanifest-kubeconfig string            Path to the kubeconfig file (used during server-side dry-run) (default "/Users/nkennedy/.kube/config")
       --attestor-k8smanifest-record-cluster-information   Record information about the cluster that the client has a connection to (default true)
       --attestor-k8smanifest-server-side-dry-run          Perform a server-side dry-run to normalize resource defaults before hashing
       --attestor-link-export                              Export the Link predicate in its own attestation
@@ -71,6 +72,7 @@ witness run [cmd] [flags]
       --env-filter-sensitive-vars                         Switch from obfuscate to filtering variables which removes them from the output completely.
       --hashes strings                                    Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                              help for run
+      --help-attestor string                              Show help for a specific attestor
   -o, --outfile string                                    File to write signed data to
       --signer-file-cert-path string                      Path to the file containing the certificate for the private key
       --signer-file-intermediate-paths strings            Paths to files containing intermediates required to establish trust of the signer's certificate to a root

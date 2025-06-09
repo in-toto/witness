@@ -79,13 +79,19 @@ GovCloud regions.
           "type": "string"
         },
         "rawiid": {
-          "type": "string"
+          "type": "string",
+          "title": "Raw Instance Identity Document",
+          "description": "Base64 encoded raw instance identity document from AWS"
         },
         "rawsig": {
-          "type": "string"
+          "type": "string",
+          "title": "Raw Signature",
+          "description": "Base64 encoded signature of the instance identity document"
         },
         "publickey": {
-          "type": "string"
+          "type": "string",
+          "title": "Public Key",
+          "description": "Public key used to verify the instance identity document signature"
         }
       },
       "additionalProperties": false,

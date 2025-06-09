@@ -19,22 +19,32 @@ Linux operating systems and is considered experimental.
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Command",
+          "description": "Command and arguments to execute"
         },
         "stdout": {
-          "type": "string"
+          "type": "string",
+          "title": "Standard Output",
+          "description": "Captured stdout from the command"
         },
         "stderr": {
-          "type": "string"
+          "type": "string",
+          "title": "Standard Error",
+          "description": "Captured stderr from the command"
         },
         "exitcode": {
-          "type": "integer"
+          "type": "integer",
+          "title": "Exit Code",
+          "description": "Command exit code"
         },
         "processes": {
           "items": {
             "$ref": "#/$defs/ProcessInfo"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Process Information",
+          "description": "Detailed process execution information when tracing is enabled"
         }
       },
       "additionalProperties": false,
@@ -53,37 +63,57 @@ Linux operating systems and is considered experimental.
     "ProcessInfo": {
       "properties": {
         "program": {
-          "type": "string"
+          "type": "string",
+          "title": "Program Path",
+          "description": "Path to the executed program"
         },
         "processid": {
-          "type": "integer"
+          "type": "integer",
+          "title": "Process ID",
+          "description": "Process identifier"
         },
         "parentpid": {
-          "type": "integer"
+          "type": "integer",
+          "title": "Parent Process ID",
+          "description": "Parent process identifier"
         },
         "programdigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Program Digest",
+          "description": "Cryptographic digest of the program binary"
         },
         "comm": {
-          "type": "string"
+          "type": "string",
+          "title": "Command Name",
+          "description": "Command name from /proc/[pid]/comm"
         },
         "cmdline": {
-          "type": "string"
+          "type": "string",
+          "title": "Command Line",
+          "description": "Full command line from /proc/[pid]/cmdline"
         },
         "exedigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Executable Digest",
+          "description": "Cryptographic digest of the executable"
         },
         "openedfiles": {
           "additionalProperties": {
             "$ref": "#/$defs/DigestSet"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Opened Files",
+          "description": "Files opened during execution with their digests"
         },
         "environ": {
-          "type": "string"
+          "type": "string",
+          "title": "Environment",
+          "description": "Process environment variables"
         },
         "specbypassisvuln": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "Speculative Bypass Vulnerability",
+          "description": "Whether CPU is vulnerable to speculative execution attacks"
         }
       },
       "additionalProperties": false,

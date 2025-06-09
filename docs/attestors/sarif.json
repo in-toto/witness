@@ -156,13 +156,19 @@
     "Attestor": {
       "properties": {
         "report": {
-          "$ref": "#/$defs/Report"
+          "$ref": "#/$defs/Report",
+          "title": "SARIF Report",
+          "description": "Static Analysis Results Interchange Format report"
         },
         "reportFileName": {
-          "type": "string"
+          "type": "string",
+          "title": "Report File Name",
+          "description": "Path to the SARIF report file"
         },
         "reportDigestSet": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Report Digest Set",
+          "description": "Cryptographic digests of the SARIF report file"
         }
       },
       "additionalProperties": false,

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/go-witness/policy/documentation",
+  "$ref": "#/$defs/Documentation",
+  "$defs": {
+    "Documentation": {
+      "properties": {
+        "summary": {
+          "type": "string",
+          "title": "Summary",
+          "description": "Brief description of the package"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Detailed description of the package functionality"
+        },
+        "usage": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Usage",
+          "description": "Common use cases and scenarios"
+        },
+        "examples": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Example"
+          },
+          "type": "object",
+          "title": "Examples",
+          "description": "Code examples demonstrating package usage"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "summary",
+        "description",
+        "usage",
+        "examples"
+      ]
+    },
+    "Example": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "What this example demonstrates"
+        },
+        "code": {
+          "type": "string",
+          "title": "Code",
+          "description": "Example code snippet"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "description",
+        "code"
+      ]
+    }
+  }
+}

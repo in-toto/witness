@@ -36,6 +36,7 @@ func AttestorsCmd() *cobra.Command {
 
 	cmd.AddCommand(SchemaCmd())
 	cmd.AddCommand(ListCmd())
+	cmd.AddCommand(DocsCmd())
 
 	return cmd
 }

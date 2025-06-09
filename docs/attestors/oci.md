@@ -21,35 +21,49 @@ attestation.
     "Attestor": {
       "properties": {
         "tardigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "TAR Digest",
+          "description": "Digest of the OCI image TAR file"
         },
         "manifest": {
           "items": {
             "$ref": "#/$defs/Manifest"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Manifest",
+          "description": "OCI image manifest information"
         },
         "imagetags": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Image Tags",
+          "description": "Tags associated with the OCI image"
         },
         "diffids": {
           "items": {
             "$ref": "#/$defs/DigestSet"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Layer Diff IDs",
+          "description": "Diff IDs for each layer in the image"
         },
         "imageid": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Image ID",
+          "description": "Digest of the image configuration"
         },
         "manifestraw": {
           "type": "string",
-          "contentEncoding": "base64"
+          "contentEncoding": "base64",
+          "title": "Raw Manifest",
+          "description": "Raw manifest.json content"
         },
         "manifestdigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Manifest Digest",
+          "description": "Digest of the manifest.json file"
         }
       },
       "additionalProperties": false,
@@ -73,19 +87,25 @@ attestation.
     "Manifest": {
       "properties": {
         "Config": {
-          "type": "string"
+          "type": "string",
+          "title": "Config",
+          "description": "Path to the image configuration file"
         },
         "RepoTags": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Repository Tags",
+          "description": "Repository tags for the image"
         },
         "Layers": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Layers",
+          "description": "Paths to layer TAR files"
         }
       },
       "additionalProperties": false,

@@ -8,7 +8,9 @@
           "items": {
             "$ref": "#/$defs/LockfileInfo"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Lockfiles",
+          "description": "List of discovered dependency lockfiles"
         }
       },
       "additionalProperties": false,
@@ -26,13 +28,19 @@
     "LockfileInfo": {
       "properties": {
         "filename": {
-          "type": "string"
+          "type": "string",
+          "title": "Filename",
+          "description": "Name of the lockfile (e.g. package-lock.json go.sum)"
         },
         "content": {
-          "type": "string"
+          "type": "string",
+          "title": "Content",
+          "description": "Full content of the lockfile"
         },
         "digest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Digest",
+          "description": "Cryptographic digests of the lockfile content"
         }
       },
       "additionalProperties": false,

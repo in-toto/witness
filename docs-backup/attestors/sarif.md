@@ -1,0 +1,792 @@
+# Sarif Attestor
+
+The Sarif attestor records the contents of any [products](./product.md) that are valid [SARIF](https://sarifweb.azurewebsites.net/) files.  The SARIF file is parsed and the contents are recorded in the attestation.
+
+## Schema
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Address": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "absoluteAddress": {
+          "type": "integer"
+        },
+        "relativeAddress": {
+          "type": "integer"
+        },
+        "offsetFromParent": {
+          "type": "integer"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fullyQualifiedName": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "parentIndex": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Artifact": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "location": {
+          "$ref": "#/$defs/ArtifactLocation"
+        },
+        "parentIndex": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "roles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "contents": {
+          "$ref": "#/$defs/ArtifactContent"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "sourceLanguage": {
+          "type": "string"
+        },
+        "hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "lastModifiedTimeUtc": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/Message"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "length"
+      ]
+    },
+    "ArtifactChange": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "artifactLocation": {
+          "$ref": "#/$defs/ArtifactLocation"
+        },
+        "replacements": {
+          "items": {
+            "$ref": "#/$defs/Replacement"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "artifactLocation",
+        "replacements"
+      ]
+    },
+    "ArtifactContent": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "text": {
+          "type": "string"
+        },
+        "binary": {
+          "type": "string"
+        },
+        "rendered": {
+          "$ref": "#/$defs/MultiformatMessageString"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ArtifactLocation": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "uriBaseId": {
+          "type": "string"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "description": {
+          "$ref": "#/$defs/Message"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Attestor": {
+      "properties": {
+        "report": {
+          "$ref": "#/$defs/Report"
+        },
+        "reportFileName": {
+          "type": "string"
+        },
+        "reportDigestSet": {
+          "$ref": "#/$defs/DigestSet"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "report",
+        "reportFileName",
+        "reportDigestSet"
+      ]
+    },
+    "DigestSet": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "Fix": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "description": {
+          "$ref": "#/$defs/Message"
+        },
+        "artifactChanges": {
+          "items": {
+            "$ref": "#/$defs/ArtifactChange"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "artifactChanges"
+      ]
+    },
+    "Invocation": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "startTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executionSuccessful": {
+          "type": "boolean"
+        },
+        "workingDirectory": {
+          "$ref": "#/$defs/ArtifactLocation"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "executionSuccessful"
+      ]
+    },
+    "Location": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "physicalLocation": {
+          "$ref": "#/$defs/PhysicalLocation"
+        },
+        "logicalLocations": {
+          "items": {
+            "$ref": "#/$defs/LogicalLocation"
+          },
+          "type": "array"
+        },
+        "message": {
+          "$ref": "#/$defs/Message"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "type": "array"
+        },
+        "relationships": {
+          "items": {
+            "$ref": "#/$defs/LocationRelationship"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "LocationRelationship": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "target": {
+          "type": "integer"
+        },
+        "kinds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "$ref": "#/$defs/Message"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "target"
+      ]
+    },
+    "LogicalLocation": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fullyQualifiedName": {
+          "type": "string"
+        },
+        "decoratedName": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "parentIndex": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Message": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "text": {
+          "type": "string"
+        },
+        "markdown": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "arguments": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "MultiformatMessageString": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "text": {
+          "type": "string"
+        },
+        "markdown": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "PhysicalLocation": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "artifactLocation": {
+          "$ref": "#/$defs/ArtifactLocation"
+        },
+        "region": {
+          "$ref": "#/$defs/Region"
+        },
+        "contextRegion": {
+          "$ref": "#/$defs/Region"
+        },
+        "address": {
+          "$ref": "#/$defs/Address"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Properties": {
+      "type": "object"
+    },
+    "PropertyBag": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Region": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "startLine": {
+          "type": "integer"
+        },
+        "startColumn": {
+          "type": "integer"
+        },
+        "endLine": {
+          "type": "integer"
+        },
+        "endColumn": {
+          "type": "integer"
+        },
+        "charOffset": {
+          "type": "integer"
+        },
+        "charLength": {
+          "type": "integer"
+        },
+        "byteOffset": {
+          "type": "integer"
+        },
+        "byteLength": {
+          "type": "integer"
+        },
+        "snippet": {
+          "$ref": "#/$defs/ArtifactContent"
+        },
+        "message": {
+          "$ref": "#/$defs/Message"
+        },
+        "sourceLanguage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Replacement": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "deletedRegion": {
+          "$ref": "#/$defs/Region"
+        },
+        "insertedContent": {
+          "$ref": "#/$defs/ArtifactContent"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "deletedRegion"
+      ]
+    },
+    "Report": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "version": {
+          "type": "string"
+        },
+        "$schema": {
+          "type": "string"
+        },
+        "runs": {
+          "items": {
+            "$ref": "#/$defs/Run"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "version",
+        "$schema",
+        "runs"
+      ]
+    },
+    "ReportingConfiguration": {
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "level": true,
+        "parameters": {
+          "$ref": "#/$defs/PropertyBag"
+        },
+        "properties": {
+          "$ref": "#/$defs/PropertyBag"
+        },
+        "rank": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ReportingDescriptor": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "shortDescription": {
+          "$ref": "#/$defs/MultiformatMessageString"
+        },
+        "fullDescription": {
+          "$ref": "#/$defs/MultiformatMessageString"
+        },
+        "defaultConfiguration": {
+          "$ref": "#/$defs/ReportingConfiguration"
+        },
+        "helpUri": {
+          "type": "string"
+        },
+        "help": {
+          "$ref": "#/$defs/MultiformatMessageString"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "shortDescription"
+      ]
+    },
+    "ReportingDescriptorReference": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "id": {
+          "type": "string"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "guid": {
+          "type": "string"
+        },
+        "toolComponent": {
+          "$ref": "#/$defs/ToolComponentReference"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Result": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "guid": {
+          "type": "string"
+        },
+        "correlationGuid": {
+          "type": "string"
+        },
+        "ruleId": {
+          "type": "string"
+        },
+        "ruleIndex": {
+          "type": "integer"
+        },
+        "rule": {
+          "$ref": "#/$defs/ReportingDescriptorReference"
+        },
+        "taxa": {
+          "items": {
+            "$ref": "#/$defs/ReportingDescriptorReference"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "level": {
+          "type": "string"
+        },
+        "message": {
+          "$ref": "#/$defs/Message"
+        },
+        "locations": {
+          "items": {
+            "$ref": "#/$defs/Location"
+          },
+          "type": "array"
+        },
+        "analysisTarget": {
+          "$ref": "#/$defs/ArtifactLocation"
+        },
+        "fingerprints": {
+          "type": "object"
+        },
+        "partialFingerprints": {
+          "type": "object"
+        },
+        "relatedLocations": {
+          "items": {
+            "$ref": "#/$defs/Location"
+          },
+          "type": "array"
+        },
+        "suppressions": {
+          "items": {
+            "$ref": "#/$defs/Suppression"
+          },
+          "type": "array"
+        },
+        "baselineState": {
+          "type": "string"
+        },
+        "rank": {
+          "type": "number"
+        },
+        "workItemUris": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "hostedViewerUri": {
+          "type": "string"
+        },
+        "fixes": {
+          "items": {
+            "$ref": "#/$defs/Fix"
+          },
+          "type": "array"
+        },
+        "occurrenceCount": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "message"
+      ]
+    },
+    "Run": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "tool": {
+          "$ref": "#/$defs/Tool"
+        },
+        "invocations": {
+          "items": {
+            "$ref": "#/$defs/Invocation"
+          },
+          "type": "array"
+        },
+        "artifacts": {
+          "items": {
+            "$ref": "#/$defs/Artifact"
+          },
+          "type": "array"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/Result"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "tool",
+        "results"
+      ]
+    },
+    "Suppression": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/Location"
+        },
+        "guid": {
+          "type": "string"
+        },
+        "justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "kind",
+        "status",
+        "location",
+        "guid",
+        "justification"
+      ]
+    },
+    "Tool": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "driver": {
+          "$ref": "#/$defs/ToolComponent"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "driver"
+      ]
+    },
+    "ToolComponent": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "informationUri": {
+          "type": "string"
+        },
+        "notifications": {
+          "items": {
+            "$ref": "#/$defs/ReportingDescriptor"
+          },
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/ReportingDescriptor"
+          },
+          "type": "array"
+        },
+        "taxa": {
+          "items": {
+            "$ref": "#/$defs/ReportingDescriptor"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "informationUri"
+      ]
+    },
+    "ToolComponentReference": {
+      "properties": {
+        "properties": {
+          "$ref": "#/$defs/Properties"
+        },
+        "name": {
+          "type": "string"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "guid": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "index",
+        "guid"
+      ]
+    }
+  }
+}
+```

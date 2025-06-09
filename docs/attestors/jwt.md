@@ -12,10 +12,14 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
     "Attestor": {
       "properties": {
         "claims": {
-          "type": "object"
+          "type": "object",
+          "title": "Claims",
+          "description": "JWT claims extracted from the token"
         },
         "verifiedBy": {
-          "$ref": "#/$defs/VerificationInfo"
+          "$ref": "#/$defs/VerificationInfo",
+          "title": "Verified By",
+          "description": "Information about how the JWT was verified"
         }
       },
       "additionalProperties": false,
@@ -533,10 +537,14 @@ claims of the JWT.  The JWK that was used to verify the JWT is also recorded.
     "VerificationInfo": {
       "properties": {
         "jwksUrl": {
-          "type": "string"
+          "type": "string",
+          "title": "JWKS URL",
+          "description": "URL where the JSON Web Key Set can be found"
         },
         "jwk": {
-          "$ref": "#/$defs/JSONWebKey"
+          "$ref": "#/$defs/JSONWebKey",
+          "title": "JWK",
+          "description": "The JSON Web Key used to verify the token"
         }
       },
       "additionalProperties": false,

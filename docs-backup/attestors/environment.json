@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "variables": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "os",
+        "hostname",
+        "username"
+      ]
+    }
+  }
+}
+ 

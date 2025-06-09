@@ -40,19 +40,27 @@ code base [here](https://github.com/in-toto/go-witness/blob/main/environment/sen
     "Attestor": {
       "properties": {
         "os": {
-          "type": "string"
+          "type": "string",
+          "title": "Operating System",
+          "description": "Operating system platform (e.g. linux"
         },
         "hostname": {
-          "type": "string"
+          "type": "string",
+          "title": "Hostname",
+          "description": "System hostname"
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "title": "Username",
+          "description": "Current user's username"
         },
         "variables": {
           "additionalProperties": {
             "type": "string"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Environment Variables",
+          "description": "Captured environment variables based on policy"
         }
       },
       "additionalProperties": false,

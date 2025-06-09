@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "tardigest": {
+          "$ref": "#/$defs/DigestSet"
+        },
+        "manifest": {
+          "items": {
+            "$ref": "#/$defs/Manifest"
+          },
+          "type": "array"
+        },
+        "imagetags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "diffids": {
+          "items": {
+            "$ref": "#/$defs/DigestSet"
+          },
+          "type": "array"
+        },
+        "imageid": {
+          "$ref": "#/$defs/DigestSet"
+        },
+        "manifestraw": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "manifestdigest": {
+          "$ref": "#/$defs/DigestSet"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "tardigest",
+        "manifest",
+        "imagetags",
+        "diffids",
+        "imageid",
+        "manifestraw",
+        "manifestdigest"
+      ]
+    },
+    "DigestSet": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "Manifest": {
+      "properties": {
+        "Config": {
+          "type": "string"
+        },
+        "RepoTags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "Layers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "Config",
+        "RepoTags",
+        "Layers"
+      ]
+    }
+  }
+}
+ 

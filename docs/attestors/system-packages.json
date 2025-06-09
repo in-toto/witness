@@ -6,22 +6,32 @@
     "Attestor": {
       "properties": {
         "os": {
-          "type": "string"
+          "type": "string",
+          "title": "OS",
+          "description": "Operating system type (e.g. linux)"
         },
         "distribution": {
-          "type": "string"
+          "type": "string",
+          "title": "Distribution",
+          "description": "Linux distribution (e.g. ubuntu debian fedora)"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "title": "Version",
+          "description": "Distribution version"
         },
         "packages": {
           "items": {
             "$ref": "#/$defs/Package"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Packages",
+          "description": "List of installed system packages"
         },
         "digest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Digest",
+          "description": "Cryptographic digest of the package list"
         }
       },
       "additionalProperties": false,
@@ -43,10 +53,14 @@
     "Package": {
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Name",
+          "description": "Package name"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "title": "Version",
+          "description": "Package version"
         }
       },
       "additionalProperties": false,

@@ -7,7 +7,9 @@
     "Attestor": {
       "properties": {
         "Envelope": {
-          "$ref": "#/$defs/Envelope"
+          "$ref": "#/$defs/Envelope",
+          "title": "Envelope",
+          "description": "Omnitrail envelope containing artifact trail information"
         }
       },
       "additionalProperties": false,

@@ -29,34 +29,52 @@
     "Finding": {
       "properties": {
         "ruleId": {
-          "type": "string"
+          "type": "string",
+          "title": "Rule ID",
+          "description": "Detection rule that found the secret"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "title": "Description",
+          "description": "Human-readable explanation of the finding"
         },
         "location": {
-          "type": "string"
+          "type": "string",
+          "title": "Location",
+          "description": "Where the secret was found (attestation:name or product:path)"
         },
         "startLine": {
-          "type": "integer"
+          "type": "integer",
+          "title": "Line Number",
+          "description": "Line number where the secret was found"
         },
         "secret": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Secret Digest",
+          "description": "Cryptographic hashes of the detected secret"
         },
         "match": {
-          "type": "string"
+          "type": "string",
+          "title": "Match Context",
+          "description": "Redacted snippet showing context around the secret"
         },
         "entropy": {
-          "type": "number"
+          "type": "number",
+          "title": "Entropy",
+          "description": "Information density score (higher indicates more random content)"
         },
         "encodingPath": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Encoding Path",
+          "description": "Sequence of encodings applied to hide the secret"
         },
         "locationApproximate": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "Location Approximate",
+          "description": "Whether the line number is approximate"
         }
       },
       "additionalProperties": false,
