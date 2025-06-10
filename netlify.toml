@@ -6,3 +6,4 @@
 
 [build.environment]
   NODE_VERSION = "20.18.1"
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
