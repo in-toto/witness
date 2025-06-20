@@ -55,10 +55,13 @@ func New() *cobra.Command {
 	return cmd
 }
 
+// Variable to allow overriding os.Exit in tests
+var osExit = os.Exit
+
 func Execute() {
 	if err := New().Execute(); err != nil {
 		log.Error(err)
-		os.Exit(1)
+		osExit(1)
 	}
 }
 
