@@ -44,6 +44,7 @@ type RunOptions struct {
 	EnvDisableSensitiveVars  bool
 	EnvAddSensitiveKeys      []string
 	EnvAllowSensitiveKeys    []string
+	HelpAttestor             string
 }
 
 var RequiredRunFlags = []string{
@@ -67,6 +68,7 @@ func (ro *RunOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ro.StepName, "step", "s", "", "Name of the step being run")
 	cmd.Flags().BoolVarP(&ro.Tracing, "trace", "r", false, "Enable tracing for the command")
 	cmd.Flags().StringSliceVarP(&ro.TimestampServers, "timestamp-servers", "t", []string{}, "Timestamp Authority Servers to use when signing envelope")
+	cmd.Flags().StringVar(&ro.HelpAttestor, "help-attestor", "", "Show help for a specific attestor")
 
 	// Environment variables flags
 	cmd.Flags().BoolVarP(&ro.EnvFilterSensitiveVars, "env-filter-sensitive-vars", "", false, "Switch from obfuscate to filtering variables which removes them from the output completely.")

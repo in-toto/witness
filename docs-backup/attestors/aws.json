@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "devpayProductCodes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "marketplaceProductCodes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "availabilityZone": {
+          "type": "string"
+        },
+        "privateIp": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "billingProducts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "instanceType": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "pendingTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "imageId": {
+          "type": "string"
+        },
+        "kernelId": {
+          "type": "string"
+        },
+        "ramdiskId": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "rawiid": {
+          "type": "string"
+        },
+        "rawsig": {
+          "type": "string"
+        },
+        "publickey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "devpayProductCodes",
+        "marketplaceProductCodes",
+        "availabilityZone",
+        "privateIp",
+        "version",
+        "region",
+        "instanceId",
+        "billingProducts",
+        "instanceType",
+        "accountId",
+        "pendingTime",
+        "imageId",
+        "kernelId",
+        "ramdiskId",
+        "architecture",
+        "rawiid",
+        "rawsig",
+        "publickey"
+      ]
+    }
+  }
+}
+ 

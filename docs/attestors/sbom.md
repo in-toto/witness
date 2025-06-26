@@ -11,7 +11,10 @@ The SBOM attestor records the contents of any [products](./product.md) that are 
   "$defs": {
     "SBOMAttestor": {
       "properties": {
-        "SBOMDocument": true
+        "SBOMDocument": {
+          "title": "SBOM Document",
+          "description": "The Software Bill of Materials document (SPDX or CycloneDX format)"
+        }
       },
       "additionalProperties": false,
       "type": "object",
