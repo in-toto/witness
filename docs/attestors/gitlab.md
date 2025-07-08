@@ -27,10 +27,14 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
             "Attestor": {
               "properties": {
                 "claims": {
-                  "type": "object"
+                  "type": "object",
+                  "title": "Claims",
+                  "description": "JWT claims extracted from the token"
                 },
                 "verifiedBy": {
-                  "$ref": "#/$defs/VerificationInfo"
+                  "$ref": "#/$defs/VerificationInfo",
+                  "title": "Verified By",
+                  "description": "Information about how the JWT was verified"
                 }
               },
               "additionalProperties": false,
@@ -548,10 +552,14 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
             "VerificationInfo": {
               "properties": {
                 "jwksUrl": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "JWKS URL",
+                  "description": "URL where the JSON Web Key Set can be found"
                 },
                 "jwk": {
-                  "$ref": "#/$defs/JSONWebKey"
+                  "$ref": "#/$defs/JSONWebKey",
+                  "title": "JWK",
+                  "description": "The JSON Web Key used to verify the token"
                 }
               },
               "additionalProperties": false,
@@ -564,43 +572,78 @@ instance's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/json-we
           }
         },
         "ciconfigpath": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Config Path",
+          "description": "Path to the GitLab CI configuration file"
         },
         "jobid": {
-          "type": "string"
+          "type": "string",
+          "title": "Job ID",
+          "description": "GitLab CI job ID",
+          "examples": [
+            "1234567890"
+          ]
         },
         "jobimage": {
-          "type": "string"
+          "type": "string",
+          "title": "Job Image",
+          "description": "Docker image used for the job"
         },
         "jobname": {
-          "type": "string"
+          "type": "string",
+          "title": "Job Name",
+          "description": "Name of the GitLab CI job"
         },
         "jobstage": {
-          "type": "string"
+          "type": "string",
+          "title": "Job Stage",
+          "description": "Stage of the GitLab CI job",
+          "examples": [
+            "build"
+          ]
         },
         "joburl": {
-          "type": "string"
+          "type": "string",
+          "title": "Job URL",
+          "description": "URL to the GitLab CI job"
         },
         "pipelineid": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline ID",
+          "description": "GitLab CI pipeline ID"
         },
         "pipelineurl": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline URL",
+          "description": "URL to the GitLab CI pipeline"
         },
         "projectid": {
-          "type": "string"
+          "type": "string",
+          "title": "Project ID",
+          "description": "GitLab project ID"
         },
         "projecturl": {
-          "type": "string"
+          "type": "string",
+          "title": "Project URL",
+          "description": "URL to the GitLab project"
         },
         "runnerid": {
-          "type": "string"
+          "type": "string",
+          "title": "Runner ID",
+          "description": "ID of the GitLab runner"
         },
         "cihost": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Host",
+          "description": "GitLab server hostname"
         },
         "ciserverurl": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Server URL",
+          "description": "GitLab server URL",
+          "examples": [
+            "https://gitlab.com"
+          ]
         }
       },
       "additionalProperties": false,
