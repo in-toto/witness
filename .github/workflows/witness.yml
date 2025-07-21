@@ -62,7 +62,7 @@ jobs:
           path: /tmp
 
       - if: ${{ inputs.pre-command != '' && inputs.pull_request == false }}
-        uses: testifysec/witness-run-action@d5cef0eea8f8b008c91f6b25f84e8c39f454f413
+        uses: testifysec/witness-run-action@37c86fb4ec8c9351e5dd393c6699ba1fd8bb7c0d
         with:
           witness-install-dir: /usr/local/bin
           version: 0.9.1
@@ -73,7 +73,7 @@ jobs:
         run: ${{ inputs.pre-command }}
 
       - if: ${{ inputs.pull_request == false }}
-        uses: testifysec/witness-run-action@d5cef0eea8f8b008c91f6b25f84e8c39f454f413
+        uses: testifysec/witness-run-action@37c86fb4ec8c9351e5dd393c6699ba1fd8bb7c0d
         with:
           witness-install-dir: /usr/local/bin
           version: 0.9.1
