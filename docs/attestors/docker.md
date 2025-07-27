@@ -10,7 +10,9 @@
           "additionalProperties": {
             "$ref": "#/$defs/DockerProduct"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Docker Products",
+          "description": "Map of Docker image digests to product information"
         }
       },
       "additionalProperties": false,
@@ -34,16 +36,22 @@
             },
             "type": "array"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Build Materials",
+          "description": "Materials used to build the image by architecture"
         },
         "imagereferences": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Image References",
+          "description": "Docker image names and tags"
         },
         "imagedigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Image Digest",
+          "description": "Content-addressable digest of the Docker image"
         }
       },
       "additionalProperties": false,
@@ -57,13 +65,19 @@
     "Material": {
       "properties": {
         "uri": {
-          "type": "string"
+          "type": "string",
+          "title": "Material URI",
+          "description": "URI of the build material"
         },
         "architecture": {
-          "type": "string"
+          "type": "string",
+          "title": "Architecture",
+          "description": "Target architecture for this material"
         },
         "digest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Material Digest",
+          "description": "Cryptographic digest of the material"
         }
       },
       "additionalProperties": false,
