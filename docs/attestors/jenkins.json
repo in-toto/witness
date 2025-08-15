@@ -5,34 +5,54 @@
     "Attestor": {
       "properties": {
         "buildid": {
-          "type": "string"
+          "type": "string",
+          "title": "Build ID",
+          "description": "Unique build identifier from Jenkins"
         },
         "buildnumber": {
-          "type": "string"
+          "type": "string",
+          "title": "Build Number",
+          "description": "Sequential build number for the job"
         },
         "buildtag": {
-          "type": "string"
+          "type": "string",
+          "title": "Build Tag",
+          "description": "Unique tag combining job name and build number"
         },
         "pipelineurl": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline URL",
+          "description": "URL to the Jenkins build pipeline"
         },
         "executornumber": {
-          "type": "string"
+          "type": "string",
+          "title": "Executor Number",
+          "description": "Jenkins executor number running the build"
         },
         "javahome": {
-          "type": "string"
+          "type": "string",
+          "title": "Java Home",
+          "description": "Java installation path on the Jenkins node"
         },
         "jenkinsurl": {
-          "type": "string"
+          "type": "string",
+          "title": "Jenkins URL",
+          "description": "Base URL of the Jenkins server"
         },
         "jobname": {
-          "type": "string"
+          "type": "string",
+          "title": "Job Name",
+          "description": "Name of the Jenkins job"
         },
         "nodename": {
-          "type": "string"
+          "type": "string",
+          "title": "Node Name",
+          "description": "Name of the Jenkins node executing the build"
         },
         "workspace": {
-          "type": "string"
+          "type": "string",
+          "title": "Workspace",
+          "description": "Path to the job workspace directory"
         }
       },
       "additionalProperties": false,
