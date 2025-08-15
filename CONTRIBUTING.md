@@ -67,3 +67,53 @@ You can run all the tests by executing the command:
 ```console
     make test
 ```
+
+### Working with go-witness and witness in parallel
+
+Witness depends on the [go-witness](https://github.com/in-toto/go-witness) library. If you need to make changes to both repositories at the same time, you can use Go workspaces to set up a development environment that allows you to work on both codebases simultaneously.
+
+#### Using Go workspaces
+
+Go workspaces (introduced in Go 1.18) allow you to work with multiple modules simultaneously without modifying your go.mod files. Here's how to set it up:
+
+1. Clone both repositories in separate directories:
+   ```console
+   git clone git@github.com:YOUR-USERNAME/witness.git
+   git clone git@github.com:YOUR-USERNAME/go-witness.git
+   ```
+
+2. Create a workspace file:
+   ```console
+   cd witness
+   go work init .
+   go work use ../go-witness
+   ```
+
+   This creates a `go.work` file that tells Go to use your local copy of go-witness instead of the version specified in the go.mod file.
+
+3. Make changes to both repositories as needed. When you run or build witness, it will use your local version of go-witness.
+
+4. When committing changes, make sure to:
+   - First submit and merge any required changes to go-witness
+   - Then update the go-witness dependency in witness (if necessary) and submit those changes
+
+#### Making changes in the same branch name
+
+Using the same branch name in both repositories can help you keep track of related changes:
+
+1. Create branches with the same name in both repositories:
+   ```console
+   cd witness
+   git checkout -b my-feature-branch
+   
+   cd ../go-witness
+   git checkout -b my-feature-branch
+   ```
+
+2. When creating pull requests, reference the related PR in the other repository.
+
+#### Important notes
+
+- The `go.work` file should not be committed to the repository as it's specific to your local development environment.
+- Remember to keep both repositories in sync with their upstream main branches regularly.
+- When submitting pull requests, make sure the witness repository can work with the publicly released version of go-witness, not just your local modified version.
