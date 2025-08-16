@@ -48,3 +48,28 @@ func Test_runSignPolicyRSA(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, len(signedBytes) > 0)
 }
+
+func Test_SignCmd(t *testing.T) {
+	cmd := SignCmd()
+	require.NotNil(t, cmd)
+	assert.Equal(t, "sign [file]", cmd.Use)
+	assert.Equal(t, true, cmd.SilenceErrors)
+	assert.Equal(t, true, cmd.SilenceUsage)
+
+	// Test flags
+	flags := cmd.Flags()
+	require.NotNil(t, flags)
+
+	// Test existence of important flags
+	assert.NotNil(t, flags.Lookup("infile"))
+	assert.NotNil(t, flags.Lookup("outfile"))
+	assert.NotNil(t, flags.Lookup("datatype"))
+
+	// Test RunE function exists
+	assert.NotNil(t, cmd.RunE)
+
+	// Create duplicate command to verify static initialization
+	cmd2 := SignCmd()
+	require.NotNil(t, cmd2)
+	assert.NotSame(t, cmd, cmd2, "Each call to SignCmd should create a new command")
+}
