@@ -23,7 +23,7 @@ import (
 var Version = "dev"
 
 // versionCmd represents the version command
-func versionCmd() *cobra.Command {
+func VersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:               "version",
 		Short:             "Prints out the witness version",
