@@ -34,8 +34,6 @@ func TestVersionCmd(t *testing.T) {
 	assert.Equal(t, true, cmd.DisableAutoGenTag)
 
 	// Test the command execution and output
-	originalVersion := Version
-	defer func() { Version = originalVersion }()
 
 	// Redirect stdout to capture output
 	oldStdout := os.Stdout
