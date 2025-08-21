@@ -12,7 +12,7 @@ Attestation types are leveraged to ensure the correct version schema is used whe
 
 Attestations are only as secure as the data that feeds them. Where possible cryptographic material should be validated, evidence of validation should be included in the attestation for out-of-band validation.
 
-Examples of cryptographic validation is found in the [GCP](https://github.com/testifysec/witness/tree/main/pkg/attestation/gcp-iit), [AWS](https://github.com/testifysec/witness/blob/main/pkg/attestation/aws-iid/aws-iid.go), and [GitLab](https://github.com/testifysec/witness/tree/main/pkg/attestation/gitlab) attestors.
+Examples of cryptographic validation is found in the [GCP](https://github.com/in-toto/go-witness/tree/main/attestation/gcp-iit), [AWS](https://github.com/in-toto/go-witness/tree/main/attestation/aws-iid), and [GitLab](https://github.com/in-toto/go-witness/tree/main/attestation/gitlab) attestors.
 
 ## Attestor Life Cycle
 
