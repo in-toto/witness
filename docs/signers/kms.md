@@ -100,7 +100,7 @@ witness verify -p policy-signed.json -a test.json --verifier-kms-ref=gcpkms://pr
 ```
 
 ## Providers
-Witness currently supports the following KMS service providers. Please note that this section is a based on the documentation from the [Sigstore Cosign project](https://docs.sigstore.dev/key_management/overview/).
+Witness currently supports the following KMS service providers. Please note that this section is a based on the documentation from the [Sigstore Cosign project](https://docs.sigstore.dev/cosign/key_management/overview/).
 
 ### AWS
 The URI format for AWS KMS is `awskms://$ENDPOINT/$KEYID` where `$ENDPOINT` and `$KEYID` are replaced with the correct values.
