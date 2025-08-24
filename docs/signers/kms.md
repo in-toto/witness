@@ -2,7 +2,7 @@
 Witness supports signing both attestations (generated with `witness run`) and policies (signed with `witness sign`) using a Key Management Service (KMS) key through the provision of a KMS signer. The KMS signer currently supports AWS KMS and GCP KMS. Follow-up support for Azure Key Vault and HashiCorp Vault (with transit engine) is planned.
 
 ## Usage
-Based on the KMS signer functionality presented in the [Sigstore Cosign project](https://docs.sigstore.dev/key_management/overview/), Witness uses a URI-based reference scheme to allow users to declare the KMS signer provider they want to use (e.g., GCP, AWS) and the unique information that identifies the specific key they want to use (e.g., GCP Project, AWS ARN).
+Based on the KMS signer functionality presented in the [Sigstore Cosign project](https://docs.sigstore.dev/cosign/key_management/overview/), Witness uses a URI-based reference scheme to allow users to declare the KMS signer provider they want to use (e.g., GCP, AWS) and the unique information that identifies the specific key they want to use (e.g., GCP Project, AWS ARN).
 
 
 ### Signing
@@ -100,7 +100,7 @@ witness verify -p policy-signed.json -a test.json --verifier-kms-ref=gcpkms://pr
 ```
 
 ## Providers
-Witness currently supports the following KMS service providers. Please note that this section is a based on the documentation from the [Sigstore Cosign project](https://docs.sigstore.dev/key_management/overview/).
+Witness currently supports the following KMS service providers. Please note that this section is a based on the documentation from the [Sigstore Cosign project](https://docs.sigstore.dev/cosign/key_management/overview/).
 
 ### AWS
 The URI format for AWS KMS is `awskms://$ENDPOINT/$KEYID` where `$ENDPOINT` and `$KEYID` are replaced with the correct values.
