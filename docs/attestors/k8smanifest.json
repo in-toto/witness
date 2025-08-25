@@ -6,38 +6,53 @@
     "Attestor": {
       "properties": {
         "serversidedryrun": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "Server Side Dry Run",
+          "description": "Perform server-side dry-run to normalize resource defaults"
         },
         "recordclusterinfo": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "Record Cluster Info",
+          "description": "Record information about the Kubernetes cluster"
         },
         "kubeconfig": {
-          "type": "string"
+          "type": "string",
+          "title": "Kubeconfig Path",
+          "description": "Path to kubeconfig file"
         },
         "kubecontext": {
-          "type": "string"
+          "type": "string",
+          "title": "Context",
+          "description": "Kubernetes context to use"
         },
         "ignorefields": {
           "items": {
             "type": "string"
           },
           "type": "array",
-          "title": "ignorefields"
+          "title": "Ignore Fields",
+          "description": "Additional ephemeral fields to remove"
         },
         "ignoreannotations": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Ignore Annotations",
+          "description": "Additional ephemeral annotations to remove"
         },
         "recordeddocs": {
           "items": {
             "$ref": "#/$defs/RecordedObject"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Recorded Docs",
+          "description": "Kubernetes manifests with ephemeral data removed"
         },
         "clusterinfo": {
-          "$ref": "#/$defs/ClusterInfo"
+          "$ref": "#/$defs/ClusterInfo",
+          "title": "Cluster Info",
+          "description": "Information about the Kubernetes cluster"
         }
       },
       "additionalProperties": false,
@@ -49,13 +64,17 @@
     "ClusterInfo": {
       "properties": {
         "server": {
-          "type": "string"
+          "type": "string",
+          "title": "Server",
+          "description": "Kubernetes API server URL"
         },
         "nodes": {
           "additionalProperties": {
             "$ref": "#/$defs/RecordedNode"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Nodes",
+          "description": "Information about cluster nodes"
         }
       },
       "additionalProperties": false,
@@ -128,13 +147,17 @@
     "RecordedImage": {
       "properties": {
         "reference": {
-          "type": "string"
+          "type": "string",
+          "title": "Reference",
+          "description": "Container image reference"
         },
         "digest": {
           "additionalProperties": {
             "type": "string"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Digest",
+          "description": "Image digest if available"
         }
       },
       "additionalProperties": false,
@@ -147,16 +170,22 @@
     "RecordedNode": {
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Name",
+          "description": "Name of the Kubernetes node"
         },
         "labels": {
           "additionalProperties": {
             "type": "string"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Labels",
+          "description": "Node labels"
         },
         "nodeInfo": {
-          "$ref": "#/$defs/NodeSystemInfo"
+          "$ref": "#/$defs/NodeSystemInfo",
+          "title": "Node Info",
+          "description": "System information about the node"
         }
       },
       "additionalProperties": false,
@@ -170,23 +199,36 @@
     "RecordedObject": {
       "properties": {
         "filepath": {
-          "type": "string"
+          "type": "string",
+          "title": "File Path",
+          "description": "Path to the Kubernetes manifest file"
         },
         "kind": {
-          "type": "string"
+          "type": "string",
+          "title": "Kind",
+          "description": "Kubernetes resource type (e.g. Deployment Pod Service)"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Name",
+          "description": "Name of the Kubernetes resource"
         },
-        "data": true,
+        "data": {
+          "title": "Data",
+          "description": "Cleaned manifest data with ephemeral fields removed"
+        },
         "subjectkey": {
-          "type": "string"
+          "type": "string",
+          "title": "Subject Key",
+          "description": "Unique key for this resource used as attestation subject"
         },
         "recordedimages": {
           "items": {
             "$ref": "#/$defs/RecordedImage"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Recorded Images",
+          "description": "Container images found in the manifest"
         }
       },
       "additionalProperties": false,
