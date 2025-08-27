@@ -49,7 +49,7 @@ func TestRunOptions_AddFlags(t *testing.T) {
 		"env-filter-sensitive-vars",
 		"env-disable-default-sensitive-vars",
 		"env-add-sensitive-key",
-		"env-exclude-sensitive-key",
+		"env-allow-sensitive-key",
 	}
 
 	for _, name := range flags {

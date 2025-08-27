@@ -3,6 +3,7 @@ build/
 vendor/
 .dccache
 .vscode
+.idea
 .profile.cov
 test/testapp
 test/test-attestation.json
