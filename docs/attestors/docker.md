@@ -1,3 +1,14 @@
+# Docker Attestor
+
+## Usage
+
+To use the Docker attestor, you need to run the Docker build command with the `--metadata-file` flag. This allows the attestor to capture build metadata and materials.
+
+Example:
+```bash
+witness run --step build -a docker -o test-att.json -- docker build --metadata-file metadata.json -t example-tag .
+```
+
 ## Schema
 ```json
 {
