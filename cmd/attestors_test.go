@@ -16,8 +16,6 @@ package cmd
 
 import (
 	"context"
-	"io"
-	"os"
 	"testing"
 
 	"github.com/in-toto/go-witness/attestation"
@@ -44,24 +42,8 @@ func Test_SchemaCmd(t *testing.T) {
 }
 
 func Test_runList(t *testing.T) {
-	// Redirect stdout to capture output
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	defer func() {
-		os.Stdout = oldStdout
-	}()
-
 	err := runList(context.Background())
 	require.NoError(t, err)
-
-	// Close the writer to get all output
-	_ = w.Close()
-
-	// Read the output but we don't need to verify its contents
-	// as we just need to ensure it executes without error
-	_, _ = io.ReadAll(r)
 }
 
 func Test_runSchema(t *testing.T) {
@@ -92,23 +74,7 @@ func Test_runSchema(t *testing.T) {
 		}
 
 		validAttestor := entries[0].Factory().Name()
-
-		// Redirect stdout to capture output
-		oldStdout := os.Stdout
-		r, w, _ := os.Pipe()
-		os.Stdout = w
-
-		defer func() {
-			os.Stdout = oldStdout
-		}()
-
 		err := runSchema(context.Background(), []string{validAttestor})
 		require.NoError(t, err)
-
-		// Close the writer to get all output
-		_ = w.Close()
-
-		// Read the output but we don't need to verify its contents
-		_, _ = io.ReadAll(r)
 	})
 }
