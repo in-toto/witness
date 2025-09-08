@@ -9,7 +9,7 @@ Based on the KMS signer functionality presented in the [Sigstore Cosign project]
 If a user wanted to use a KMS Key (e.g., GCP KMS) to sign the result of a `witness run` command, they would use a command similar the following:
 
 ```yaml
-witness run -s test --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key -- echo "hello world" > hello.txt
+witness run -s test -o test.json --signer-kms-ref=gcpkms://projects/test-project/locations/europe-west2/keyRings/test-keyring/cryptoKeys/test-key -- echo "hello world" > hello.txt
 ```
 
 Furthermore, if a user wanted to use a KMS Key (e.g., GCP KMS) to sign a policy, they could simply execute a command like:
