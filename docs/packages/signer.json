@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/go-witness/signer/documentation",
+  "$ref": "#/$defs/Documentation",
+  "$defs": {
+    "Documentation": {
+      "properties": {
+        "summary": {
+          "type": "string",
+          "title": "Summary",
+          "description": "Brief description of the package"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Detailed description of the package functionality"
+        },
+        "usage": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Usage",
+          "description": "Common use cases and scenarios"
+        },
+        "examples": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Example"
+          },
+          "type": "object",
+          "title": "Examples",
+          "description": "Code examples demonstrating package usage"
+        },
+        "providers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ProviderDoc"
+          },
+          "type": "object",
+          "title": "Providers",
+          "description": "Documentation for available signer providers"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "summary",
+        "description",
+        "usage",
+        "examples",
+        "providers"
+      ]
+    },
+    "Example": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "What this example demonstrates"
+        },
+        "code": {
+          "type": "string",
+          "title": "Code",
+          "description": "Example code snippet"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "description",
+        "code"
+      ]
+    },
+    "ProviderDoc": {
+      "properties": {
+        "summary": {
+          "type": "string",
+          "title": "Summary",
+          "description": "Brief description of the provider"
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "title": "Options",
+          "description": "Configuration options for this provider"
+        },
+        "example": {
+          "type": "string",
+          "title": "Example",
+          "description": "Example usage of this provider"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "summary",
+        "options",
+        "example"
+      ]
+    }
+  }
+}

@@ -5,73 +5,114 @@
     "Attestor": {
       "properties": {
         "gittool": {
-          "type": "string"
+          "type": "string",
+          "title": "Git Tool",
+          "description": "Git implementation used (go-git or git binary)"
         },
         "gitbinpath": {
-          "type": "string"
+          "type": "string",
+          "title": "Git Binary Path",
+          "description": "Path to git binary if using git binary implementation"
         },
         "gitbinhash": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Git Binary Hash",
+          "description": "Hash of git binary if using git binary implementation"
         },
         "commithash": {
-          "type": "string"
+          "type": "string",
+          "title": "Commit Hash",
+          "description": "SHA hash of the current HEAD commit",
+          "examples": [
+            "d3adb33f"
+          ]
         },
         "author": {
-          "type": "string"
+          "type": "string",
+          "title": "Author Name",
+          "description": "Name of the commit author"
         },
         "authoremail": {
-          "type": "string"
+          "type": "string",
+          "format": "email",
+          "title": "Author Email",
+          "description": "Email of the commit author"
         },
         "committername": {
-          "type": "string"
+          "type": "string",
+          "title": "Committer Name",
+          "description": "Name of the person who committed"
         },
         "committeremail": {
-          "type": "string"
+          "type": "string",
+          "format": "email",
+          "title": "Committer Email",
+          "description": "Email of the person who committed"
         },
         "commitdate": {
-          "type": "string"
+          "type": "string",
+          "title": "Commit Date",
+          "description": "Timestamp when the commit was created"
         },
         "commitmessage": {
-          "type": "string"
+          "type": "string",
+          "title": "Commit Message",
+          "description": "Full commit message"
         },
         "status": {
           "additionalProperties": {
             "$ref": "#/$defs/Status"
           },
-          "type": "object"
+          "type": "object",
+          "title": "Repository Status",
+          "description": "Status of files in staging and worktree"
         },
         "commitdigest": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Commit Digest",
+          "description": "Digest of the commit object"
         },
         "signature": {
-          "type": "string"
+          "type": "string",
+          "title": "Commit Signature",
+          "description": "GPG signature of the commit if signed"
         },
         "parenthashes": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Parent Hashes",
+          "description": "SHA hashes of parent commits"
         },
         "treehash": {
-          "type": "string"
+          "type": "string",
+          "title": "Tree Hash",
+          "description": "SHA hash of the git tree object"
         },
         "refs": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "References",
+          "description": "Git references (branches and tags) pointing to this commit"
         },
         "remotes": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Remote URLs",
+          "description": "URLs of configured git remotes"
         },
         "tags": {
           "items": {
             "$ref": "#/$defs/Tag"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Tags",
+          "description": "Git tags associated with this commit"
         },
         "branch": {
           "type": "string"
@@ -99,10 +140,14 @@
     "Status": {
       "properties": {
         "staging": {
-          "type": "string"
+          "type": "string",
+          "title": "Staging Status",
+          "description": "Status of staged files in git index"
         },
         "worktree": {
-          "type": "string"
+          "type": "string",
+          "title": "Worktree Status",
+          "description": "Status of working directory files"
         }
       },
       "additionalProperties": false,
@@ -111,22 +156,34 @@
     "Tag": {
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Tag Name",
+          "description": "Name of the git tag"
         },
         "taggername": {
-          "type": "string"
+          "type": "string",
+          "title": "Tagger Name",
+          "description": "Name of person who created the tag"
         },
         "taggeremail": {
-          "type": "string"
+          "type": "string",
+          "title": "Tagger Email",
+          "description": "Email of person who created the tag"
         },
         "when": {
-          "type": "string"
+          "type": "string",
+          "title": "Tag Date",
+          "description": "When the tag was created"
         },
         "pgpsignature": {
-          "type": "string"
+          "type": "string",
+          "title": "PGP Signature",
+          "description": "PGP signature of the tag if signed"
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "title": "Tag Message",
+          "description": "Tag annotation message"
         }
       },
       "additionalProperties": false,
