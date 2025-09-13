@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/gobwas/glob"
 	witness "github.com/in-toto/go-witness"
@@ -149,6 +150,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		witness.RunWithTimestampers(timestampers...),
 	)
 	if err != nil {
+		logAttestorFailure(attestors, ro.WorkingDir, err)
 		return err
 	}
 
@@ -193,4 +195,20 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 	}
 	return nil
+}
+
+func logAttestorFailure(attestors []attestation.Attestor, workingDir string, err error) {
+	errorMsg := err.Error()
+
+	for _, attestor := range attestors {
+		switch attestor.Name() {
+		case "git":
+			if strings.Contains(errorMsg, "repository does not exist") {
+				log.Debugf("Git attestor failed - no git repository found in working directory %s: %v", workingDir, err)
+				return
+			}
+		}
+	}
+
+	log.Debugf("Attestor execution failed: %v", err)
 }
