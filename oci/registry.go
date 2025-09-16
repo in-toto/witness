@@ -51,12 +51,6 @@ type RegistryOptions struct {
 }
 
 func (o *RegistryOptions) AddFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(&o.AllowInsecure, "allow-insecure-registry", false,
-		"whether to allow insecure connections to registries (e.g., with expired or self-signed TLS certificates). Don't use this for anything but testing")
-
-	cmd.Flags().BoolVar(&o.AllowHTTPRegistry, "allow-http-registry", false,
-		"whether to allow using HTTP protocol while connecting to registries. Don't use this for anything but testing")
-
 	cmd.Flags().StringVar(&o.AuthConfig.Username, "registry-username", "",
 		"registry basic auth username")
 

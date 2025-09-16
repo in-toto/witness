@@ -1,3 +1,17 @@
+// Copyright 2025 The Witness Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package oci
 
 import (
@@ -10,14 +24,11 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/google/go-containerregistry/pkg/v1/empty"
-	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"github.com/in-toto/go-witness/log"
 	"github.com/sigstore/cosign/v2/pkg/cosign/env"
-	"github.com/sigstore/cosign/v2/pkg/oci"
 )
 
 type SignedEntityInterface interface {
@@ -70,32 +81,6 @@ type SignedImageIndex interface {
 	SignedImageIndex(v1.Hash) (SignedImageIndex, error)
 }
 
-type image struct {
-	v1.Image
-	ref name.Reference
-	opt *options
-	// opt *RemoteOptions
-}
-
-type index struct {
-	v1.ImageIndex
-	ref name.Reference
-	opt *options
-	// opt *RemoteOptions
-}
-
-func (si *image) Signatures() (Signatures, error) {
-	// Simplified signature retrieval logic
-	log.Info("image Signatures")
-	return signatures(si, si.opt)
-}
-
-func (si *image) Attestations() (Signatures, error) {
-	// Simplified attestation retrieval logic
-	log.Info("image Attestations")
-	return attestations(si, si.opt)
-}
-
 // attestations is a shared implementation of the oci.Signed* Attestations method.
 func attestations(digestable SignedEntityInterface, o *options) (Signatures, error) {
 	log.Info("attestations")
@@ -112,26 +97,6 @@ func signatures(digestable SignedEntityInterface, o *options) (Signatures, error
 		return nil, err
 	}
 	return SignaturesIndexImage(o.TargetRepository.Tag(normalize(h, "", o.SignatureSuffix)), o.OriginalOptions...)
-}
-
-func (si *image) Attachment(name string) (File, error) {
-	// Simplified attachment retrieval logic
-	return nil, nil
-}
-
-// Implement SignedEntity for index
-func (si *index) Signatures() (Signatures, error) {
-	log.Info("index Signatures")
-	return signatures(si, si.opt)
-}
-
-func (si *index) Attestations() (Signatures, error) {
-	log.Info("index Attestations")
-	return attestations(si, si.opt)
-}
-
-func (si *index) Attachment(name string) (File, error) {
-	return nil, nil
 }
 
 type sigs struct {
@@ -235,6 +200,7 @@ func (s *sigLayer) Base64Signature() (string, error) {
 	}
 	return b64sig, nil
 }
+
 func SignaturesIndexImage(ref name.Reference, opts ...Option) (Signatures, error) {
 	o := makeOptions(ref.Context(), opts...)
 	img, err := remote.Image(ref, o.ROpt...)
@@ -252,25 +218,4 @@ func SignaturesIndexImage(ref name.Reference, opts ...Option) (Signatures, error
 	return &sigs{
 		Image: img,
 	}, nil
-}
-
-// If signatures index doesn't exist, return an *empty* Signatures implementation
-func EmptySignatures() Signatures {
-	base := empty.Image
-	if !oci.DockerMediaTypes() {
-		base = mutate.MediaType(base, types.OCIManifestSchema1)
-		base = mutate.ConfigMediaType(base, types.OCIConfigJSON)
-	}
-	return &emptyImage{
-		Image: base,
-	}
-}
-
-type emptyImage struct {
-	v1.Image
-}
-
-// Get implements oci.Signatures
-func (*emptyImage) Get() ([]Signature, error) {
-	return nil, nil
 }

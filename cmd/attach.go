@@ -140,7 +140,7 @@ func attachAttestation(ctx context.Context, remoteOpts []oci.Option, signedPaylo
 		if se == nil {
 			return fmt.Errorf("no signed entity returned for %s", ref)
 		}
-		newSE, err := AttachAttestationToEntity(se, att)
+		newSE, err := oci.AttachAttestationToEntity(se, att)
 		if err != nil {
 			return err
 		}
@@ -150,93 +150,4 @@ func attachAttestation(ctx context.Context, remoteOpts []oci.Option, signedPaylo
 		}
 	}
 	return nil
-}
-
-func AttachAttestationToEntity(se oci.SignedEntityInterface, att oci.Signature, opts ...SignOption) (oci.SignedEntityInterface, error) {
-	switch obj := se.(type) {
-	case oci.SignedImage:
-		log.Info("oci.SignedImage:")
-		return AttachAttestationToImage(obj, att, opts...)
-	case oci.SignedImageIndex:
-		log.Info("oci.SignedImageIndex:")
-		return AttachAttestationToImageIndex(obj, att, opts...)
-	default:
-		log.Info("AttachAttestationToUnknown:")
-		return AttachAttestationToUnknown(obj, att, opts...)
-	}
-}
-
-type SignOption func(*signOpts)
-
-type signOpts struct {
-	dd  DupeDetector
-	ro  ReplaceOp
-	rct bool
-}
-type DupeDetector interface {
-	Find(oci.Signatures, oci.Signature) (oci.Signature, error)
-}
-
-type ReplaceOp interface {
-	Replace(oci.Signatures, oci.Signature) (oci.Signatures, error)
-}
-type signedImage struct {
-	oci.SignedImage
-	sig         oci.Signature
-	att         oci.Signature
-	so          *signOpts
-	attachments map[string]oci.File
-}
-
-type signedUnknown struct {
-	oci.SignedEntityInterface
-	sig         oci.Signature
-	att         oci.Signature
-	so          *signOpts
-	attachments map[string]oci.File
-}
-
-type signedImageIndex struct {
-	ociSignedImageIndex
-	sig         oci.Signature
-	att         oci.Signature
-	so          *signOpts
-	attachments map[string]oci.File
-}
-type ociSignedImageIndex oci.SignedImageIndex
-
-func AttachAttestationToImage(si oci.SignedImage, att oci.Signature, opts ...SignOption) (oci.SignedImage, error) {
-	return &signedImage{
-		SignedImage: si,
-		att:         att,
-		attachments: make(map[string]oci.File),
-		so:          makeSignOpts(opts...),
-	}, nil
-}
-
-func makeSignOpts(opts ...SignOption) *signOpts {
-	so := &signOpts{}
-	for _, opt := range opts {
-		opt(so)
-	}
-	return so
-}
-
-func AttachAttestationToImageIndex(sii oci.SignedImageIndex, att oci.Signature, opts ...SignOption) (oci.SignedImageIndex, error) {
-	return &signedImageIndex{
-		ociSignedImageIndex: sii,
-		att:                 att,
-		attachments:         make(map[string]oci.File),
-		so:                  makeSignOpts(opts...),
-	}, nil
-}
-
-// AttachAttestationToUnknown attaches the provided attestation to the provided image.
-func AttachAttestationToUnknown(se oci.SignedEntityInterface, att oci.Signature, opts ...SignOption) (oci.SignedEntityInterface, error) {
-	return &signedUnknown{
-		SignedEntityInterface: se,
-		att:                   att,
-		attachments:           make(map[string]oci.File),
-		so:                    makeSignOpts(opts...),
-	}, nil
 }

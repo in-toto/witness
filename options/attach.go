@@ -47,13 +47,5 @@ func (o *AttachAttestationOptions) AddFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringArrayVarP(&o.Attestations, "attestation", "", nil,
 		"path to the attestation envelope")
-	cmd.Flags().BoolVar(&o.SkipVerification, "skip-verification", false, "Skip verification of attestation subjects against image digest. Don't use this for anything but testing")
-	cmd.Flags().StringVar(&o.AuthConfig.Username, "registry-username", "",
-		"registry basic auth username")
-
-	cmd.Flags().StringVar(&o.AuthConfig.Password, "registry-password", "",
-		"registry basic auth password")
-
-	cmd.Flags().StringVar(&o.AuthConfig.RegistryToken, "registry-token", "",
-		"registry bearer auth token")
+	// cmd.Flags().BoolVar(&o.SkipVerification, "skip-verification", false, "Skip verification of attestation subjects against image digest. Don't use this for anything but testing")
 }

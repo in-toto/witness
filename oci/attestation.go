@@ -1,3 +1,17 @@
+// Copyright 2025 The Witness Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package oci
 
 import (
@@ -9,6 +23,45 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/in-toto/go-witness/log"
 )
+
+type SignOption func(*signOpts)
+
+type signOpts struct {
+	dd  DupeDetector
+	ro  ReplaceOp
+	rct bool
+}
+type DupeDetector interface {
+	Find(Signatures, Signature) (Signature, error)
+}
+
+type ReplaceOp interface {
+	Replace(Signatures, Signature) (Signatures, error)
+}
+type signedImage struct {
+	SignedImage
+	// sig         Signature
+	att         Signature
+	so          *signOpts
+	attachments map[string]File
+}
+
+type signedUnknown struct {
+	SignedEntityInterface
+	// sig         Signature
+	att         Signature
+	so          *signOpts
+	attachments map[string]File
+}
+
+type signedImageIndex struct {
+	ociSignedImageIndex
+	// sig         Signature
+	att         Signature
+	so          *signOpts
+	attachments map[string]File
+}
+type ociSignedImageIndex SignedImageIndex
 
 // normalize turns image digests into tags with optional prefix & suffix:
 // sha256:d34db33f -> [prefix]sha256-d34db33f[.suffix]

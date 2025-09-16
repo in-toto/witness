@@ -16,21 +16,28 @@ package oci
 
 import (
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/google/go-containerregistry/pkg/v1/remote"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/in-toto/go-witness/log"
 )
 
-// ResolveDigest returns the digest of the image at the reference.
-//
-// If the reference is by digest already, it simply extracts the digest.
-// Otherwise, it looks up the digest from the registry.
-func ResolveDigest(ref name.Reference, opts ...Option) (name.Digest, error) {
-	o := makeOptions(ref.Context(), opts...)
-	if d, ok := ref.(name.Digest); ok {
-		return d, nil
-	}
-	desc, err := remote.Get(ref, o.ROpt...)
-	if err != nil {
-		return name.Digest{}, err
-	}
-	return ref.Context().Digest(desc.Digest.String()), nil
+type index struct {
+	v1.ImageIndex
+	ref name.Reference
+	opt *options
+	// opt *RemoteOptions
+}
+
+// Implement SignedEntity for index
+func (si *index) Signatures() (Signatures, error) {
+	log.Info("index Signatures")
+	return signatures(si, si.opt)
+}
+
+func (si *index) Attestations() (Signatures, error) {
+	log.Info("index Attestations")
+	return attestations(si, si.opt)
+}
+
+func (si *index) Attachment(name string) (File, error) {
+	return nil, nil
 }
