@@ -36,7 +36,6 @@ type options struct {
 
 var defaultOptions = []remote.Option{
 	remote.WithAuthFromKeychain(authn.DefaultKeychain),
-	// TODO(mattmoor): Incorporate user agent.
 }
 
 func makeOptions(target name.Repository, opts ...Option) *options {

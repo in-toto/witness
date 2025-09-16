@@ -24,10 +24,8 @@ type index struct {
 	v1.ImageIndex
 	ref name.Reference
 	opt *options
-	// opt *RemoteOptions
 }
 
-// Implement SignedEntity for index
 func (si *index) Signatures() (Signatures, error) {
 	log.Info("index Signatures")
 	return signatures(si, si.opt)
@@ -36,8 +34,4 @@ func (si *index) Signatures() (Signatures, error) {
 func (si *index) Attestations() (Signatures, error) {
 	log.Info("index Attestations")
 	return attestations(si, si.opt)
-}
-
-func (si *index) Attachment(name string) (File, error) {
-	return nil, nil
 }

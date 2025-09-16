@@ -46,7 +46,7 @@ type SignedEntityInterface interface {
 	Attestations() (Signatures, error)
 
 	// Attachment returns a named entity associated with this entity, or error if not found.
-	Attachment(name string) (File, error)
+	// Attachment(name string) (File, error)
 }
 
 // AttachAttestationOptions is the top level wrapper for the attach attestation command.

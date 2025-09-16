@@ -24,21 +24,14 @@ type image struct {
 	v1.Image
 	ref name.Reference
 	opt *options
-	// opt *RemoteOptions
 }
 
 func (si *image) Signatures() (Signatures, error) {
-	// Simplified signature retrieval logic
 	log.Info("image Signatures")
 	return signatures(si, si.opt)
 }
 
 func (si *image) Attestations() (Signatures, error) {
-	// Simplified attestation retrieval logic
 	log.Info("image Attestations")
 	return attestations(si, si.opt)
-}
-func (si *image) Attachment(name string) (File, error) {
-	// Simplified attachment retrieval logic
-	return nil, nil
 }

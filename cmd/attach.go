@@ -77,7 +77,7 @@ func AttestationCmd(ctx context.Context, regOpts oci.RegistryOptions, signedPayl
 		return fmt.Errorf("constructing client options: %w", err)
 	}
 	for _, payload := range signedPayloads {
-		if err := attachAttestation(ctx, ociremoteOptions, payload, imageRef, regOpts.NameOptions()); err != nil {
+		if err := attachAttestation(ociremoteOptions, payload, imageRef, regOpts.NameOptions()); err != nil {
 			return fmt.Errorf("attaching payload from %s: %w", payload, err)
 		}
 	}
@@ -86,7 +86,7 @@ func AttestationCmd(ctx context.Context, regOpts oci.RegistryOptions, signedPayl
 
 // witness attach attestation --attestation build-attestation.json <image_uri>
 
-func attachAttestation(ctx context.Context, remoteOpts []oci.Option, signedPayload, imageRef string, nameOpts []name.Option) error {
+func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, nameOpts []name.Option) error {
 	attestationFile, err := os.Open(signedPayload)
 	if err != nil {
 		return err

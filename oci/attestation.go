@@ -69,6 +69,14 @@ func normalize(h v1.Hash, prefix string, suffix string) string {
 	return normalizeWithSeparator(h, prefix, suffix, "-")
 }
 
+func makeSignOpts(opts ...SignOption) *signOpts {
+	so := &signOpts{}
+	for _, opt := range opts {
+		opt(so)
+	}
+	return so
+}
+
 // normalizeWithSeparator turns image digests into tags with optional prefix & suffix:
 // sha256:d34db33f -> [prefix]sha256[algorithmSeparator]d34db33f[.suffix]
 func normalizeWithSeparator(h v1.Hash, prefix string, suffix string, algorithmSeparator string) string {
@@ -101,4 +109,46 @@ func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...O
 	log.Info("remote.write")
 	log.Info(tag)
 	return remote.Write(tag, atts, o.ROpt...)
+}
+
+func AttachAttestationToEntity(se SignedEntityInterface, att Signature, opts ...SignOption) (SignedEntityInterface, error) {
+	switch obj := se.(type) {
+	case SignedImage:
+		log.Info("oci.SignedImage:")
+		return AttachAttestationToImage(obj, att, opts...)
+	case SignedImageIndex:
+		log.Info("oci.SignedImageIndex:")
+		return AttachAttestationToImageIndex(obj, att, opts...)
+	default:
+		log.Info("AttachAttestationToUnknown:")
+		return AttachAttestationToUnknown(obj, att, opts...)
+	}
+}
+
+func AttachAttestationToImage(si SignedImage, att Signature, opts ...SignOption) (SignedImage, error) {
+	return &signedImage{
+		SignedImage: si,
+		att:         att,
+		attachments: make(map[string]File),
+		so:          makeSignOpts(opts...),
+	}, nil
+}
+
+func AttachAttestationToImageIndex(sii SignedImageIndex, att Signature, opts ...SignOption) (SignedImageIndex, error) {
+	return &signedImageIndex{
+		ociSignedImageIndex: sii,
+		att:                 att,
+		attachments:         make(map[string]File),
+		so:                  makeSignOpts(opts...),
+	}, nil
+}
+
+// AttachAttestationToUnknown attaches the provided attestation to the provided image.
+func AttachAttestationToUnknown(se SignedEntityInterface, att Signature, opts ...SignOption) (SignedEntityInterface, error) {
+	return &signedUnknown{
+		SignedEntityInterface: se,
+		att:                   att,
+		attachments:           make(map[string]File),
+		so:                    makeSignOpts(opts...),
+	}, nil
 }

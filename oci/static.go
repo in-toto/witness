@@ -20,7 +20,6 @@ import (
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/types"
-	"github.com/sigstore/cosign/v2/pkg/cosign/bundle"
 )
 
 type StaticOption func(*staticoptions)
@@ -53,14 +52,9 @@ type Signature interface {
 }
 
 type staticoptions struct {
-	LayerMediaType          types.MediaType
-	ConfigMediaType         types.MediaType
-	Bundle                  *bundle.RekorBundle
-	RFC3161Timestamp        *bundle.RFC3161Timestamp
-	Cert                    []byte
-	Chain                   []byte
-	Annotations             map[string]string
-	RecordCreationTimestamp bool
+	LayerMediaType  types.MediaType
+	ConfigMediaType types.MediaType
+	Annotations     map[string]string
 }
 type staticLayer struct {
 	b      []byte
@@ -73,23 +67,8 @@ func (s *staticLayer) Annotations() (map[string]string, error) {
 	panic("unimplemented")
 }
 
-// Base64Signature implements Signature.
-func (s *staticLayer) Base64Signature() (string, error) {
-	panic("unimplemented")
-}
-
-// Bundle implements Signature.
-func (s *staticLayer) Bundle() (*bundle.RekorBundle, error) {
-	panic("unimplemented")
-}
-
 // Cert implements Signature.
 func (s *staticLayer) Cert() (*x509.Certificate, error) {
-	panic("unimplemented")
-}
-
-// Chain implements Signature.
-func (s *staticLayer) Chain() ([]*x509.Certificate, error) {
 	panic("unimplemented")
 }
 
@@ -118,11 +97,6 @@ func (s *staticLayer) Payload() ([]byte, error) {
 	panic("unimplemented")
 }
 
-// RFC3161Timestamp implements Signature.
-func (s *staticLayer) RFC3161Timestamp() (*bundle.RFC3161Timestamp, error) {
-	panic("unimplemented")
-}
-
 // Signature implements Signature.
 func (s *staticLayer) Signature() ([]byte, error) {
 	panic("unimplemented")
@@ -138,8 +112,9 @@ func (s *staticLayer) Uncompressed() (io.ReadCloser, error) {
 	panic("unimplemented")
 }
 
-// var _ v1.Layer = (*staticLayer)(nil)
-// var _ Signature = (*staticLayer)(nil)
+// Verify that staticLayer implements both v1.Layer and Signature interfaces
+var _ v1.Layer = (*staticLayer)(nil)
+var _ Signature = (*staticLayer)(nil)
 
 func makeStaticOptions(opts ...StaticOption) (*staticoptions, error) {
 	o := &staticoptions{
@@ -151,27 +126,6 @@ func makeStaticOptions(opts ...StaticOption) (*staticoptions, error) {
 	for _, opt := range opts {
 		opt(o)
 	}
-
-	// if o.Cert != nil {
-	// 	o.Annotations[CertificateAnnotationKey] = string(o.Cert)
-	// 	o.Annotations[ChainAnnotationKey] = string(o.Chain)
-	// }
-
-	// if o.Bundle != nil {
-	// 	b, err := json.Marshal(o.Bundle)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	o.Annotations[BundleAnnotationKey] = string(b)
-	// }
-
-	// if o.RFC3161Timestamp != nil {
-	// 	b, err := json.Marshal(o.RFC3161Timestamp)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	o.Annotations[RFC3161TimestampAnnotationKey] = string(b)
-	// }
 	return o, nil
 }
 
