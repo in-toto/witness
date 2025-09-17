@@ -86,6 +86,8 @@ func normalizeWithSeparator(h v1.Hash, prefix string, suffix string, algorithmSe
 	return fmt.Sprint(prefix, h.Algorithm, algorithmSeparator, h.Hex, ".", suffix)
 }
 
+// WriteAttestations publishes the attestations attached to the given entity
+// into the provided repository.
 func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...Option) error {
 	if se == nil || (reflect.ValueOf(se).Kind() == reflect.Ptr && reflect.ValueOf(se).IsNil()) {
 		return fmt.Errorf("WriteAttestations: signed entity is nil for repo %s", repo.String())
@@ -111,6 +113,7 @@ func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...O
 	return remote.Write(tag, atts, o.ROpt...)
 }
 
+// AttachAttestationToEntity attaches the provided attestation to the provided entity.
 func AttachAttestationToEntity(se SignedEntityInterface, att Signature, opts ...SignOption) (SignedEntityInterface, error) {
 	switch obj := se.(type) {
 	case SignedImage:
@@ -125,6 +128,7 @@ func AttachAttestationToEntity(se SignedEntityInterface, att Signature, opts ...
 	}
 }
 
+// AttachAttestationToImage attaches the provided attestation to the provided image.
 func AttachAttestationToImage(si SignedImage, att Signature, opts ...SignOption) (SignedImage, error) {
 	return &signedImage{
 		SignedImage: si,
@@ -134,6 +138,7 @@ func AttachAttestationToImage(si SignedImage, att Signature, opts ...SignOption)
 	}, nil
 }
 
+// AttachAttestationToImageIndex attaches the provided attestation to the provided image index.
 func AttachAttestationToImageIndex(sii SignedImageIndex, att Signature, opts ...SignOption) (SignedImageIndex, error) {
 	return &signedImageIndex{
 		ociSignedImageIndex: sii,

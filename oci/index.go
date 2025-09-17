@@ -26,11 +26,13 @@ type index struct {
 	opt *options
 }
 
+// Signatures implements SignedImageIndex
 func (si *index) Signatures() (Signatures, error) {
 	log.Info("index Signatures")
 	return signatures(si, si.opt)
 }
 
+// Attestations implements SignedImageIndex
 func (si *index) Attestations() (Signatures, error) {
 	log.Info("index Attestations")
 	return attestations(si, si.opt)

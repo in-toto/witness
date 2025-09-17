@@ -26,11 +26,13 @@ type image struct {
 	opt *options
 }
 
+// Signatures implements SignedImage
 func (si *image) Signatures() (Signatures, error) {
 	log.Info("image Signatures")
 	return signatures(si, si.opt)
 }
 
+// Attestations implements SignedImage
 func (si *image) Attestations() (Signatures, error) {
 	log.Info("image Attestations")
 	return attestations(si, si.opt)

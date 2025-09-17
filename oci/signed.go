@@ -26,7 +26,8 @@ import (
 	"github.com/in-toto/go-witness/log"
 )
 
-// Your simplified SignedEntity function
+// SignedEntity provides access to a remote reference, and its signatures.
+// The SignedEntity will be one of SignedImageInterface or SignedImageIndexInterface.
 func SignedEntity(ref name.Reference, options ...Option) (SignedEntityInterface, error) {
 	// Get the remote descriptor
 	o := makeOptions(ref.Context(), options...)

@@ -91,6 +91,8 @@ func attestations(digestable SignedEntityInterface, o *options) (Signatures, err
 	log.Info(h)
 	return SignaturesIndexImage(o.TargetRepository.Tag(normalize(h, "", o.AttestationSuffix)), o.OriginalOptions...)
 }
+
+// attestations is a shared implementation of the oci.Signed* Attestations method.
 func signatures(digestable SignedEntityInterface, o *options) (Signatures, error) {
 	h, err := digestable.Digest()
 	if err != nil {
@@ -201,6 +203,8 @@ func (s *sigLayer) Base64Signature() (string, error) {
 	return b64sig, nil
 }
 
+// SignaturesIndexImage fetches the signatures image represented by the named reference.
+// If the tag is not found, this return an *empty* Signatures.
 func SignaturesIndexImage(ref name.Reference, opts ...Option) (Signatures, error) {
 	o := makeOptions(ref.Context(), opts...)
 	img, err := remote.Image(ref, o.ROpt...)
@@ -210,7 +214,6 @@ func SignaturesIndexImage(ref name.Reference, opts ...Option) (Signatures, error
 		if te.StatusCode != http.StatusNotFound {
 			return nil, te
 		}
-		// return empty.Signatures(), nil
 		return EmptySignatures(), nil
 	} else if err != nil {
 		return nil, err

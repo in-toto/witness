@@ -84,8 +84,6 @@ func AttestationCmd(ctx context.Context, regOpts oci.RegistryOptions, signedPayl
 	return nil
 }
 
-// witness attach attestation --attestation build-attestation.json <image_uri>
-
 func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, nameOpts []name.Option) error {
 	attestationFile, err := os.Open(signedPayload)
 	if err != nil {

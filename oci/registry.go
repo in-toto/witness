@@ -81,6 +81,8 @@ func (o *RegistryOptions) ClientOpts(ctx context.Context) ([]Option, error) {
 	return opts, nil
 }
 
+// GetRegistryClientOpts returns a set of remote.Option values to configure
+// interactions with container registries using go-containerregistry.
 func (o *RegistryOptions) GetRegistryClientOpts(ctx context.Context) []remote.Option {
 	if o.RegistryClientOpts != nil {
 		ropts := o.RegistryClientOpts
