@@ -27,6 +27,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+	"github.com/in-toto/go-witness/log"
 	"github.com/sigstore/cosign/v2/pkg/cosign/env"
 )
 
@@ -155,7 +156,11 @@ func (s *sigLayer) Payload() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
+	defer func() {
+		if err := r.Close(); err != nil {
+			log.Errorf("failed to close reader: %v", err)
+		}
+	}()
 	payload, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err

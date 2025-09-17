@@ -90,7 +90,11 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 	if err != nil {
 		return err
 	}
-	defer attestationFile.Close()
+	defer func() {
+		if err := attestationFile.Close(); err != nil {
+			log.Errorf("failed to close attestation file: %v", err)
+		}
+	}()
 	env := dsse.Envelope{}
 	decoder := json.NewDecoder(attestationFile)
 	for decoder.More() {
