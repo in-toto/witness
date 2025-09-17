@@ -85,6 +85,7 @@ func AttestationCmd(ctx context.Context, regOpts oci.RegistryOptions, signedPayl
 }
 
 func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, nameOpts []name.Option) error {
+	log.Info("Opening attestation file:", signedPayload)
 	attestationFile, err := os.Open(signedPayload)
 	if err != nil {
 		return err
@@ -122,11 +123,13 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		// multiple times, and it potentially points to different things at
 		// each access.
 		ref = digest // nolint
+		log.Info("Creating attestation with DSSE payload")
 		opts := []oci.StaticOption{oci.WithLayerMediaType(types.DssePayloadType)}
 		att, err := oci.NewAttestation(payload, opts...)
 		if err != nil {
 			return err
 		}
+		log.Info("Fetching signed entity for:", digest.String())
 		se, err := oci.SignedEntity(digest, remoteOpts...)
 		if err != nil {
 			log.Errorf("failed to fetch signed entity for %s: %w", ref, err)
@@ -135,10 +138,12 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		if se == nil {
 			return fmt.Errorf("no signed entity returned for %s", ref)
 		}
+		log.Info("Attaching attestation to signed entity")
 		newSE, err := oci.AttachAttestationToEntity(se, att)
 		if err != nil {
 			return err
 		}
+		log.Info("Writing attestation to repository:", digest.Repository.String())
 		err = oci.WriteAttestations(digest.Repository, newSE, remoteOpts...)
 		if err != nil {
 			return err
