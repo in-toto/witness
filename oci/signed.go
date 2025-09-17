@@ -23,7 +23,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/types"
-	"github.com/in-toto/go-witness/log"
 )
 
 // SignedEntity provides access to a remote reference, and its signatures.
@@ -41,7 +40,6 @@ func SignedEntity(ref name.Reference, options ...Option) (SignedEntityInterface,
 	}
 
 	// opt := &RemoteOptions{} // simplified options
-	log.Infof("desc mediaType: %s", desc.MediaType)
 	// Switch based on media type
 	switch desc.MediaType {
 	case types.OCIImageIndex, types.DockerManifestList:
@@ -50,7 +48,6 @@ func SignedEntity(ref name.Reference, options ...Option) (SignedEntityInterface,
 		if err != nil {
 			return nil, err
 		}
-		log.Info("index")
 		return &index{
 			ImageIndex: ii,
 			ref:        ref,
@@ -63,8 +60,6 @@ func SignedEntity(ref name.Reference, options ...Option) (SignedEntityInterface,
 		if err != nil {
 			return nil, err
 		}
-		log.Info("image")
-		log.Info(img)
 		return &image{
 			Image: img,
 			ref:   ref,

@@ -118,7 +118,6 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		if err != nil {
 			return err
 		}
-		log.Info(digest)
 		// Overwrite "ref" with a digest to avoid a race where we use a tag
 		// multiple times, and it potentially points to different things at
 		// each access.
@@ -128,8 +127,6 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		if err != nil {
 			return err
 		}
-		log.Info("att")
-		log.Infof("ref: %s", ref)
 		se, err := oci.SignedEntity(digest, remoteOpts...)
 		if err != nil {
 			log.Errorf("failed to fetch signed entity for %s: %w", ref, err)

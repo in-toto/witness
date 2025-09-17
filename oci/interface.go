@@ -27,7 +27,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/types"
-	"github.com/in-toto/go-witness/log"
 	"github.com/sigstore/cosign/v2/pkg/cosign/env"
 )
 
@@ -83,12 +82,10 @@ type SignedImageIndex interface {
 
 // attestations is a shared implementation of the oci.Signed* Attestations method.
 func attestations(digestable SignedEntityInterface, o *options) (Signatures, error) {
-	log.Info("attestations")
 	h, err := digestable.Digest()
 	if err != nil {
 		return nil, err
 	}
-	log.Info(h)
 	return SignaturesIndexImage(o.TargetRepository.Tag(normalize(h, "", o.AttestationSuffix)), o.OriginalOptions...)
 }
 
@@ -208,7 +205,6 @@ func (s *sigLayer) Base64Signature() (string, error) {
 func SignaturesIndexImage(ref name.Reference, opts ...Option) (Signatures, error) {
 	o := makeOptions(ref.Context(), opts...)
 	img, err := remote.Image(ref, o.ROpt...)
-	log.Info("img %s", img)
 	var te *transport.Error
 	if errors.As(err, &te) {
 		if te.StatusCode != http.StatusNotFound {

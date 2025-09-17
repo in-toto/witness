@@ -99,7 +99,6 @@ func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...O
 	if err != nil {
 		return err
 	}
-	log.Info(atts)
 	// Determine the tag to which these signatures should be published.
 	h, err := se.Digest()
 	if err != nil {
@@ -108,8 +107,6 @@ func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...O
 	tag := o.TargetRepository.Tag(normalize(h, "", o.AttestationSuffix))
 
 	// Write the Signatures image to the tag, with the provided remote.Options
-	log.Info("remote.write")
-	log.Info(tag)
 	return remote.Write(tag, atts, o.ROpt...)
 }
 
@@ -117,13 +114,10 @@ func WriteAttestations(repo name.Repository, se SignedEntityInterface, opts ...O
 func AttachAttestationToEntity(se SignedEntityInterface, att Signature, opts ...SignOption) (SignedEntityInterface, error) {
 	switch obj := se.(type) {
 	case SignedImage:
-		log.Info("oci.SignedImage:")
 		return AttachAttestationToImage(obj, att, opts...)
 	case SignedImageIndex:
-		log.Info("oci.SignedImageIndex:")
 		return AttachAttestationToImageIndex(obj, att, opts...)
 	default:
-		log.Info("AttachAttestationToUnknown:")
 		return AttachAttestationToUnknown(obj, att, opts...)
 	}
 }

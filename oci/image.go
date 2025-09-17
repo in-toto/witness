@@ -17,7 +17,6 @@ package oci
 import (
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/in-toto/go-witness/log"
 )
 
 type image struct {
@@ -28,12 +27,10 @@ type image struct {
 
 // Signatures implements SignedImage
 func (si *image) Signatures() (Signatures, error) {
-	log.Info("image Signatures")
 	return signatures(si, si.opt)
 }
 
 // Attestations implements SignedImage
 func (si *image) Attestations() (Signatures, error) {
-	log.Info("image Attestations")
 	return attestations(si, si.opt)
 }
