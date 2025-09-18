@@ -52,13 +52,13 @@ type RegistryOptions struct {
 
 func (o *RegistryOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&o.AuthConfig.Username, "registry-username", "",
-		"registry basic auth username")
+		"Registry basic auth username")
 
 	cmd.Flags().StringVar(&o.AuthConfig.Password, "registry-password", "",
-		"registry basic auth password")
+		"Registry basic auth password")
 
 	cmd.Flags().StringVar(&o.AuthConfig.RegistryToken, "registry-token", "",
-		"registry bearer auth token")
+		"Registry bearer auth token")
 }
 func (o *RegistryOptions) NameOptions() []name.Option {
 	var nameOpts []name.Option
