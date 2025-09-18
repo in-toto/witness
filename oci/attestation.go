@@ -45,12 +45,34 @@ type signedImage struct {
 	attachments map[string]File
 }
 
+// Attestations implements oci.SignedImage
+func (si *signedImage) Attestations() (Signatures, error) {
+	return si.so.dedupeAndReplace(si.att, si.SignedImage.Attestations)
+}
+
 type signedUnknown struct {
 	SignedEntityInterface
 	// sig         Signature
 	att         Signature
 	so          *signOpts
 	attachments map[string]File
+}
+type digestable interface {
+	Digest() (v1.Hash, error)
+}
+
+// Digest is generally implemented by oci.SignedEntity implementations.
+func (si *signedUnknown) Digest() (v1.Hash, error) {
+	d, ok := si.SignedEntityInterface.(digestable)
+	if !ok {
+		return v1.Hash{}, fmt.Errorf("underlying signed entity not digestable: %T", si.SignedEntityInterface)
+	}
+	return d.Digest()
+}
+
+// Attestations implements oci.SignedEntity
+func (si *signedUnknown) Attestations() (Signatures, error) {
+	return si.so.dedupeAndReplace(si.att, si.SignedEntityInterface.Attestations)
 }
 
 type signedImageIndex struct {
@@ -61,6 +83,11 @@ type signedImageIndex struct {
 	attachments map[string]File
 }
 type ociSignedImageIndex SignedImageIndex
+
+// Attestations implements oci.SignedImageIndex
+func (sii *signedImageIndex) Attestations() (Signatures, error) {
+	return sii.so.dedupeAndReplace(sii.att, sii.ociSignedImageIndex.Attestations)
+}
 
 // normalize turns image digests into tags with optional prefix & suffix:
 // sha256:d34db33f -> [prefix]sha256-d34db33f[.suffix]

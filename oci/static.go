@@ -15,7 +15,8 @@
 package oci
 
 import (
-	"crypto/x509"
+	"bytes"
+	"encoding/base64"
 	"io"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -62,54 +63,65 @@ type staticLayer struct {
 	opts   *staticoptions
 }
 
+const SignatureAnnotationKey = "dev.witnessproject.witness/signature"
+
 // Annotations implements Signature.
 func (s *staticLayer) Annotations() (map[string]string, error) {
-	panic("unimplemented")
-}
-
-// Cert implements Signature.
-func (s *staticLayer) Cert() (*x509.Certificate, error) {
-	panic("unimplemented")
-}
-
-// Compressed implements Signature.
-func (s *staticLayer) Compressed() (io.ReadCloser, error) {
-	panic("unimplemented")
+	m := make(map[string]string, len(s.opts.Annotations)+1)
+	for k, v := range s.opts.Annotations {
+		m[k] = v
+	}
+	m[SignatureAnnotationKey] = s.b64sig
+	return m, nil
 }
 
 // DiffID implements Signature.
 func (s *staticLayer) DiffID() (v1.Hash, error) {
-	panic("unimplemented")
+	h, _, err := v1.SHA256(bytes.NewReader(s.b))
+	return h, err
 }
 
 // Digest implements Signature.
 func (s *staticLayer) Digest() (v1.Hash, error) {
-	panic("unimplemented")
+	h, _, err := v1.SHA256(bytes.NewReader(s.b))
+	return h, err
 }
 
 // MediaType implements Signature.
 func (s *staticLayer) MediaType() (types.MediaType, error) {
-	panic("unimplemented")
+	return s.opts.LayerMediaType, nil
 }
 
 // Payload implements Signature.
 func (s *staticLayer) Payload() ([]byte, error) {
-	panic("unimplemented")
+	return s.b, nil
 }
 
 // Signature implements Signature.
 func (s *staticLayer) Signature() ([]byte, error) {
-	panic("unimplemented")
+	b64sig, err := s.Base64Signature()
+	if err != nil {
+		return nil, err
+	}
+	return base64.StdEncoding.DecodeString(b64sig)
+}
+func (s *staticLayer) Base64Signature() (string, error) {
+	return s.b64sig, nil
 }
 
 // Size implements Signature.
 func (s *staticLayer) Size() (int64, error) {
-	panic("unimplemented")
+	return int64(len(s.b)), nil
+}
+
+// Compressed implements Signature.
+func (s *staticLayer) Compressed() (io.ReadCloser, error) {
+	return io.NopCloser(bytes.NewReader(s.b)), nil
 }
 
 // Uncompressed implements Signature.
 func (s *staticLayer) Uncompressed() (io.ReadCloser, error) {
-	panic("unimplemented")
+	return io.NopCloser(bytes.NewReader(s.b)), nil
 }
 
 // Verify that staticLayer implements both v1.Layer and Signature interfaces
