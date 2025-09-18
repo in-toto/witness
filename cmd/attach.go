@@ -25,8 +25,12 @@ import (
 	"github.com/in-toto/witness/oci"
 	"github.com/in-toto/witness/options"
 	"github.com/secure-systems-lab/go-securesystemslib/dsse"
-	"github.com/sigstore/cosign/v2/pkg/types"
 	"github.com/spf13/cobra"
+)
+
+const (
+	DssePayloadType   = "application/vnd.dsse.envelope.v1+json"
+	IntotoPayloadType = "application/vnd.in-toto+json"
 )
 
 func AttachCmd() *cobra.Command {
@@ -105,8 +109,8 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		if err != nil {
 			return err
 		}
-		if env.PayloadType != types.IntotoPayloadType {
-			return fmt.Errorf("invalid payloadType %s on envelope. Expected %s", env.PayloadType, types.IntotoPayloadType)
+		if env.PayloadType != IntotoPayloadType {
+			return fmt.Errorf("invalid payloadType %s on envelope. Expected %s", env.PayloadType, IntotoPayloadType)
 		}
 		if len(env.Signatures) == 0 {
 			return fmt.Errorf("could not attach attestation without having signatures")
@@ -128,7 +132,7 @@ func attachAttestation(remoteOpts []oci.Option, signedPayload, imageRef string, 
 		// each access.
 		ref = digest // nolint
 		log.Info("Creating attestation with DSSE payload")
-		opts := []oci.StaticOption{oci.WithLayerMediaType(types.DssePayloadType)}
+		opts := []oci.StaticOption{oci.WithLayerMediaType(DssePayloadType)}
 		att, err := oci.NewAttestation(payload, opts...)
 		if err != nil {
 			return err

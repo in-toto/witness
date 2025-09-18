@@ -35,7 +35,7 @@ var (
 	uaString = fmt.Sprintf("witness/%s (%s; %s)", version.GetVersionInfo().GitVersion, runtime.GOOS, runtime.GOARCH)
 )
 
-// UserAgent returns the User-Agent string which `cosign` should send with HTTP requests.ß
+// UserAgent returns the User-Agent string which `witness` should send with HTTP requests.ß
 func UserAgent() string {
 	return uaString
 }

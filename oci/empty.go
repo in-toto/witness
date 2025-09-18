@@ -15,11 +15,13 @@
 package oci
 
 import (
+	"os"
+	"strconv"
+
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/types"
-	"github.com/sigstore/cosign/v2/pkg/oci"
 )
 
 type emptyImage struct {
@@ -34,11 +36,20 @@ func (*emptyImage) Get() ([]Signature, error) {
 // If signatures index doesn't exist, return an *empty* Signatures implementation
 func EmptySignatures() Signatures {
 	base := empty.Image
-	if !oci.DockerMediaTypes() {
+	if !DockerMediaTypes() {
 		base = mutate.MediaType(base, types.OCIManifestSchema1)
 		base = mutate.ConfigMediaType(base, types.OCIConfigJSON)
 	}
 	return &emptyImage{
 		Image: base,
 	}
+}
+
+const VariableDockerMediaTypes string = "WITNESS_DOCKER_MEDIA_TYPES"
+
+func DockerMediaTypes() bool {
+	if b, err := strconv.ParseBool(os.Getenv(VariableDockerMediaTypes)); err == nil {
+		return b
+	}
+	return false
 }

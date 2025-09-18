@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/dustin/go-humanize"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -28,7 +29,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"github.com/in-toto/go-witness/log"
-	"github.com/sigstore/cosign/v2/pkg/cosign/env"
 )
 
 type SignedEntityInterface interface {
@@ -169,10 +169,11 @@ func (s *sigLayer) Payload() ([]byte, error) {
 }
 
 const defaultMaxSize = uint64(134217728) // 128MiB
+const VariableMaxAttachmentSize string = "WITNESS_MAX_ATTACHMENT_SIZE"
 
 func CheckSize(size uint64) error {
 	maxSize := defaultMaxSize
-	maxSizeOverride, exists := env.LookupEnv(env.VariableMaxAttachmentSize)
+	maxSizeOverride, exists := os.LookupEnv(VariableMaxAttachmentSize)
 	if exists {
 		var err error
 		maxSize, err = humanize.ParseBytes(maxSizeOverride)
