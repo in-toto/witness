@@ -37,10 +37,6 @@ Get information about all the available attestors in Witness
 ### Options
 
 ```
-  --attestation stringArray           Path to the attestation envelope
-  --registry-username string          Registry basic auth username
-  --registry-password string          Registry basic auth password
-  --registry-token    string          Registry bearer auth token
   -h, --help   help for attestors
 ```
 
@@ -76,7 +72,7 @@ witness run [cmd] [flags]
       --attestor-k8smanifest-context string               The kubernetes context that this step applies to (if not set in the kubeconfig)
       --attestor-k8smanifest-ignore-annotations strings   Additional ephemeral annotations to remove, e.g. witness.dev/another-ephemeral
       --attestor-k8smanifest-ignore-fields strings        Additional ephemeral fields to remove (dot-separated), e.g., metadata.annotations.myorg
-      --attestor-k8smanifest-kubeconfig string            Path to the kubeconfig file (used during server-side dry-run) (default "$HOME/.kube/config")
+      --attestor-k8smanifest-kubeconfig string            Path to the kubeconfig file (used during server-side dry-run) (default "/Users/rahulxf/.kube/config")
       --attestor-k8smanifest-record-cluster-information   Record information about the cluster that the client has a connection to (default true)
       --attestor-k8smanifest-server-side-dry-run          Perform a server-side dry-run to normalize resource defaults before hashing
       --attestor-link-export                              Export the Link predicate in its own attestation
