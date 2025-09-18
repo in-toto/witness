@@ -19,6 +19,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/witness/oci"
 	ssldsse "github.com/secure-systems-lab/go-securesystemslib/dsse"
 	"github.com/sigstore/cosign/v2/pkg/types"
@@ -30,7 +31,11 @@ import (
 func createTempFile(t *testing.T, envelope ssldsse.Envelope) string {
 	tmpFile, err := os.CreateTemp("", "dsse-*.json")
 	require.NoError(t, err)
-	defer tmpFile.Close()
+	defer func() {
+		if err := tmpFile.Close(); err != nil {
+			log.Errorf("failed to close tmpFile: %v", err)
+		}
+	}()
 
 	encoder := json.NewEncoder(tmpFile)
 	err = encoder.Encode(envelope)
@@ -73,7 +78,11 @@ func TestValidateEnvelopePayloadType(t *testing.T) {
 			}
 
 			tmpFile := createTempFile(t, envelope)
-			defer os.Remove(tmpFile)
+			defer func() {
+				if err := os.Remove(tmpFile); err != nil {
+					log.Errorf("failed to remove tmpFile: %v", err)
+				}
+			}()
 
 			ctx := context.Background()
 			regOpts := oci.RegistryOptions{}
@@ -121,7 +130,11 @@ func TestValidateEnvelopeSignatures(t *testing.T) {
 			}
 
 			tmpFile := createTempFile(t, envelope)
-			defer os.Remove(tmpFile)
+			defer func() {
+				if err := os.Remove(tmpFile); err != nil {
+					log.Errorf("failed to remove tmpFile: %v", err)
+				}
+			}()
 
 			ctx := context.Background()
 			regOpts := oci.RegistryOptions{}
