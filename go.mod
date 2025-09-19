@@ -11,11 +11,11 @@ require (
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/sigstore/fulcio v1.7.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.7
-	github.com/spf13/viper v1.20.1
-	github.com/stretchr/testify v1.11.0
-	k8s.io/apimachinery v0.33.4
+	github.com/spf13/cobra v1.10.1
+	github.com/spf13/pflag v1.0.10
+	github.com/spf13/viper v1.21.0
+	github.com/stretchr/testify v1.11.1
+	k8s.io/apimachinery v0.34.1
 )
 
 require (
@@ -95,7 +95,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fkautz/omnitrail-go v0.0.0-20240613153526-999f2e7d0fc9 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/gitleaks/go-gitdiff v0.9.1 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
@@ -151,7 +151,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -176,7 +176,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/sagikazarmark/locafero v0.9.0 // indirect
+	github.com/sagikazarmark/locafero v0.11.0 // indirect
 	github.com/sassoftware/relic v7.2.1+incompatible // indirect
 	github.com/secure-systems-lab/go-securesystemslib v0.9.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
@@ -189,10 +189,10 @@ require (
 	github.com/sigstore/sigstore-go v1.0.0 // indirect
 	github.com/sigstore/timestamp-authority v1.2.7 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
-	github.com/sourcegraph/conc v0.3.0 // indirect
+	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spdx/tools-golang v0.5.5 // indirect
-	github.com/spf13/afero v1.14.0 // indirect
-	github.com/spf13/cast v1.8.0 // indirect
+	github.com/spf13/afero v1.15.0 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.2 // indirect
@@ -223,14 +223,16 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
-	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/term v0.32.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
 	google.golang.org/api v0.230.0 // indirect
 	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
@@ -245,9 +247,10 @@ require (
 	k8s.io/api v0.33.1 // indirect
 	k8s.io/client-go v0.33.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
-	k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979 // indirect
+	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
-	sigs.k8s.io/yaml v1.4.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
 )
