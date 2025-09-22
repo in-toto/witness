@@ -24,10 +24,14 @@ The [Github](https://github.com/about) Attestor records information about the [G
             "Attestor": {
               "properties": {
                 "claims": {
-                  "type": "object"
+                  "type": "object",
+                  "title": "Claims",
+                  "description": "JWT claims extracted from the token"
                 },
                 "verifiedBy": {
-                  "$ref": "#/$defs/VerificationInfo"
+                  "$ref": "#/$defs/VerificationInfo",
+                  "title": "Verified By",
+                  "description": "Information about how the JWT was verified"
                 }
               },
               "additionalProperties": false,
@@ -545,10 +549,14 @@ The [Github](https://github.com/about) Attestor records information about the [G
             "VerificationInfo": {
               "properties": {
                 "jwksUrl": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "JWKS URL",
+                  "description": "URL where the JSON Web Key Set can be found"
                 },
                 "jwk": {
-                  "$ref": "#/$defs/JSONWebKey"
+                  "$ref": "#/$defs/JSONWebKey",
+                  "title": "JWK",
+                  "description": "The JSON Web Key used to verify the token"
                 }
               },
               "additionalProperties": false,
@@ -561,34 +569,66 @@ The [Github](https://github.com/about) Attestor records information about the [G
           }
         },
         "ciconfigpath": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Config Path",
+          "description": "Path to the GitHub Actions workflow file"
         },
         "pipelineid": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline ID",
+          "description": "GitHub Actions run ID",
+          "examples": [
+            "1234567890"
+          ]
         },
         "pipelinename": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline Name",
+          "description": "Name of the GitHub workflow"
         },
         "pipelineurl": {
-          "type": "string"
+          "type": "string",
+          "title": "Pipeline URL",
+          "description": "URL to the GitHub Actions run"
         },
         "projecturl": {
-          "type": "string"
+          "type": "string",
+          "title": "Project URL",
+          "description": "URL to the GitHub repository"
         },
         "runnerid": {
-          "type": "string"
+          "type": "string",
+          "title": "Runner ID",
+          "description": "Name of the GitHub Actions runner"
         },
         "cihost": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Host",
+          "description": "GitHub server hostname"
         },
         "ciserverurl": {
-          "type": "string"
+          "type": "string",
+          "title": "CI Server URL",
+          "description": "GitHub server URL",
+          "examples": [
+            "https://github.com"
+          ]
         },
         "runnerarch": {
-          "type": "string"
+          "type": "string",
+          "title": "Runner Architecture",
+          "description": "Architecture of the runner",
+          "examples": [
+            "X64"
+          ]
         },
         "runneros": {
-          "type": "string"
+          "type": "string",
+          "title": "Runner OS",
+          "description": "Operating system of the runner",
+          "examples": [
+            "Linux"
+          ]
         }
       },
       "additionalProperties": false,

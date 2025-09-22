@@ -48,6 +48,11 @@ func RunCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Check if user wants attestor help
+			if o.HelpAttestor != "" {
+				return ShowAttestorHelp(o.HelpAttestor)
+			}
+			
 			signers, err := loadSigners(cmd.Context(), o.SignerOptions, o.KMSSignerProviderOptions, providersFromFlags("signer", cmd.Flags()))
 			if err != nil {
 				return fmt.Errorf("failed to load signers: %w", err)
