@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
-          go-version: "1.23.x"
+          go-version-file: "go.mod"
       - name: Install addlicense
         run: go install github.com/google/addlicense@v1.1.1
       - name: Check license headers
