@@ -29,10 +29,14 @@ against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/j
             "Attestor": {
               "properties": {
                 "claims": {
-                  "type": "object"
+                  "type": "object",
+                  "title": "Claims",
+                  "description": "JWT claims extracted from the token"
                 },
                 "verifiedBy": {
-                  "$ref": "#/$defs/VerificationInfo"
+                  "$ref": "#/$defs/VerificationInfo",
+                  "title": "Verified By",
+                  "description": "Information about how the JWT was verified"
                 }
               },
               "additionalProperties": false,
@@ -550,10 +554,14 @@ against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/j
             "VerificationInfo": {
               "properties": {
                 "jwksUrl": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "JWKS URL",
+                  "description": "URL where the JSON Web Key Set can be found"
                 },
                 "jwk": {
-                  "$ref": "#/$defs/JSONWebKey"
+                  "$ref": "#/$defs/JSONWebKey",
+                  "title": "JWK",
+                  "description": "The JSON Web Key used to verify the token"
                 }
               },
               "additionalProperties": false,
@@ -566,40 +574,74 @@ against Google's JWKS ([JSON Web Key Set](https://auth0.com/docs/secure/tokens/j
           }
         },
         "project_id": {
-          "type": "string"
+          "type": "string",
+          "title": "Project ID",
+          "description": "GCP project ID",
+          "examples": [
+            "my-project-123"
+          ]
         },
         "project_number": {
-          "type": "string"
+          "type": "string",
+          "title": "Project Number",
+          "description": "GCP project number",
+          "examples": [
+            "123456789"
+          ]
         },
         "zone": {
-          "type": "string"
+          "type": "string",
+          "title": "Zone",
+          "description": "GCP zone where the instance is running",
+          "examples": [
+            "us-central1-a"
+          ]
         },
         "instance_id": {
-          "type": "string"
+          "type": "string",
+          "title": "Instance ID",
+          "description": "Unique ID of the GCP instance",
+          "examples": [
+            "1234567890123456789"
+          ]
         },
         "instance_hostname": {
-          "type": "string"
+          "type": "string",
+          "title": "Instance Hostname",
+          "description": "Hostname of the GCP instance"
         },
         "instance_creation_timestamp": {
-          "type": "string"
+          "type": "string",
+          "title": "Creation Timestamp",
+          "description": "Timestamp when the instance was created"
         },
         "instance_confidentiality": {
-          "type": "string"
+          "type": "string",
+          "title": "Confidentiality",
+          "description": "Instance confidentiality settings"
         },
         "licence_id": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "title": "License IDs",
+          "description": "List of license IDs associated with the instance"
         },
         "cluster_name": {
-          "type": "string"
+          "type": "string",
+          "title": "Cluster Name",
+          "description": "GKE cluster name (if running in GKE)"
         },
         "cluster_uid": {
-          "type": "string"
+          "type": "string",
+          "title": "Cluster UID",
+          "description": "GKE cluster unique identifier"
         },
         "cluster_location": {
-          "type": "string"
+          "type": "string",
+          "title": "Cluster Location",
+          "description": "GKE cluster location"
         }
       },
       "additionalProperties": false,

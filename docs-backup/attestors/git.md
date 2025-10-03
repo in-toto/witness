@@ -1,0 +1,156 @@
+# Git Attestor
+
+The Git Attestor records the current state of the objects in the git repository, including untracked objects.
+Both staged and unstaged states are recorded.
+
+## Subjects
+
+The attestor returns the SHA1 ([Secure Hash Algorithm 1](https://en.wikipedia.org/wiki/SHA-1)) git commit hash as a subject.
+
+## Schema
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/Attestor",
+  "$defs": {
+    "Attestor": {
+      "properties": {
+        "gittool": {
+          "type": "string"
+        },
+        "gitbinpath": {
+          "type": "string"
+        },
+        "gitbinhash": {
+          "$ref": "#/$defs/DigestSet"
+        },
+        "commithash": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "authoremail": {
+          "type": "string"
+        },
+        "committername": {
+          "type": "string"
+        },
+        "committeremail": {
+          "type": "string"
+        },
+        "commitdate": {
+          "type": "string"
+        },
+        "commitmessage": {
+          "type": "string"
+        },
+        "status": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Status"
+          },
+          "type": "object"
+        },
+        "commitdigest": {
+          "$ref": "#/$defs/DigestSet"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "parenthashes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "treehash": {
+          "type": "string"
+        },
+        "refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "remotes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tags": {
+          "items": {
+            "$ref": "#/$defs/Tag"
+          },
+          "type": "array"
+        },
+        "branch": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "gittool",
+        "commithash",
+        "author",
+        "authoremail",
+        "committername",
+        "committeremail",
+        "commitdate",
+        "commitmessage"
+      ]
+    },
+    "DigestSet": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "Status": {
+      "properties": {
+        "staging": {
+          "type": "string"
+        },
+        "worktree": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Tag": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "taggername": {
+          "type": "string"
+        },
+        "taggeremail": {
+          "type": "string"
+        },
+        "when": {
+          "type": "string"
+        },
+        "pgpsignature": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "taggername",
+        "taggeremail",
+        "when",
+        "pgpsignature",
+        "message"
+      ]
+    }
+  }
+}
+```

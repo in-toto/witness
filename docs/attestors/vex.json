@@ -5,13 +5,19 @@
     "Attestor": {
       "properties": {
         "vexDocument": {
-          "$ref": "#/$defs/VEX"
+          "$ref": "#/$defs/VEX",
+          "title": "VEX Document",
+          "description": "Vulnerability Exploitability eXchange document containing vulnerability assessments"
         },
         "reportFileName": {
-          "type": "string"
+          "type": "string",
+          "title": "Report File",
+          "description": "Path to the VEX report file"
         },
         "reportDigestSet": {
-          "$ref": "#/$defs/DigestSet"
+          "$ref": "#/$defs/DigestSet",
+          "title": "Report Digest Set",
+          "description": "Cryptographic digests of the VEX report file"
         }
       },
       "additionalProperties": false,

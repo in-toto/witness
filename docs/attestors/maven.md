@@ -18,22 +18,32 @@ The [Maven](https://maven.apache.org/) Attestor records project and dependency i
     "Attestor": {
       "properties": {
         "groupid": {
-          "type": "string"
+          "type": "string",
+          "title": "Group ID",
+          "description": "Maven group identifier for the project"
         },
         "artifactid": {
-          "type": "string"
+          "type": "string",
+          "title": "Artifact ID",
+          "description": "Maven artifact identifier for the project"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "title": "Version",
+          "description": "Project version"
         },
         "projectname": {
-          "type": "string"
+          "type": "string",
+          "title": "Project Name",
+          "description": "Human-readable project name"
         },
         "dependencies": {
           "items": {
             "$ref": "#/$defs/MavenDependency"
           },
-          "type": "array"
+          "type": "array",
+          "title": "Dependencies",
+          "description": "List of Maven dependencies"
         }
       },
       "additionalProperties": false,
@@ -49,16 +59,24 @@ The [Maven](https://maven.apache.org/) Attestor records project and dependency i
     "MavenDependency": {
       "properties": {
         "groupid": {
-          "type": "string"
+          "type": "string",
+          "title": "Group ID",
+          "description": "Dependency group identifier"
         },
         "artifactid": {
-          "type": "string"
+          "type": "string",
+          "title": "Artifact ID",
+          "description": "Dependency artifact identifier"
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "title": "Version",
+          "description": "Dependency version"
         },
         "scope": {
-          "type": "string"
+          "type": "string",
+          "title": "Scope",
+          "description": "Dependency scope (compile test runtime etc)"
         }
       },
       "additionalProperties": false,
