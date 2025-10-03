@@ -1,0 +1,20 @@
+chat:
+  auto_reply: true
+reviews:
+  auto_review:
+    enabled: true
+    drafts: true
+    base_branches:
+      - main
+      - master
+  profile: chill
+  tools:
+    markdownlint:
+      enabled: true
+    languagetool:
+      enabled: true
+    gitleaks:
+      enabled: true
+  path_instructions:
+    - path: "docs/**/*.md"
+      instructions: "Check for clarity, completeness, and consistency with existing documentation style"

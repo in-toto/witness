@@ -1,3 +1,49 @@
+# Kubernetes Manifest Attestor
+
+The Kubernetes Manifest Attestor normalizes and records Kubernetes manifest files, capturing the canonical representation of resources for deployment verification. It can perform server-side dry-runs to expand defaults, filter ephemeral fields, and record cluster information. Container images referenced in manifests are also captured as subjects for supply chain tracking.
+
+## Use Cases
+
+- Kubernetes deployment verification: Ensure deployed manifests match approved configurations
+- GitOps validation: Verify that applied manifests match what is stored in git repositories
+- Policy enforcement: Attest to the exact configuration deployed to clusters for compliance
+- Container image tracking: Record all container images referenced in Kubernetes deployments
+
+## Usage
+
+Basic usage with local manifests:
+```bash
+witness run --step deploy -a k8smanifest -o attestation.json -- kubectl apply -f deployment.yaml
+```
+
+With server-side dry-run for normalization:
+```bash
+witness run --step deploy -a k8smanifest \
+  --attestor-k8smanifest-server-side-dry-run \
+  --attestor-k8smanifest-kubeconfig ~/.kube/config \
+  --attestor-k8smanifest-context production \
+  -o attestation.json -- kubectl apply -f deployment.yaml
+```
+
+## Configuration Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--attestor-k8smanifest-kubeconfig` | `$HOME/.kube/config` | Path to the kubeconfig file (used during server-side dry-run) |
+| `--attestor-k8smanifest-context` | Current context | The Kubernetes context that this step applies to (if not set in the kubeconfig) |
+| `--attestor-k8smanifest-server-side-dry-run` | `false` | Perform a server-side dry-run to normalize resource defaults before hashing |
+| `--attestor-k8smanifest-record-cluster-information` | `true` | Record information about the cluster that the client has a connection to |
+| `--attestor-k8smanifest-ignore-fields` | None | Additional ephemeral fields to remove (dot-separated), e.g., `metadata.annotations.myorg` |
+| `--attestor-k8smanifest-ignore-annotations` | None | Additional ephemeral annotations to remove, e.g., `witness.dev/another-ephemeral` |
+
+## Subjects
+
+| Subject | Description |
+| ------- | ----------- |
+| Normalized manifest digests | SHA256 hashes of canonicalized Kubernetes manifests after filtering ephemeral fields |
+| Container images | Digests and references of all container images specified in the manifests |
+| Cluster information | Server URL and node information (when `record-cluster-information` is enabled) |
+
 ## Schema
 ```json
 {
