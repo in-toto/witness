@@ -142,3 +142,15 @@ The calling user or service account must have the following IAM roles:
 
 - Safer KMS Viewer Role
 - Cloud KMS CryptoKey Signer/Verifier (`roles/cloudkms.signerVerifier`)
+
+### Azure Key Vault
+The URI format for Azure Key Vault is:
+```shell
+azurekms://[VAULT_NAME][VAULT_URI]/[KEY]
+```
+Where `$VAULT_NAME`, `$VAULT_URI`, and `$KEY` are replaced with the correct values.
+
+The following environment variables must be set to let witness authenticate to Azure Key Vault. (see this [reference](https://devblogs.microsoft.com/azure-sdk/authentication-and-the-azure-sdk/#environment-variables) for more details about Azure SDK Authentication):
+- AZURE_TENANT_ID
+- AZURE_CLIENT_ID
+- AZURE_CLIENT_SECRET
