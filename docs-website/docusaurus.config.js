@@ -10,7 +10,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'In-toto Witness',
   tagline: 'Documentation for the Witness Project',
-  favicon: '/static/img/favicon.ico',
+  favicon: '/img/favicon.ico',
 
   // Set the production url of your site here
   url: 'https://witness.dev',
