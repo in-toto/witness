@@ -45,6 +45,7 @@ witness run [cmd] [flags]
       --archivista-headers stringArray                    Headers to provide to the Archivista client when making requests
       --archivista-server string                          URL of the Archivista server to store or retrieve attestations (default "https://archivista.testifysec.io")
   -a, --attestations strings                              Attestations to record ('product' and 'material' are always recorded) (default [environment,git])
+      --attestor-aws-region-cert string                   A public x509 certificate used to verify the AWS instance identity document signature.
       --attestor-k8smanifest-context string               The kubernetes context that this step applies to (if not set in the kubeconfig)
       --attestor-k8smanifest-ignore-annotations strings   Additional ephemeral annotations to remove, e.g. witness.dev/another-ephemeral
       --attestor-k8smanifest-ignore-fields strings        Additional ephemeral fields to remove (dot-separated), e.g., metadata.annotations.myorg
@@ -74,6 +75,8 @@ witness run [cmd] [flags]
   -o, --outfile string                                    File to write signed data to
       --signer-file-cert-path string                      Path to the file containing the certificate for the private key
       --signer-file-intermediate-paths strings            Paths to files containing intermediates required to establish trust of the signer's certificate to a root
+      --signer-file-key-passphrase string                 Passphrase to decrypt the private key (prefer key-passphrase-path).
+      --signer-file-key-passphrase-path string            Path to a file containing the private key passphrase.
   -k, --signer-file-key-path string                       Path to the file containing the private key
       --signer-fulcio-oidc-client-id string               OIDC client ID to use for authentication
       --signer-fulcio-oidc-issuer string                  OIDC issuer to use for authentication
@@ -139,6 +142,8 @@ witness sign [file] [flags]
   -o, --outfile string                                File to write signed data. Defaults to stdout
       --signer-file-cert-path string                  Path to the file containing the certificate for the private key
       --signer-file-intermediate-paths strings        Paths to files containing intermediates required to establish trust of the signer's certificate to a root
+      --signer-file-key-passphrase string             Passphrase to decrypt the private key (prefer key-passphrase-path).
+      --signer-file-key-passphrase-path string        Path to a file containing the private key passphrase.
   -k, --signer-file-key-path string                   Path to the file containing the private key
       --signer-fulcio-oidc-client-id string           OIDC client ID to use for authentication
       --signer-fulcio-oidc-issuer string              OIDC issuer to use for authentication
