@@ -325,8 +325,8 @@ github.com/in-toto/archivista v0.9.3 h1:rZNeiBbwMLiZp5KnNvUo30+jauYpCy0vpjHSdr+8
 github.com/in-toto/archivista v0.9.3/go.mod h1:dCYOXztqhcnchYkBbn1QdC4ymgkqtK6dmUxSH7jtNOo=
 github.com/in-toto/attestation v1.1.2 h1:MBFn6lsMq6dptQZJBhalXTcWMb/aJy3V+GX3VYj/V1E=
 github.com/in-toto/attestation v1.1.2/go.mod h1:gYFddHMZj3DiQ0b62ltNi1Vj5rC879bTmBbrv9CRHpM=
-github.com/in-toto/go-witness v0.9.0 h1:Ob9WKa6o5oF9h5e+QUnnhNXkuGTMzASkaodUzID2fAk=
-github.com/in-toto/go-witness v0.9.0/go.mod h1:9baHJG15esrfao4R3J42mWhQf3yMeKUeioCdQM+i9ek=
+github.com/in-toto/go-witness v0.9.1 h1:tT14ysHhnTcMLjLsp9k6GNGyKxfmr0WmTrJKREnhVGE=
+github.com/in-toto/go-witness v0.9.1/go.mod h1:9baHJG15esrfao4R3J42mWhQf3yMeKUeioCdQM+i9ek=
 github.com/in-toto/in-toto-golang v0.9.0 h1:tHny7ac4KgtsfrG6ybU8gVOZux2H8jN05AXJ9EBM1XU=
 github.com/in-toto/in-toto-golang v0.9.0/go.mod h1:xsBVrVsHNsB61++S6Dy2vWosKhuA3lUTQd+eF9HdeMo=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
