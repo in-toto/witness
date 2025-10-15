@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/gobwas/glob v0.2.3
-	github.com/in-toto/go-witness v0.9.0
+	github.com/in-toto/go-witness v0.9.1
 	github.com/invopop/jsonschema v0.13.0
 	github.com/olekukonko/tablewriter v1.1.0
 	github.com/sigstore/fulcio v1.7.1
