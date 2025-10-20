@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 
 	"github.com/in-toto/go-witness/archivista"
 	"github.com/in-toto/go-witness/dsse"
@@ -40,7 +41,8 @@ func LoadPolicy(ctx context.Context, policy string, ac ArchivistaClienter) (dsse
 	filePolicy, err := os.Open(policy)
 	if err != nil {
 		log.Debug("failed to open policy file: ", policy)
-		if ac == nil {
+		if ac == nil || reflect.ValueOf(ac).IsNil() {
+			log.Debug("archivista client is nil; cannot fetch policy from archivista")
 			return policyEnvelope, fmt.Errorf("failed to open file to sign: %w", err)
 		} else {
 			log.Debug("attempting to fetch policy " + policy + " from archivista")
