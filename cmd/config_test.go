@@ -57,7 +57,7 @@ func Test_initConfig(t *testing.T) {
 			configPath: "valid.yaml",
 			configYaml: `
 run:
-  step-name: teststep
+  step: teststep
   outfile: outfile.json
 `,
 			createFile:  true,
@@ -82,7 +82,7 @@ verify:
 			configPath: "invalid.yaml",
 			configYaml: `
 run:
-  step-name: - teststep
+  step: - teststep
     - invalid format
 `,
 			createFile:  true,
@@ -95,7 +95,7 @@ run:
 			configPath: "valid.yaml",
 			configYaml: `
 run:
-  step-name: teststep
+  step: teststep
 `,
 			createFile:  true,
 			forceFile:   true,
@@ -121,7 +121,7 @@ run:
 
 			// Add test sub-commands
 			runCmd := &cobra.Command{Use: "run"}
-			runCmd.Flags().String("step-name", "", "Step name")
+			runCmd.Flags().String("step", "", "Step name")
 			runCmd.Flags().String("outfile", "", "Output file")
 			rootCmd.AddCommand(runCmd)
 
@@ -162,7 +162,7 @@ run:
 						if cmd.Name() == cmdName {
 							switch cmdName {
 							case "run":
-								stepNameFlag := cmd.Flags().Lookup("step-name")
+								stepNameFlag := cmd.Flags().Lookup("step")
 								outfileFlag := cmd.Flags().Lookup("outfile")
 								if tt.cmdArgs[1] == "run" {
 									// For the valid config test with run command
