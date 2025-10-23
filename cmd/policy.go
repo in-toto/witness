@@ -24,5 +24,9 @@ func PolicyCheckCmd() *cobra.Command {
 		RunE:  checkPolicy,
 	}
 
+	cmd.Flags().BoolP("verbose", "v", false, "Show detailed validation progress")
+	cmd.Flags().BoolP("quiet", "q", false, "Only show errors, no success messages")
+	cmd.Flags().Bool("json", false, "Output results in JSON format")
+
 	return cmd
 }

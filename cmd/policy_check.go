@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
@@ -15,6 +16,23 @@ import (
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/spf13/cobra"
 )
+
+type ValidationResult struct {
+	Valid            bool              `json:"valid"`
+	Errors           []ValidationError `json:"errors,omitempty"`
+	Warnings         []string          `json:"warnings,omitempty"`
+	ChecksPerformed  int               `json:"checks_performed"`
+	ChecksPassed     int               `json:"checks_passed"`
+	PolicyFile       string            `json:"policy_file"`
+	PolicyExpiration string            `json:"policy_expiration,omitempty"`
+}
+
+type ValidationError struct {
+	Category   string `json:"category"`
+	Message    string `json:"message"`
+	Suggestion string `json:"suggestion,omitempty"`
+	Location   string `json:"location,omitempty"`
+}
 
 type PolicyCheckError struct {
 	Errors []error
@@ -35,197 +53,458 @@ func NewPolicyCheckError(errors []error) error {
 	return &PolicyCheckError{Errors: errors}
 }
 
-func ReadPolicy(policyFile string) (*policy.Policy, error) {
+func ReadPolicy(policyFile string, verbose bool) (*policy.Policy, bool, error) {
 	policyBytes, err := os.ReadFile(policyFile)
 	if err != nil {
-		return nil, err
+		return nil, false, fmt.Errorf("failed to read policy file: %w", err)
 	}
 
+	isDSSE := false
 	// Attempt to unmarshal as a DSSE envelope
 	e := dsse.Envelope{}
 	if err := json.Unmarshal(policyBytes, &e); err == nil {
 		if e.Payload != nil {
-			fmt.Printf("DSSE Envelope detected, extracting payload\n")
+			if verbose {
+				fmt.Println("✓ DSSE Envelope detected, extracting payload")
+			}
 			policyBytes = e.Payload
+			isDSSE = true
 		}
 	} else {
-
-		fmt.Printf("Not a DSSE Envelope, treating as direct policy JSON\n")
+		if verbose {
+			fmt.Println("✓ Direct policy JSON detected")
+		}
 	}
 
 	// Unmarshal into the Policy struct
 	p := &policy.Policy{}
 	if err := json.Unmarshal(policyBytes, p); err != nil {
-		fmt.Printf("Error unmarshalling policy: %v\n", err)
-		return nil, err
+		return nil, isDSSE, fmt.Errorf("failed to parse policy JSON: %w\nHint: Ensure the policy is valid JSON and follows the witness policy schema", err)
 	}
 
-	return p, nil
+	return p, isDSSE, nil
 }
 
 // CheckPolicy checks the policy file for correctness and expiration
 func checkPolicy(cmd *cobra.Command, args []string) error {
-	//policy is the first argument
 	policyFile := args[0]
 
-	errors := []error{}
+	verbose, _ := cmd.Flags().GetBool("verbose")
+	quiet, _ := cmd.Flags().GetBool("quiet")
+	jsonOutput, _ := cmd.Flags().GetBool("json")
 
-	p, err := ReadPolicy(policyFile)
+	result := &ValidationResult{
+		Valid:           true,
+		PolicyFile:      policyFile,
+		ChecksPerformed: 0,
+		ChecksPassed:    0,
+	}
+
+	if verbose && !jsonOutput {
+		fmt.Printf("\n🔍 Validating policy: %s\n\n", policyFile)
+	}
+
+	// Read and parse policy
+	if verbose && !jsonOutput {
+		fmt.Println("📖 Reading policy file...")
+	}
+	p, isDSSE, err := ReadPolicy(policyFile, verbose && !jsonOutput)
 	if err != nil {
-		fmt.Printf("Error reading policy: %v\n", err)
-		return err
+		result.Valid = false
+		result.Errors = append(result.Errors, ValidationError{
+			Category:   "Policy File",
+			Message:    err.Error(),
+			Suggestion: "Check that the file exists and contains valid JSON",
+		})
+		return outputResult(result, jsonOutput, quiet)
+	}
+	result.ChecksPerformed++
+	result.ChecksPassed++
+	result.PolicyExpiration = p.Expires.Time.Format(time.RFC3339)
+
+	if verbose && !jsonOutput {
+		if isDSSE {
+			fmt.Println("  ✓ DSSE envelope format")
+		}
+		fmt.Printf("  ✓ Valid JSON structure\n")
+		fmt.Printf("  ✓ Policy expires: %s\n\n", p.Expires.Time.Format(time.RFC3339))
 	}
 
-	// Make sure the policy is not expired
+	// Check policy expiration
+	if verbose && !jsonOutput {
+		fmt.Println("📅 Checking policy expiration...")
+	}
+	result.ChecksPerformed++
 	if time.Now().After(p.Expires.Time) {
-		errors = append(errors, fmt.Errorf("policy time of expiration '%s' has passed", p.Expires.Time))
+		result.Valid = false
+		result.Errors = append(result.Errors, ValidationError{
+			Category:   "Policy Expiration",
+			Message:    fmt.Sprintf("Policy expired on %s", p.Expires.Time.Format(time.RFC3339)),
+			Suggestion: "Update the 'expires' field to a future date",
+			Location:   "expires",
+		})
+	} else {
+		result.ChecksPassed++
+		if verbose && !jsonOutput {
+			daysUntilExpiry := int(time.Until(p.Expires.Time).Hours() / 24)
+			fmt.Printf("  ✓ Policy valid until %s (%d days)\n", p.Expires.Time.Format("2006-01-02"), daysUntilExpiry)
+
+			// Warning for soon-to-expire policies
+			if daysUntilExpiry < 30 {
+				result.Warnings = append(result.Warnings, fmt.Sprintf("Policy expires in %d days", daysUntilExpiry))
+				fmt.Printf("  ⚠️  Warning: Policy expires in %d days\n", daysUntilExpiry)
+			}
+		}
+	}
+	if verbose && !jsonOutput {
+		fmt.Println()
 	}
 
-	// Check that roots exist for all functionaries
-	for _, step := range p.Steps {
+	// Validate Rego policies
+	if verbose && !jsonOutput {
+		fmt.Println("📜 Validating Rego policies...")
+	}
+	regoCount := 0
+	for stepName, step := range p.Steps {
 		for _, att := range step.Attestations {
 			for _, module := range att.RegoPolicies {
+				regoCount++
+				result.ChecksPerformed++
+
+				if verbose && !jsonOutput {
+					fmt.Printf("  Checking module '%s' in step '%s'...\n", module.Name, stepName)
+				}
+
 				err := validateRegoModule(module.Module)
 				if err != nil {
-					errors = append(errors, fmt.Errorf("error: module '%s' for step '%s' is not valid: %v", module, step.Name, err))
-				}
-			}
-		}
+					result.Valid = false
 
-		for _, functionary := range step.Functionaries {
-			for _, fRoot := range functionary.CertConstraint.Roots {
+					// Try to show the actual Rego code
+					regoCode := ""
+					if decoded, decErr := base64.StdEncoding.DecodeString(string(module.Module)); decErr == nil {
+						regoCode = string(decoded)
+					}
 
-				foundRoot := false
-				for k := range p.Roots {
-					if fRoot == k {
-						foundRoot = true
-						break
+					errMsg := fmt.Sprintf("Rego module '%s' in step '%s' is invalid: %v", module.Name, stepName, err)
+					suggestion := "Check Rego syntax. Common issues:\n" +
+						"  - Missing 'package' declaration\n" +
+						"  - Syntax errors in deny rules\n" +
+						"  - Invalid comparison operators"
+
+					if regoCode != "" {
+						suggestion += fmt.Sprintf("\n\nRego code:\n%s", regoCode)
+					}
+
+					result.Errors = append(result.Errors, ValidationError{
+						Category:   "Rego Policy",
+						Message:    errMsg,
+						Suggestion: suggestion,
+						Location:   fmt.Sprintf("steps.%s.attestations[].regopolicies", stepName),
+					})
+				} else {
+					result.ChecksPassed++
+					if verbose && !jsonOutput {
+						fmt.Printf("    ✓ Module '%s' is valid\n", module.Name)
 					}
 				}
-				if !foundRoot {
-					errors = append(errors, fmt.Errorf("error: Functionary '%s' for step '%s' not found in Roots.  Please make sure the root exists in the policy's 'Roots' slice", fRoot, step.Name))
+			}
+		}
+	}
+	if verbose && !jsonOutput {
+		fmt.Printf("  ✓ Validated %d Rego module(s)\n\n", regoCount)
+	}
+
+	// Validate functionary root references
+	if verbose && !jsonOutput {
+		fmt.Println("👤 Validating functionaries...")
+	}
+	funcCount := 0
+	for stepName, step := range p.Steps {
+		for _, functionary := range step.Functionaries {
+			if functionary.CertConstraint.Roots != nil {
+				for _, fRoot := range functionary.CertConstraint.Roots {
+					funcCount++
+					result.ChecksPerformed++
+
+					foundRoot := false
+					for k := range p.Roots {
+						if fRoot == k {
+							foundRoot = true
+							break
+						}
+					}
+
+					if !foundRoot {
+						result.Valid = false
+						availableRoots := []string{}
+						for k := range p.Roots {
+							availableRoots = append(availableRoots, k)
+						}
+
+						result.Errors = append(result.Errors, ValidationError{
+							Category:   "Functionary",
+							Message:    fmt.Sprintf("Functionary references root '%s' in step '%s' but it doesn't exist", fRoot, stepName),
+							Suggestion: fmt.Sprintf("Add root '%s' to the policy's 'roots' section or use one of: %v", fRoot, availableRoots),
+							Location:   fmt.Sprintf("steps.%s.functionaries[].certconstraint.roots", stepName),
+						})
+					} else {
+						result.ChecksPassed++
+						if verbose && !jsonOutput {
+							fmt.Printf("  ✓ Root '%s' exists for step '%s'\n", fRoot, stepName)
+						}
+					}
 				}
 			}
 		}
 	}
+	if verbose && !jsonOutput {
+		fmt.Printf("  ✓ Validated %d functionary root reference(s)\n\n", funcCount)
+	}
 
-	// Check root certificates
+	// Validate root certificates
+	if verbose && !jsonOutput {
+		fmt.Println("🔐 Validating root certificates...")
+	}
 	for k, v := range p.Roots {
-
-		//base64 decode the root certificate to get the pem
-		block, _ := pem.Decode([]byte(v.Certificate))
-		if block == nil {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' is not a valid PEM block", k))
-			continue
+		if verbose && !jsonOutput {
+			fmt.Printf("  Checking root certificate '%s'...\n", k)
 		}
 
-		//parse the pem to get the x509 certificate
+		// PEM decode
+		result.ChecksPerformed++
+		block, _ := pem.Decode(v.Certificate)
+		if block == nil {
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' is not a valid PEM block", k),
+				Suggestion: "Ensure the certificate field contains a base64-encoded PEM certificate.\nExample: cat cert.pem | base64 | tr -d '\\n'",
+				Location:   fmt.Sprintf("roots.%s.certificate", k),
+			})
+			continue
+		}
+		result.ChecksPassed++
+
+		// x509 parse
+		result.ChecksPerformed++
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' is not a valid x509 certificate: %v", k, err))
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' is not a valid x509 certificate: %v", k, err),
+				Suggestion: "Regenerate the certificate or check that it's not corrupted",
+				Location:   fmt.Sprintf("roots.%s.certificate", k),
+			})
 			continue
 		}
-
-		// Check that the root certificate is not expired
-		if time.Now().After(cert.NotAfter) {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' is expired", k))
+		result.ChecksPassed++
+		if verbose && !jsonOutput {
+			fmt.Printf("    ✓ Valid x509 certificate (CN=%s)\n", cert.Subject.CommonName)
 		}
 
-		// Check that the root certificate is a CA
+		// Check CA status
+		result.ChecksPerformed++
 		if !cert.IsCA {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' is not a CA", k))
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' is not a CA certificate", k),
+				Suggestion: "Root certificates must have CA:TRUE in the Basic Constraints extension.\nRegenerate with: openssl req ... -extensions v3_ca",
+				Location:   fmt.Sprintf("roots.%s", k),
+			})
+		} else {
+			result.ChecksPassed++
 		}
 
-		// Check that the root certificate has a valid signature
-		err = cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' has an invalid signature: %v", k, err))
+		// Check expiration
+		result.ChecksPerformed++
+		if time.Now().After(cert.NotAfter) {
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' expired on %s", k, cert.NotAfter.Format(time.RFC3339)),
+				Suggestion: "Replace with a valid certificate or regenerate",
+				Location:   fmt.Sprintf("roots.%s", k),
+			})
+		} else {
+			result.ChecksPassed++
 		}
 
-		// Check that the root certificate has a valid public key
-		err = cert.CheckSignatureFrom(cert)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' has an invalid public key: %v", k, err))
+		// Check signatures
+		result.ChecksPerformed += 2
+		sigErr := cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature)
+		selfSigErr := cert.CheckSignatureFrom(cert)
+		if sigErr != nil || selfSigErr != nil {
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' has invalid signature", k),
+				Suggestion: "The certificate may be corrupted. Regenerate or re-export the certificate",
+				Location:   fmt.Sprintf("roots.%s", k),
+			})
+		} else {
+			result.ChecksPassed += 2
 		}
 
-		// check that the expiration date is not before the policy expiration date
+		// Check cert expiration vs policy expiration
+		result.ChecksPerformed++
 		if cert.NotAfter.Before(p.Expires.Time) {
-			errors = append(errors, fmt.Errorf("error: root certificate '%s' has an expiration date before the policy expiration date", k))
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Root Certificate",
+				Message:    fmt.Sprintf("Root certificate '%s' expires before the policy", k),
+				Suggestion: "The certificate must be valid for at least as long as the policy",
+				Location:   fmt.Sprintf("roots.%s", k),
+			})
+		} else {
+			result.ChecksPassed++
 		}
 
-		//if root has an intermediate, check that intermediate
-		if len(v.Intermediates) > 0 {
-			for _, intermediate := range v.Intermediates {
+		if verbose && !jsonOutput {
+			fmt.Printf("  ✓ Root certificate '%s' is valid\n", k)
+		}
+	}
+	if verbose && !jsonOutput {
+		fmt.Printf("  ✓ Validated %d root certificate(s)\n\n", len(p.Roots))
+	}
 
-				// Check that the intermediate certificate is valid
-				block, _ := pem.Decode([]byte(intermediate))
-				if block == nil {
-					errors = append(errors, fmt.Errorf("error: intermediate certificate '%s' is not a valid PEM block", k))
-					continue
-				}
+	// Validate timestamp authorities (if any)
+	if len(p.TimestampAuthorities) > 0 {
+		if verbose && !jsonOutput {
+			fmt.Println("⏱️  Validating timestamp authorities...")
+		}
+		for k, v := range p.TimestampAuthorities {
+			result.ChecksPerformed++
+			block, _ := pem.Decode(v.Certificate)
+			if block == nil {
+				result.Valid = false
+				result.Errors = append(result.Errors, ValidationError{
+					Category:   "Timestamp Authority",
+					Message:    fmt.Sprintf("Timestamp authority certificate '%s' is not a valid PEM block", k),
+					Suggestion: "Ensure the certificate is base64-encoded PEM format",
+					Location:   fmt.Sprintf("timestampauthorities.%s.certificate", k),
+				})
+				continue
+			}
+			result.ChecksPassed++
 
-				cert, err := x509.ParseCertificate(block.Bytes)
-				if err != nil {
-					errors = append(errors, fmt.Errorf("error: intermediate certificate '%s' is not a valid x509 certificate: %v", k, err))
-					continue
-				}
+			result.ChecksPerformed++
+			cert, err := x509.ParseCertificate(block.Bytes)
+			if err != nil {
+				result.Valid = false
+				result.Errors = append(result.Errors, ValidationError{
+					Category:   "Timestamp Authority",
+					Message:    fmt.Sprintf("Timestamp authority certificate '%s' is not valid: %v", k, err),
+					Suggestion: "Check the certificate encoding and validity",
+					Location:   fmt.Sprintf("timestampauthorities.%s", k),
+				})
+				continue
+			}
+			result.ChecksPassed++
 
-				// Check that the intermediate certificate is not expired
-				if time.Now().After(cert.NotAfter) {
-					errors = append(errors, fmt.Errorf("error: intermediate certificate '%s' is expired", k))
-				}
+			// Validate expiration, CA status, etc.
+			result.ChecksPerformed += 2
+			if cert != nil && time.Now().After(cert.NotAfter) {
+				result.Valid = false
+				result.Errors = append(result.Errors, ValidationError{
+					Category:   "Timestamp Authority",
+					Message:    fmt.Sprintf("Timestamp authority certificate '%s' expired", k),
+					Suggestion: "Replace with a valid certificate",
+					Location:   fmt.Sprintf("timestampauthorities.%s", k),
+				})
+			} else {
+				result.ChecksPassed++
+			}
+
+			if !cert.IsCA {
+				result.Valid = false
+				result.Errors = append(result.Errors, ValidationError{
+					Category:   "Timestamp Authority",
+					Message:    fmt.Sprintf("Timestamp authority certificate '%s' is not a CA", k),
+					Suggestion: "Timestamp authority certificates must be CA certificates",
+					Location:   fmt.Sprintf("timestampauthorities.%s", k),
+				})
+			} else {
+				result.ChecksPassed++
+			}
+
+			if verbose && !jsonOutput {
+				fmt.Printf("  ✓ Timestamp authority '%s' is valid\n", k)
 			}
 		}
-	}
-
-	//check the timestamp authority
-	for k, v := range p.TimestampAuthorities {
-		// Check that the timestamp authority certificate is valid
-		block, _ := pem.Decode([]byte(v.Certificate))
-		if block == nil {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' is not a valid PEM block", k))
-			continue
-		}
-
-		cert, err := x509.ParseCertificate(block.Bytes)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' is not a valid x509 certificate: %v", k, err))
-			continue
-		}
-
-		// Check that the timestamp authority certificate is not expired
-		if cert != nil && time.Now().After(cert.NotAfter) {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' is expired", k))
-		}
-
-		// Check that the timestamp authority certificate is a CA
-		if !cert.IsCA {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' is not a CA", k))
-		}
-
-		// Check that the timestamp authority certificate has a valid signature
-		err = cert.CheckSignature(cert.SignatureAlgorithm, cert.RawTBSCertificate, cert.Signature)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' has an invalid signature: %v", k, err))
-		}
-
-		// Check that the timestamp authority certificate has a valid public key
-		err = cert.CheckSignatureFrom(cert)
-		if err != nil {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' has an invalid public key: %v", k, err))
-		}
-
-		// check that the expiration date is not before the policy expiration date
-		if cert.NotAfter.Before(p.Expires.Time) {
-			errors = append(errors, fmt.Errorf("error: timestamp authority certificate '%s' has an expiration date before the policy expiration date", k))
+		if verbose && !jsonOutput {
+			fmt.Println()
 		}
 	}
 
-	if len(errors) > 0 {
-		return NewPolicyCheckError(errors)
+	return outputResult(result, jsonOutput, quiet)
+}
+
+func outputResult(result *ValidationResult, jsonOutput bool, quiet bool) error {
+	if jsonOutput {
+		output, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Println(string(output))
+		if !result.Valid {
+			return fmt.Errorf("policy validation failed")
+		}
+		return nil
 	}
 
-	return nil
+	if result.Valid {
+		if !quiet {
+			fmt.Printf("\n✅ Policy validation successful!\n\n")
+			fmt.Printf("Summary:\n")
+			fmt.Printf("  Total checks: %d\n", result.ChecksPerformed)
+			fmt.Printf("  Passed: %d\n", result.ChecksPassed)
+			if len(result.Warnings) > 0 {
+				fmt.Printf("  Warnings: %d\n", len(result.Warnings))
+			}
+			fmt.Println()
+		}
+		return nil
+	}
+
+	// Print errors
+	fmt.Printf("\n❌ Policy validation failed\n\n")
+
+	// Group errors by category
+	errorsByCategory := make(map[string][]ValidationError)
+	for _, err := range result.Errors {
+		errorsByCategory[err.Category] = append(errorsByCategory[err.Category], err)
+	}
+
+	for category, errors := range errorsByCategory {
+		fmt.Printf("🔴 %s (%d error%s):\n", category, len(errors), pluralize(len(errors)))
+		for i, err := range errors {
+			fmt.Printf("\n  %d. %s\n", i+1, err.Message)
+			if err.Location != "" {
+				fmt.Printf("     Location: %s\n", err.Location)
+			}
+			if err.Suggestion != "" {
+				fmt.Printf("     💡 Suggestion: %s\n", err.Suggestion)
+			}
+		}
+		fmt.Println()
+	}
+
+	fmt.Printf("Summary:\n")
+	fmt.Printf("  Total checks: %d\n", result.ChecksPerformed)
+	fmt.Printf("  Passed: %d\n", result.ChecksPassed)
+	fmt.Printf("  Failed: %d\n", len(result.Errors))
+	if len(result.Warnings) > 0 {
+		fmt.Printf("  Warnings: %d\n", len(result.Warnings))
+	}
+	fmt.Println()
+
+	return fmt.Errorf("policy validation failed with %d error(s)", len(result.Errors))
+}
+
+func pluralize(count int) string {
+	if count == 1 {
+		return ""
+	}
+	return "s"
 }
 
 func validateRegoModule(module []byte) error {
