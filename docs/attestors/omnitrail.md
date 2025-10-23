@@ -1,3 +1,13 @@
+# omnitrail 
+
+The Omnitrail Attestor collects information about file and directory metadata within your working directory. It captures permissions, ownership, and cryptographic hashes (SHA1, SHA256, and Gitoid hashes) to provide a complete snapshot of your project's file system state.
+This attestor is powered by [omnitrail-go](https://github.com/testifysec/omnitrail-go), a Go library designed to manage and track file and directory metadata.
+
+Example:
+```bash
+witness run --step build -a omnitrail -o test-att.json -- go build -o=testapp .
+```
+
 ## Schema
 ```json
 {
