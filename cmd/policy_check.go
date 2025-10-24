@@ -1,3 +1,17 @@
+// Copyright 2025 The Witness Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmd
 
 import (
@@ -13,7 +27,8 @@ import (
 
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/policy"
-	"github.com/open-policy-agent/opa/ast"
+
+	"github.com/open-policy-agent/opa/v1/ast"
 	"github.com/spf13/cobra"
 )
 
@@ -120,14 +135,14 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 	}
 	result.ChecksPerformed++
 	result.ChecksPassed++
-	result.PolicyExpiration = p.Expires.Time.Format(time.RFC3339)
+	result.PolicyExpiration = p.Expires.Format(time.RFC3339)
 
 	if verbose && !jsonOutput {
 		if isDSSE {
 			fmt.Println("  ✓ DSSE envelope format")
 		}
 		fmt.Printf("  ✓ Valid JSON structure\n")
-		fmt.Printf("  ✓ Policy expires: %s\n\n", p.Expires.Time.Format(time.RFC3339))
+		fmt.Printf("  ✓ Policy expires: %s\n\n", p.Expires.Format(time.RFC3339))
 	}
 
 	// Check policy expiration
@@ -139,7 +154,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		result.Valid = false
 		result.Errors = append(result.Errors, ValidationError{
 			Category:   "Policy Expiration",
-			Message:    fmt.Sprintf("Policy expired on %s", p.Expires.Time.Format(time.RFC3339)),
+			Message:    fmt.Sprintf("Policy expired on %s", p.Expires.Format(time.RFC3339)),
 			Suggestion: "Update the 'expires' field to a future date",
 			Location:   "expires",
 		})
@@ -147,7 +162,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		result.ChecksPassed++
 		if verbose && !jsonOutput {
 			daysUntilExpiry := int(time.Until(p.Expires.Time).Hours() / 24)
-			fmt.Printf("  ✓ Policy valid until %s (%d days)\n", p.Expires.Time.Format("2006-01-02"), daysUntilExpiry)
+			fmt.Printf("  ✓ Policy valid until %s (%d days)\n", p.Expires.Format("2006-01-02"), daysUntilExpiry)
 
 			// Warning for soon-to-expire policies
 			if daysUntilExpiry < 30 {

@@ -20,6 +20,11 @@ vet: ## Run go vet
 test: ## Run go tests
 	go test -v -coverprofile=profile.cov -covermode=atomic ./...
 
+lint: ## Run the linter
+	@golangci-lint run
+	@go fmt ./...
+	@go vet ./...
+
 coverage: ## Show the coverage
 	go tool cover -html=profile.cov
 
