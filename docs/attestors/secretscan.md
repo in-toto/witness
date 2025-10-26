@@ -1,4 +1,5 @@
 # Secretscan Attestor
+
 The secretscan attestor is a post-product attestor that scans attestations and products for secrets and other sensitive information. It helps prevent accidental secret leakage by detecting secrets and securely storing their cryptographic digests instead of the actual values.
 
 ## How It Works
@@ -96,7 +97,7 @@ When secrets are found, they are recorded in a structured format with the actual
 
 This section contains examples demonstrating the capabilities of the SecretScan attestor. You can find the demo script [here](https://github.com/in-toto/go-witness/blob/main/attestation/secretscan/examples/demo-encoded-secrets.sh)
 
-## Demo Scripts
+### Demo Scripts
 
 ### `demo-encoded-secrets.sh`
 
