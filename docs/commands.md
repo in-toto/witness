@@ -31,6 +31,30 @@ Get information about all the available attestors in Witness
 * [witness attestors list](witness_attestors_list.md)	 - List all available attestors
 * [witness attestors schema](witness_attestors_schema.md)	 - Show the JSON schema of a specific attestor
 
+## witness policy
+
+Manage policies
+
+### Options
+
+```
+  -h, --help   help for policy
+```
+
+### Options inherited from parent commands
+
+```
+  -c, --config string                   Path to the witness config file (default ".witness.yaml")
+      --debug-cpu-profile-file string   Path to store the CPU profile. Profiling will be enabled if this is non-empty
+      --debug-mem-profile-file string   Path to store the Memory profile. Profiling will be enabled if this is non-empty
+  -l, --log-level string                Level of logging to output (debug, info, warn, error) (default "info")
+```
+
+### SEE ALSO
+
+* [witness](witness.md)	 - Collect and verify attestations about your build environments
+* [witness policy check](witness_policy_check.md)	 - Check a policy file
+
 ## witness run
 
 Runs the provided command and records attestations about the execution
@@ -279,4 +303,3 @@ witness version [flags]
 ### SEE ALSO
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
-
