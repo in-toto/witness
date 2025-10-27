@@ -456,7 +456,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 func outputResult(result *ValidationResult, jsonOutput bool, quiet bool) error {
 	if jsonOutput {
 		output, _ := json.MarshalIndent(result, "", "  ")
-		log.Info(string(output))
+		fmt.Println(string(output))
 		if !result.Valid {
 			return fmt.Errorf("policy validation failed")
 		}
