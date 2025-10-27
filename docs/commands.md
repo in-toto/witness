@@ -303,3 +303,4 @@ witness version [flags]
 ### SEE ALSO
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
+
