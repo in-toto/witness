@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/policy"
 
 	"github.com/open-policy-agent/opa/v1/ast"
@@ -80,14 +81,14 @@ func ReadPolicy(policyFile string, verbose bool) (*policy.Policy, bool, error) {
 	if err := json.Unmarshal(policyBytes, &e); err == nil {
 		if e.Payload != nil {
 			if verbose {
-				fmt.Println("✓ DSSE Envelope detected, extracting payload")
+				log.Info("DSSE Envelope detected, extracting payload")
 			}
 			policyBytes = e.Payload
 			isDSSE = true
 		}
 	} else {
 		if verbose {
-			fmt.Println("✓ Direct policy JSON detected")
+			log.Info("Direct policy JSON detected")
 		}
 	}
 
@@ -116,12 +117,12 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 	}
 
 	if verbose && !jsonOutput {
-		fmt.Printf("\n🔍 Validating policy: %s\n\n", policyFile)
+		log.Infof("Validating policy: %s", policyFile)
 	}
 
 	// Read and parse policy
 	if verbose && !jsonOutput {
-		fmt.Println("📖 Reading policy file...")
+		log.Infof("Reading policy file...")
 	}
 	p, isDSSE, err := ReadPolicy(policyFile, verbose && !jsonOutput)
 	if err != nil {
@@ -139,15 +140,15 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 
 	if verbose && !jsonOutput {
 		if isDSSE {
-			fmt.Println("  ✓ DSSE envelope format")
+			log.Info("DSSE envelope format")
 		}
-		fmt.Printf("  ✓ Valid JSON structure\n")
-		fmt.Printf("  ✓ Policy expires: %s\n\n", p.Expires.Format(time.RFC3339))
+		log.Info("Valid JSON structure")
+		log.Infof("Policy expires: %s", p.Expires.Format(time.RFC3339))
 	}
 
 	// Check policy expiration
 	if verbose && !jsonOutput {
-		fmt.Println("📅 Checking policy expiration...")
+		log.Info("Checking policy expiration...")
 	}
 	result.ChecksPerformed++
 	if time.Now().After(p.Expires.Time) {
@@ -162,22 +163,19 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		result.ChecksPassed++
 		if verbose && !jsonOutput {
 			daysUntilExpiry := int(time.Until(p.Expires.Time).Hours() / 24)
-			fmt.Printf("  ✓ Policy valid until %s (%d days)\n", p.Expires.Format("2006-01-02"), daysUntilExpiry)
+			log.Infof("Policy valid until %s (%d days)", p.Expires.Format("2006-01-02"), daysUntilExpiry)
 
 			// Warning for soon-to-expire policies
 			if daysUntilExpiry < 30 {
 				result.Warnings = append(result.Warnings, fmt.Sprintf("Policy expires in %d days", daysUntilExpiry))
-				fmt.Printf("  ⚠️  Warning: Policy expires in %d days\n", daysUntilExpiry)
+				log.Warnf("Warning: Policy expires in %d days", daysUntilExpiry)
 			}
 		}
-	}
-	if verbose && !jsonOutput {
-		fmt.Println()
 	}
 
 	// Validate Rego policies
 	if verbose && !jsonOutput {
-		fmt.Println("📜 Validating Rego policies...")
+		log.Info("Validating Rego policies...")
 	}
 	regoCount := 0
 	for stepName, step := range p.Steps {
@@ -187,7 +185,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 				result.ChecksPerformed++
 
 				if verbose && !jsonOutput {
-					fmt.Printf("  Checking module '%s' in step '%s'...\n", module.Name, stepName)
+					log.Infof("Checking module '%s' in step '%s'...", module.Name, stepName)
 				}
 
 				err := validateRegoModule(module.Module)
@@ -219,20 +217,22 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 				} else {
 					result.ChecksPassed++
 					if verbose && !jsonOutput {
-						fmt.Printf("    ✓ Module '%s' is valid\n", module.Name)
+						log.Infof("Module '%s' is valid", module.Name)
 					}
 				}
 			}
 		}
 	}
+
 	if verbose && !jsonOutput {
-		fmt.Printf("  ✓ Validated %d Rego module(s)\n\n", regoCount)
+		log.Infof("Validated %d Rego module(s)", regoCount)
 	}
 
 	// Validate functionary root references
 	if verbose && !jsonOutput {
-		fmt.Println("👤 Validating functionaries...")
+		log.Info("Validating functionaries...")
 	}
+
 	funcCount := 0
 	for stepName, step := range p.Steps {
 		for _, functionary := range step.Functionaries {
@@ -265,7 +265,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 					} else {
 						result.ChecksPassed++
 						if verbose && !jsonOutput {
-							fmt.Printf("  ✓ Root '%s' exists for step '%s'\n", fRoot, stepName)
+							log.Infof("Root '%s' exists for step '%s'", fRoot, stepName)
 						}
 					}
 				}
@@ -273,16 +273,16 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if verbose && !jsonOutput {
-		fmt.Printf("  ✓ Validated %d functionary root reference(s)\n\n", funcCount)
+		log.Infof("Validated %d functionary root reference(s)", funcCount)
 	}
 
 	// Validate root certificates
 	if verbose && !jsonOutput {
-		fmt.Println("🔐 Validating root certificates...")
+		log.Info("Validating root certificates...")
 	}
 	for k, v := range p.Roots {
 		if verbose && !jsonOutput {
-			fmt.Printf("  Checking root certificate '%s'...\n", k)
+			log.Infof("Checking root certificate '%s'...", k)
 		}
 
 		// PEM decode
@@ -315,7 +315,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		}
 		result.ChecksPassed++
 		if verbose && !jsonOutput {
-			fmt.Printf("    ✓ Valid x509 certificate (CN=%s)\n", cert.Subject.CommonName)
+			log.Infof("Valid x509 certificate (CN=%s)", cert.Subject.CommonName)
 		}
 
 		// Check CA status
@@ -377,17 +377,17 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 		}
 
 		if verbose && !jsonOutput {
-			fmt.Printf("  ✓ Root certificate '%s' is valid\n", k)
+			log.Infof("Root certificate '%s' is valid", k)
 		}
 	}
 	if verbose && !jsonOutput {
-		fmt.Printf("  ✓ Validated %d root certificate(s)\n\n", len(p.Roots))
+		log.Infof("Validated %d root certificate(s)", len(p.Roots))
 	}
 
 	// Validate timestamp authorities (if any)
 	if len(p.TimestampAuthorities) > 0 {
 		if verbose && !jsonOutput {
-			fmt.Println("⏱️  Validating timestamp authorities...")
+			log.Info("Validating timestamp authorities...")
 		}
 		for k, v := range p.TimestampAuthorities {
 			result.ChecksPerformed++
@@ -445,11 +445,8 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 			}
 
 			if verbose && !jsonOutput {
-				fmt.Printf("  ✓ Timestamp authority '%s' is valid\n", k)
+				log.Infof("Timestamp authority '%s' is valid", k)
 			}
-		}
-		if verbose && !jsonOutput {
-			fmt.Println()
 		}
 	}
 
@@ -459,7 +456,7 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 func outputResult(result *ValidationResult, jsonOutput bool, quiet bool) error {
 	if jsonOutput {
 		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Println(string(output))
+		log.Info(string(output))
 		if !result.Valid {
 			return fmt.Errorf("policy validation failed")
 		}
@@ -468,20 +465,20 @@ func outputResult(result *ValidationResult, jsonOutput bool, quiet bool) error {
 
 	if result.Valid {
 		if !quiet {
-			fmt.Printf("\n✅ Policy validation successful!\n\n")
-			fmt.Printf("Summary:\n")
-			fmt.Printf("  Total checks: %d\n", result.ChecksPerformed)
-			fmt.Printf("  Passed: %d\n", result.ChecksPassed)
+			log.Infof("Policy validation successful!")
+			log.Info("Summary:")
+			log.Infof("Total checks: %d", result.ChecksPerformed)
+			log.Infof("Passed: %d", result.ChecksPassed)
+			log.Infof("Failed: %d", len(result.Errors))
 			if len(result.Warnings) > 0 {
-				fmt.Printf("  Warnings: %d\n", len(result.Warnings))
+				log.Warnf("Warnings: %d", len(result.Warnings))
 			}
-			fmt.Println()
 		}
 		return nil
 	}
 
 	// Print errors
-	fmt.Printf("\n❌ Policy validation failed\n\n")
+	log.Errorf("Policy validation failed")
 
 	// Group errors by category
 	errorsByCategory := make(map[string][]ValidationError)
@@ -490,27 +487,25 @@ func outputResult(result *ValidationResult, jsonOutput bool, quiet bool) error {
 	}
 
 	for category, errors := range errorsByCategory {
-		fmt.Printf("🔴 %s (%d error%s):\n", category, len(errors), pluralize(len(errors)))
+		log.Infof("%s (%d error%s):", category, len(errors), pluralize(len(errors)))
 		for i, err := range errors {
-			fmt.Printf("\n  %d. %s\n", i+1, err.Message)
+			log.Infof("%d. %s", i+1, err.Message)
 			if err.Location != "" {
-				fmt.Printf("     Location: %s\n", err.Location)
+				log.Infof("Location: %s", err.Location)
 			}
 			if err.Suggestion != "" {
-				fmt.Printf("     💡 Suggestion: %s\n", err.Suggestion)
+				log.Infof("Suggestion: %s", err.Suggestion)
 			}
 		}
-		fmt.Println()
 	}
 
-	fmt.Printf("Summary:\n")
-	fmt.Printf("  Total checks: %d\n", result.ChecksPerformed)
-	fmt.Printf("  Passed: %d\n", result.ChecksPassed)
-	fmt.Printf("  Failed: %d\n", len(result.Errors))
+	log.Info("Summary:")
+	log.Infof("Total checks: %d", result.ChecksPerformed)
+	log.Infof("Passed: %d", result.ChecksPassed)
+	log.Infof("Failed: %d", len(result.Errors))
 	if len(result.Warnings) > 0 {
-		fmt.Printf("  Warnings: %d\n", len(result.Warnings))
+		log.Warnf("Warnings: %d", len(result.Warnings))
 	}
-	fmt.Println()
 
 	return fmt.Errorf("policy validation failed with %d error(s)", len(result.Errors))
 }
@@ -523,7 +518,6 @@ func pluralize(count int) string {
 }
 
 func validateRegoModule(module []byte) error {
-
 	parsed, err := ast.ParseModule("my_module.rego", string(module))
 	if err != nil {
 		return fmt.Errorf("failed to parse Rego module: %v", err)

@@ -31,11 +31,16 @@ func PolicyCmd() *cobra.Command {
 // PolicyValidateCmd validates a policy
 func PolicyCheckCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "check [policy file]",
-		Short: "Check a policy file",
-		Long:  `Check a policy file for correctness and expiration.`,
-		Args:  cobra.MinimumNArgs(1), // Requires at least one argument
-		RunE:  checkPolicy,
+		Use:               "check [policy file]",
+		Short:             "Check a policy file",
+		Long:              `Check a policy file for correctness and expiration.`,
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
+		Args:              cobra.MinimumNArgs(1), // Requires at least one argument
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return checkPolicy(cmd, args)
+		},
 	}
 
 	cmd.Flags().BoolP("verbose", "v", false, "Show detailed validation progress")
