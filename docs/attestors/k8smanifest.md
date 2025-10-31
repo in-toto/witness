@@ -1,3 +1,7 @@
+# k8smanifest 
+
+The K8s Manifest Attestor records information about [Kubernetes](https://kubernetes.io/) manifests (YAML or JSON files) by collecting, normalizing, and computing reproducible digests of Kubernetes resources. 
+
 ## Schema
 ```json
 {
