@@ -1,3 +1,7 @@
+# system-packages Attestor
+
+The System Packages attestor records the operating system and installed package information to verify the build environment’s state.
+
 ## Schema
 ```json
 {
