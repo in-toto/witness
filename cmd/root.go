@@ -50,6 +50,7 @@ func New() *cobra.Command {
 	cmd.AddCommand(CompletionCmd())
 	cmd.AddCommand(VersionCmd())
 	cmd.AddCommand(AttestorsCmd())
+	cmd.AddCommand(PolicyCmd())
 	cobra.OnInitialize(func() { preRoot(cmd, ro, logger) })
 	cobra.OnFinalize((func() { postRoot(ro, logger) }))
 	return cmd
