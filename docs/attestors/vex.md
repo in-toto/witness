@@ -1,3 +1,7 @@
+# VEX Attestor
+
+The VEX(Vulnerability Exploitability Exchange) attestor captures and verifies [OpenVEX](https://openvex.dev/ns) vulnerability information for produced artifacts.
+
 ## Schema
 ```json
 {
