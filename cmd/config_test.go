@@ -164,17 +164,20 @@ run:
 							case "run":
 								stepNameFlag := cmd.Flags().Lookup("step")
 								outfileFlag := cmd.Flags().Lookup("outfile")
-								if tt.cmdArgs[1] == "run" {
-									// For the valid config test with run command
-									if stepNameFlag != nil && tt.configYaml != "" && outfileFlag != nil {
-										t.Logf("Step name flag value: %s", stepNameFlag.Value.String())
-										t.Logf("Outfile flag value: %s", outfileFlag.Value.String())
+								if tt.configYaml != "" {
+									if tt.configPath == "valid.yaml" {
+										assert.Equal(t, "teststep", stepNameFlag.Value.String(), "step flag not loaded from config")
+										assert.Equal(t, "outfile.json", outfileFlag.Value.String(), "outfile flag not loaded from config")
+									} else {
+										assert.Equal(t, "", stepNameFlag.Value.String(), "step flag should remain empty")
 									}
 								}
 							case "verify":
 								keyFlag := cmd.Flags().Lookup("key")
-								if keyFlag != nil && tt.cmdArgs[1] == "verify" {
-									t.Logf("Key flag value: %s", keyFlag.Value.String())
+								if tt.configYaml != "" && tt.configPath == "valid-slices.yaml" {
+									assert.Equal(t, "[key1.pem,key2.pem]", keyFlag.Value.String(), "key slice flag not loaded correctly")
+								} else {
+									assert.Equal(t, "", keyFlag.Value.String(), "key flag should remain empty")
 								}
 							}
 						}
