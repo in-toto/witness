@@ -124,7 +124,7 @@ jobs:
         uses: anchore/sbom-action/download-syft@fbfd9c6c189226748411491745178e0c2017392d # v0.20.10
 
       - name: Download GoReleaser
-        run: go install github.com/goreleaser/goreleaser@v1.23.0
+        run: go install github.com/goreleaser/goreleaser@v2.13.1
 
       - name: Run GoReleaser
         uses: testifysec/witness-run-action@7aa15e327829f1f2a523365c564c948d5dde69dd
