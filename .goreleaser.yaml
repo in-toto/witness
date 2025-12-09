@@ -47,7 +47,7 @@ changelog:
     - title: Others
       order: 999
 release:
-  prerelease: auto
+  draft: true
   github:
     owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
 kos:
