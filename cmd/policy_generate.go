@@ -17,7 +17,6 @@ package cmd
 import (
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -155,6 +154,8 @@ func generatePolicy(cmd *cobra.Command, opts *PolicyGenerateOptions) error {
 				addedAttestorTypes[attType] = true
 			}
 		}
+
+		// TODO: add rego policies logic
 
 		if pubKeyFiles, ok := publicKeysByStep[stepName]; ok {
 			for _, pubKeyFile := range pubKeyFiles {
@@ -323,14 +324,12 @@ func loadPublicKey(filePath string) (string, policy.PublicKey, error) {
 		return "", policy.PublicKey{}, fmt.Errorf("failed to parse public key: %w", err)
 	}
 
-	hash := sha256.Sum256(block.Bytes)
+	hash := sha256.Sum256(keyBytes)
 	keyID := fmt.Sprintf("%x", hash)
-
-	encodedKey := base64.StdEncoding.EncodeToString(keyBytes)
 
 	return keyID, policy.PublicKey{
 		KeyID: keyID,
-		Key:   []byte(encodedKey),
+		Key:   keyBytes,
 	}, nil
 }
 
@@ -359,16 +358,13 @@ func loadRootCA(filePath string) (string, policy.Root, error) {
 		return "", policy.Root{}, fmt.Errorf("certificate expired on %s", cert.NotAfter.Format(time.RFC3339))
 	}
 
-	pubKeyBytes, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
-	if err != nil {
-		return "", policy.Root{}, fmt.Errorf("failed to marshal public key: %w", err)
-	}
-	hash := sha256.Sum256(pubKeyBytes)
+	hash := sha256.Sum256(certBytes)
 	keyID := fmt.Sprintf("%x", hash)
-	encodedCert := base64.StdEncoding.EncodeToString(certBytes)
+
+	// encodedCert := []byte(base64.StdEncoding.EncodeToString(certBytes))
 
 	return keyID, policy.Root{
-		Certificate:   []byte(encodedCert),
+		Certificate:   certBytes,
 		Intermediates: [][]byte{},
 	}, nil
 }
@@ -397,7 +393,7 @@ func loadIntermediateCert(filePath string) ([]byte, error) {
 	if time.Now().After(cert.NotAfter) {
 		return nil, fmt.Errorf("certificate expired on %s", cert.NotAfter.Format(time.RFC3339))
 	}
-	encodedCert := base64.StdEncoding.EncodeToString(certBytes)
+	// encodedCert := []byte(base64.StdEncoding.EncodeToString(certBytes))
 
-	return []byte(encodedCert), nil
+	return certBytes, nil
 }
