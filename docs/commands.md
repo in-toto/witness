@@ -109,7 +109,6 @@ witness run [cmd] [flags]
       --signer-fulcio-token string                        Raw token string to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token-path)
       --signer-fulcio-token-path string                   Path to the file containing a raw token to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token)
       --signer-fulcio-url string                          Fulcio address to sign with
-      --signer-fulcio-use-http                            HTTP/REST mode for Fulcio
       --signer-kms-aws-config-file string                 The shared configuration file to use with the AWS KMS signer provider
       --signer-kms-aws-credentials-file string            The shared credentials file to use with the AWS KMS signer provider
       --signer-kms-aws-insecure-skip-verify               Skip verification of the server's certificate chain and host name
@@ -177,7 +176,6 @@ witness sign [file] [flags]
       --signer-fulcio-token string                    Raw token string to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token-path)
       --signer-fulcio-token-path string               Path to the file containing a raw token to use for authentication to fulcio (cannot be used in conjunction with --fulcio-token)
       --signer-fulcio-url string                      Fulcio address to sign with
-      --signer-fulcio-use-http                        HTTP/REST mode for Fulcio
       --signer-kms-aws-config-file string             The shared configuration file to use with the AWS KMS signer provider
       --signer-kms-aws-credentials-file string        The shared credentials file to use with the AWS KMS signer provider
       --signer-kms-aws-insecure-skip-verify           Skip verification of the server's certificate chain and host name
