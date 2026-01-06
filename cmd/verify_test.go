@@ -59,7 +59,7 @@ func TestVerifyPolicyWithFulcio(t *testing.T) {
 	}
 
 	vo := options.VerifyOptions{
-		PolicyFilePath:         filepath.Join(cwd, "../test/fulcio-policy-signed.json"),
+		PolicyFilePath:         filepath.Join(cwd, "../test/fulcio-policy-presigned.json"),
 		PolicyTimestampServers: []string{filepath.Join(workingDir, "freetsa.pem")},
 		PolicyCARootPaths:      []string{filepath.Join(workingDir, "fulcio.pem")},
 		AttestationFilePaths:   []string{filepath.Join(cwd, "../test/test.json")},
@@ -94,7 +94,7 @@ func TestVerifyPolicyWrongCAFile(t *testing.T) {
 	}
 
 	vo := options.VerifyOptions{
-		PolicyFilePath:         filepath.Join(cwd, "../test/fulcio-policy-signed.json"),
+		PolicyFilePath:         filepath.Join(cwd, "../test/fulcio-policy-presigned.json"),
 		PolicyTimestampServers: []string{filepath.Join(workingDir, "freetsa.pem")},
 		PolicyCARootPaths:      []string{filepath.Join(workingDir, "badca.pem")},
 		AttestationFilePaths:   []string{filepath.Join(cwd, "../test/test.json")},
