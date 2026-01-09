@@ -35,7 +35,7 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 make -C ../ build
-rm -f ./policy-signed.json ./build.attestation.json ./package.attestation.json ./fail.attestation.json ./testapp ./testapp.tar.tgz
+rm -f *-policy-signed.json ./build.attestation.json ./package.attestation.json ./fail.attestation.json ./testapp ./testapp.tar.tgz
 echo "testing signing policy"
 ../bin/witness -c $test_config -l debug sign -f policy.json
 
@@ -47,6 +47,18 @@ echo "testing witness run on packaging step"
 echo "testing witness verify"
 ../bin/witness -c $test_config verify
 
+# test policy with multi-type attestor (ie. SBOM)
+
+# test SPDX with subject digest for the name
+echo "testing witness with SPDX SBOM policy"
+../bin/witness -l debug sign -k testkey.pem -f spdx-sbom-policy.json -o spdx-sbom-policy-signed.json
+../bin/witness verify -p spdx-sbom-policy-signed.json -a spdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
+
+# test CycloneDX with subject digest for the name
+echo "testing witness with CDX SBOM policy"
+../bin/witness -l debug sign -k testkey.pem -f cdx-sbom-policy.json -o cdx-sbom-policy-signed.json
+../bin/witness verify -p cdx-sbom-policy-signed.json -a cdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
+
 # make sure we fail if we run with a key not in the policy
 echo "testing that witness verify fails with a key not in the policy"
 ../bin/witness -c $test_config run -k failkey.pem -o ./fail.attestation.json -- go build -o=testapp .
@@ -56,9 +68,3 @@ if ../bin/witness -c $test_config verify -a ./fail.attestation.json -a ./package
 	echo "expected verify to fail"
 	exit 1
 fi
-
-# test policy with multi-type attestor (ie. SBOM)
-# test SPDX with subject digest for the name
-../bin/witness verify -p spdx-sbom-policy-signed.json -a spdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
-# test CycloneDX with subject digest for the name
-../bin/witness verify -p cdx-sbom-policy-signed.json -a cdx-att.json -k testpub.pem -s 54c5b3dd459d5ef778bb2fa1e23a5fb0e1b62ae66970bcb436e8f81a1a1a8e41 --log-level debug
