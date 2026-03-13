@@ -1,11 +1,11 @@
 # Maintainers
 
-| Name                       | GitHub                                           |
-| -------------------------- | ------------------------------------------------ |
-| Cole Kennedy (TestifySec)  | [@colek42](https://github.com/colek42)           |
-| John Kjell (ControlPlane)  | [@jkjell](https://github.com/jkjell)             |
-| Aditya Sirish (Bloomberg)  | [@adityasaky](https://github.com/adityasaky)     |
-| Mikhail Swift (Replicated) | [@mikhailswift](https://github.com/mikhailswift) |
+| Name                                      | GitHub                                           |
+| ----------------------------------------- | ------------------------------------------------ |
+| Cole Kennedy (TestifySec)                 | [@colek42](https://github.com/colek42)           |
+| John Kjell (ControlPlane)                 | [@jkjell](https://github.com/jkjell)             |
+| Aditya Sirish A Yelgundhalli (Bloomberg)  | [@adityasaky](https://github.com/adityasaky)     |
+| Mikhail Swift (Replicated)                | [@mikhailswift](https://github.com/mikhailswift) |
 
 # Emeritus Maintainers
 
