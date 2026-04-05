@@ -24,7 +24,12 @@ import (
 
 	witness "github.com/in-toto/go-witness"
 	"github.com/in-toto/go-witness/archivista"
+	"encoding/base64"
+	"encoding/json"
+
 	"github.com/in-toto/go-witness/cryptoutil"
+	"github.com/in-toto/go-witness/dsse"
+	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/source"
 	"github.com/in-toto/go-witness/timestamp"
@@ -192,6 +197,13 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		subjects = append(subjects, cryptoutil.DigestSet{cryptoutil.DigestValue{Hash: crypto.SHA256, GitOID: false}: subDigest})
 	}
 
+	// Dynamically extract subjects from explicitly passed attestations to enable linking steps via artifactsFrom without explicit backrefs.
+	// This helps connect materials to products naturally.
+	if len(vo.AttestationFilePaths) > 0 {
+		extractedSubjects := extractSubjectsFromAttestations(vo.AttestationFilePaths)
+		subjects = append(subjects, extractedSubjects...)
+	}
+
 	if len(subjects) == 0 {
 		return errors.New("at least one subject is required, provide an artifact file or subject")
 	}
@@ -248,3 +260,44 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 		return nil
 	}
 }
+
+func extractSubjectsFromAttestations(paths []string) []cryptoutil.DigestSet {
+	var sets []cryptoutil.DigestSet
+	for _, path := range paths {
+		file, err := os.Open(path)
+		if err != nil {
+			continue
+		}
+
+		var env dsse.Envelope
+		if err := json.NewDecoder(file).Decode(&env); err != nil {
+			file.Close()
+			continue
+		}
+		file.Close()
+
+		dec, err := base64.StdEncoding.DecodeString(string(env.Payload))
+		if err != nil {
+			dec = []byte(env.Payload) // fallback if not base64
+		}
+
+		var stmt in_toto.Statement
+		if err := json.Unmarshal(dec, &stmt); err != nil {
+			continue
+		}
+
+		for _, subj := range stmt.Subject {
+			set := make(cryptoutil.DigestSet)
+			for hashAlg, hashVal := range subj.Digest {
+				if h, err := cryptoutil.HashFromString(hashAlg); err == nil {
+					set[cryptoutil.DigestValue{Hash: h, GitOID: false}] = hashVal
+				}
+			}
+			if len(set) > 0 {
+				sets = append(sets, set)
+			}
+		}
+	}
+	return sets
+}
+
