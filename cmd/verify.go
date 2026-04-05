@@ -271,10 +271,10 @@ func extractSubjectsFromAttestations(paths []string) []cryptoutil.DigestSet {
 
 		var env dsse.Envelope
 		if err := json.NewDecoder(file).Decode(&env); err != nil {
-			file.Close()
+			_ = file.Close()
 			continue
 		}
-		file.Close()
+		_ = file.Close()
 
 		dec, err := base64.StdEncoding.DecodeString(string(env.Payload))
 		if err != nil {
