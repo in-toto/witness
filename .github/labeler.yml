@@ -1,0 +1,71 @@
+# Configuration for actions/labeler
+# https://github.com/actions/labeler
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - 'docs-website/**'
+          - 'docgen/**'
+          - '**/*.md'
+
+attestors:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/attestors/**'
+          - 'cmd/attestors.go'
+          - 'cmd/attestors_test.go'
+
+signers:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/signers/**'
+          - 'options/signers.go'
+
+cli:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'cmd/**'
+          - 'options/**'
+          - 'main.go'
+
+policy:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'internal/policy/**'
+          - 'cmd/policy.go'
+          - 'cmd/policy_check.go'
+
+oci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'oci/**'
+
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'test/**'
+          - '**/*_test.go'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'go.mod'
+          - 'go.sum'
+          - 'vendor/**'
+          - 'docs-website/package.json'
+          - 'docs-website/yarn.lock'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '.goreleaser.yaml'
+          - '.gitlab-ci.yml'
+          - 'Makefile'
+
+release:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.goreleaser.yaml'
+          - 'cmd/version.go'
