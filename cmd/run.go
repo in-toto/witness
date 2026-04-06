@@ -106,7 +106,7 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		}
 	}
 
-	for _, attestor := range attestors {
+	for i, attestor := range attestors {
 		setters, ok := ro.AttestorOptSetters[attestor.Name()]
 		if !ok {
 			continue
@@ -116,6 +116,8 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 		if err != nil {
 			return fmt.Errorf("failed to set attestor option for %v: %w", attestor.Type(), err)
 		}
+
+		attestors[i] = attestor
 	}
 
 	var roHashes []cryptoutil.DigestValue
