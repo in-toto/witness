@@ -44,7 +44,7 @@ func TestRootOptions_AddFlags(t *testing.T) {
 	}
 
 	// Test flag defaults
-	assert.Equal(t, ".witness.yaml", cmd.PersistentFlags().Lookup("config").DefValue, "Default config path should be set correctly")
+	assert.Equal(t, "", cmd.PersistentFlags().Lookup("config").DefValue, "Default config path should be empty")
 	assert.Equal(t, "info", cmd.PersistentFlags().Lookup("log-level").DefValue, "Default log-level should be 'info'")
 	assert.Equal(t, "", cmd.PersistentFlags().Lookup("debug-cpu-profile-file").DefValue, "Default CPU profile file should be empty")
 	assert.Equal(t, "", cmd.PersistentFlags().Lookup("debug-mem-profile-file").DefValue, "Default memory profile file should be empty")
