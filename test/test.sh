@@ -61,8 +61,9 @@ echo "testing witness with CDX SBOM policy"
 
 # make sure we fail if we run with a key not in the policy
 echo "testing that witness verify fails with a key not in the policy"
-../bin/witness -c $test_config run -k failkey.pem -o ./fail.attestation.json -- go build -o=testapp .
-../bin/witness -c $test_config run -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
+# This test validates policy/key mismatch handling, not trace behavior.
+../bin/witness -c $test_config run --trace=false -k failkey.pem -o ./fail.attestation.json -- go build -o=testapp .
+../bin/witness -c $test_config run --trace=false -s package -k ./testkey2.pem -o package.attestation.json -- tar czf ./testapp.tar.tgz ./testapp
 set +e
 if ../bin/witness -c $test_config verify -a ./fail.attestation.json -a ./package.attestation.json; then
 	echo "expected verify to fail"
