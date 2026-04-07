@@ -7,7 +7,7 @@ require (
 	github.com/in-toto/go-witness v0.9.2
 	github.com/invopop/jsonschema v0.13.0
 	github.com/olekukonko/tablewriter v1.1.4
-	github.com/open-policy-agent/opa v1.15.0
+	github.com/open-policy-agent/opa v1.15.1
 	github.com/sigstore/fulcio v1.8.5
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cobra v1.10.2
