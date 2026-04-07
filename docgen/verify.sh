@@ -31,6 +31,7 @@ cp docs/concepts/collection.md "$tmpdir/concepts/"
 go run ./docgen --dir "$tmpdir"
 # some configuration variables use the user's home directory in their default values.
 # we want the documentation to just print $HOME in these cases
+# shellcheck disable=SC2016
 sed -i "s|${HOME}|"'$HOME|g' "$tmpdir/commands.md"
 echo "###########################################"
 echo "If diffs are found, run: make docgen"
