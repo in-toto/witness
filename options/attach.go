@@ -22,5 +22,5 @@ type AttachOptions struct {
 
 func (ao *AttachOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&ao.AttestationFilePaths, "attestation", "a", []string{}, "Paths to attestation files to attach (can be specified multiple times)")
-	cmd.MarkFlagRequired("attestation")
+	_ = cmd.MarkFlagRequired("attestation")
 }
