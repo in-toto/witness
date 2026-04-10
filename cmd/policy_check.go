@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bytes"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/policy"
@@ -274,6 +276,30 @@ func checkPolicy(cmd *cobra.Command, args []string) error {
 	}
 	if verbose && !jsonOutput {
 		log.Infof("Validated %d functionary root reference(s)", funcCount)
+	}
+
+	// Validate public keys
+	if verbose && !jsonOutput {
+		log.Info("Validating public keys...")
+	}
+	for k, v := range p.PublicKeys {
+		if verbose && !jsonOutput {
+			log.Infof("Checking public key '%s'...", k)
+		}
+
+		result.ChecksPerformed++
+		_, err := cryptoutil.TryParseKeyFromReader(bytes.NewReader(v.Key))
+		if err != nil {
+			result.Valid = false
+			result.Errors = append(result.Errors, ValidationError{
+				Category:   "Public Key",
+				Message:    fmt.Sprintf("Public key '%s' is not a valid PEM block: %v", k, err),
+				Suggestion: "Ensure the key field contains a base64-encoded PEM public key.\nExample: cat pubkey.pem | base64 | tr -d '\\n'",
+				Location:   fmt.Sprintf("publickeys.%s.key", k),
+			})
+			continue
+		}
+		result.ChecksPassed++
 	}
 
 	// Validate root certificates
