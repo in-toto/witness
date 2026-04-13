@@ -154,7 +154,7 @@ func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Ref
 			}
 
 			if !matched {
-				return fmt.Errorf("subject digest mismatch: attestation %s does not describe the target artifact %s. Use --skip-verification to bypass this check.", attestPath, subjectDigest.String())
+				return fmt.Errorf("subject digest mismatch: attestation %s does not describe the target artifact %s (use --skip-verification to bypass this check)", attestPath, subjectDigest.String())
 			}
 		}
 
@@ -187,9 +187,9 @@ func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Ref
 		if err != nil {
 			return fmt.Errorf("failed to get referrer image digest: %w", err)
 		}
-		
+
 		referrerRef := ref.Context().Digest(referrerDigest.String())
-		
+
 		if err := remote.Write(referrerRef, referrerImage, remote.WithAuthFromKeychain(authn.DefaultKeychain), remote.WithContext(ctx)); err != nil {
 			return fmt.Errorf("failed to write referrer image to registry: %w", err)
 		}
