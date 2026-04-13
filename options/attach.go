@@ -17,10 +17,12 @@ package options
 import "github.com/spf13/cobra"
 
 type AttachOptions struct {
-	AttestationFilePaths []string
+	ImageURI         string
+	SkipVerification bool
 }
 
 func (ao *AttachOptions) AddFlags(cmd *cobra.Command) {
-	cmd.Flags().StringSliceVarP(&ao.AttestationFilePaths, "attestation", "a", []string{}, "Paths to attestation files to attach (can be specified multiple times)")
-	_ = cmd.MarkFlagRequired("attestation")
+	cmd.Flags().StringVarP(&ao.ImageURI, "image-uri", "i", "", "Container image URI to attach attestations to (required)")
+	_ = cmd.MarkFlagRequired("image-uri")
+	cmd.Flags().BoolVar(&ao.SkipVerification, "skip-verification", false, "Skip checking if the attestation subject matches the image digest")
 }

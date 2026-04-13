@@ -17,17 +17,19 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 
+	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+	"github.com/in-toto/go-witness/dsse"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/cobra"
@@ -49,15 +51,15 @@ func AttestationCmd() *cobra.Command {
 	ao := options.AttachOptions{}
 
 	cmd := &cobra.Command{
-		Use:               "attestation <image_ref>",
+		Use:               "attestation [attestation-files]...",
 		Short:             "Attach an attestation file as an OCI referrer",
-		Long:              "Attach an attestation JSON file as an OCI referrer to a container image in a registry",
+		Long:              "Attach one or more attestation JSON files as OCI referrers to a container image in a registry",
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
-		Args:              cobra.ExactArgs(1),
+		Args:              cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runAttachAttestation(cmd.Context(), ao, args[0])
+			return runAttachAttestation(cmd.Context(), ao, args)
 		},
 	}
 
@@ -65,9 +67,19 @@ func AttestationCmd() *cobra.Command {
 	return cmd
 }
 
-func runAttachAttestation(ctx context.Context, ao options.AttachOptions, imageRef string) error {
-	if len(ao.AttestationFilePaths) == 0 {
-		return fmt.Errorf("at least one attestation file must be specified with --attestation")
+// Minimal in-toto statement struct for parsing subjects
+type IntotoStatement struct {
+	Type    string `json:"_type"`
+	Subject []struct {
+		Name   string            `json:"name"`
+		Digest map[string]string `json:"digest"`
+	} `json:"subject"`
+}
+
+func runAttachAttestation(ctx context.Context, ao options.AttachOptions, attestationFiles []string) error {
+	imageRef := ao.ImageURI
+	if imageRef == "" {
+		return fmt.Errorf("--image-uri flag is required")
 	}
 
 	// Parse the image reference
@@ -76,34 +88,74 @@ func runAttachAttestation(ctx context.Context, ao options.AttachOptions, imageRe
 		return fmt.Errorf("failed to parse image reference: %w", err)
 	}
 
+	var originalDigest v1.Hash
+
 	// Get the original image descriptor from the registry
 	originalImage, err := remote.Image(ref, remote.WithAuthFromKeychain(authn.DefaultKeychain), remote.WithContext(ctx))
 	if err != nil {
 		if _, errIndex := remote.Index(ref, remote.WithAuthFromKeychain(authn.DefaultKeychain), remote.WithContext(ctx)); errIndex == nil {
-			// Actually we might want to attach to an Index as well.
-			// Let's just use remote.Head to get the digest instead of remote.Image
 			originalDesc, errHead := remote.Head(ref, remote.WithAuthFromKeychain(authn.DefaultKeychain), remote.WithContext(ctx))
 			if errHead != nil {
 				return fmt.Errorf("failed to fetch image/index from registry: %w", errHead)
 			}
-			return attachToSubject(ctx, ao, ref, originalDesc.Digest)
+			originalDigest = originalDesc.Digest
+		} else {
+			return fmt.Errorf("failed to fetch image from registry: %w", err)
 		}
-		return fmt.Errorf("failed to fetch image from registry: %w", err)
+	} else {
+		originalDigest, err = originalImage.Digest()
+		if err != nil {
+			return fmt.Errorf("failed to get original image digest: %w", err)
+		}
 	}
 
-	originalDigest, err := originalImage.Digest()
-	if err != nil {
-		return fmt.Errorf("failed to get original image digest: %w", err)
-	}
-
-	return attachToSubject(ctx, ao, ref, originalDigest)
+	return attachToSubject(ctx, ao, ref, originalDigest, attestationFiles)
 }
 
-func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Reference, subjectDigest v1.Hash) error {
-	for _, attestPath := range ao.AttestationFilePaths {
+func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Reference, subjectDigest v1.Hash, attestationFiles []string) error {
+	for _, attestPath := range attestationFiles {
 		attestData, err := os.ReadFile(attestPath)
 		if err != nil {
 			return fmt.Errorf("failed to read attestation file %s: %w", attestPath, err)
+		}
+
+		// Verify DSSE Envelope
+		var env dsse.Envelope
+		if err := json.Unmarshal(attestData, &env); err != nil {
+			return fmt.Errorf("attestation file %s is not a valid DSSE envelope: %w", attestPath, err)
+		}
+
+		if env.PayloadType != "application/vnd.in-toto+json" && env.PayloadType != "https://in-toto.io/Statement/v1" {
+			return fmt.Errorf("attestation file %s has unsupported payloadType: %s. Expected application/vnd.in-toto+json", attestPath, env.PayloadType)
+		}
+
+		if len(env.Signatures) == 0 {
+			return fmt.Errorf("attestation file %s has no signatures", attestPath)
+		}
+
+		// Verify subject digest against the payload unless SkipVerification is true
+		if !ao.SkipVerification {
+			var stmt IntotoStatement
+			if err := json.Unmarshal(env.Payload, &stmt); err != nil {
+				return fmt.Errorf("failed to unmarshal payload as in-toto statement: %w", err)
+			}
+
+			matched := false
+			for _, subj := range stmt.Subject {
+				for _, digestVal := range subj.Digest {
+					if digestVal == subjectDigest.Hex {
+						matched = true
+						break
+					}
+				}
+				if matched {
+					break
+				}
+			}
+
+			if !matched {
+				return fmt.Errorf("subject digest mismatch: attestation %s does not describe the target artifact %s. Use --skip-verification to bypass this check.", attestPath, subjectDigest.String())
+			}
 		}
 
 		referrerImage := empty.Image
@@ -117,12 +169,11 @@ func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Ref
 			return fmt.Errorf("failed to append attestation layer: %w", err)
 		}
 
-		// A bug in remote.Write will complain about media type unless we explicitly override
 		emptyHash := v1.Hash{}
 		desc := v1.Descriptor{
 			MediaType: types.MediaType("application/vnd.in-toto+json"),
 			Digest:    subjectDigest,
-			Size:      0, // the actual digest size doesn't matter for the subject descriptor
+			Size:      0,
 		}
 		if subjectDigest != emptyHash {
 			if withSubject, ok := mutate.Subject(referrerImage, desc).(v1.Image); ok {
@@ -132,10 +183,6 @@ func attachToSubject(ctx context.Context, ao options.AttachOptions, ref name.Ref
 			}
 		}
 
-		// We need to write this to the registry. The registry needs a reference to write to.
-		// Usually we push to a digest reference of the referrer itself or a tag. 
-		// If we use remote.Write with the digest, it will push it.
-		// Wait, ref is the repository. We can get the digest of the referrerImage
 		referrerDigest, err := referrerImage.Digest()
 		if err != nil {
 			return fmt.Errorf("failed to get referrer image digest: %w", err)
