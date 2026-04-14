@@ -143,7 +143,7 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 				return fmt.Errorf("failed to parse intermediate CA certificate: %w", err)
 			}
 
-			policyRoots = append(policyIntermediates, cert)
+			policyIntermediates = append(policyIntermediates, cert)
 		}
 	}
 

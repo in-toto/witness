@@ -33,9 +33,14 @@ func initConfig(rootCmd *cobra.Command, rootOptions *options.RootOptions) error 
 		if rootCmd.Flags().Lookup("config").Changed {
 			return fmt.Errorf("config file %s does not exist", rootOptions.Config)
 		} else {
-			log.Debugf("%s does not exist, using command line arguments", rootOptions.Config)
-			return nil
+			// This is the deprecated behavior of loading this file by default, error out now
+			if _, err := os.Stat(".witness.yaml"); err == nil {
+				return fmt.Errorf("default use of .witness.yaml is deprecated, please specify the config file with --config or -c")
+			}
 		}
+
+		log.Debug("No config file found, using command line arguments")
+		return nil
 	}
 
 	v.SetConfigFile(rootOptions.Config)
