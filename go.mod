@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/gobwas/glob v0.2.3
-	github.com/in-toto/go-witness v0.9.3-0.20260407210833-0f89931d7e5a
+	github.com/in-toto/go-witness v0.10.0
 	github.com/invopop/jsonschema v0.13.0
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/open-policy-agent/opa v1.15.2
@@ -161,7 +161,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mailru/easyjson v0.9.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-isatty v0.0.21 // indirect
 	github.com/mattn/go-runewidth v0.0.22 // indirect
 	github.com/mholt/archives v0.1.5 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect

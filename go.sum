@@ -335,8 +335,8 @@ github.com/in-toto/archivista v0.11.1 h1:Zo1riCpvq/rjhDkflBPL+2jhTEkfc01IUXkR2LD
 github.com/in-toto/archivista v0.11.1/go.mod h1:CiIJfOWz686IBy+lWrcnZ6eGlxXDT/HsZmWuYMYOenE=
 github.com/in-toto/attestation v1.2.0 h1:aPRUZ3azbqD7yEBD5fP3TD8Dszf+YHo284SOcpahjQk=
 github.com/in-toto/attestation v1.2.0/go.mod h1:r79G45gOmzPismgObLSL+rZTFxUgZLOQJI6LofTZgXk=
-github.com/in-toto/go-witness v0.9.3-0.20260407210833-0f89931d7e5a h1:lKCwBXg0X8KU9GxxROhdOEij6bJZ9JswXJV3dvjAT8g=
-github.com/in-toto/go-witness v0.9.3-0.20260407210833-0f89931d7e5a/go.mod h1:0XGgJHrF+5+bc1u3tsVxduBgtqi/gG2Teo7CiojrgM0=
+github.com/in-toto/go-witness v0.10.0 h1:eEDfPLs5Z5fhwj6PSQB7kJg78mwkNyDTYynhM7KbfHs=
+github.com/in-toto/go-witness v0.10.0/go.mod h1:ZbB1SNNBroFzJ762XGWMJh4EABreLO3TkozxjplGaUc=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/invopop/jsonschema v0.13.0 h1:KvpoAJWEjR3uD9Kbm2HWJmqsEaHt8lBUpd0qHcIi21E=
@@ -388,8 +388,8 @@ github.com/mailru/easyjson v0.9.2 h1:dX8U45hQsZpxd80nLvDGihsQ/OxlvTkVUXH2r/8cb2M
 github.com/mailru/easyjson v0.9.2/go.mod h1:1+xMtQp2MRNVL/V1bOzuP3aP8VNwRW55fQUto+XFtTU=
 github.com/mattn/go-colorable v0.1.14 h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=
 github.com/mattn/go-colorable v0.1.14/go.mod h1:6LmQG8QLFO4G5z1gPvYEzlUgJ2wF+stgPZH1UqBm1s8=
-github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
-github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
+github.com/mattn/go-isatty v0.0.21 h1:xYae+lCNBP7QuW4PUnNG61ffM4hVIfm+zUzDuSzYLGs=
+github.com/mattn/go-isatty v0.0.21/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
 github.com/mattn/go-runewidth v0.0.22 h1:76lXsPn6FyHtTY+jt2fTTvsMUCZq1k0qwRsAMuxzKAk=
 github.com/mattn/go-runewidth v0.0.22/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
 github.com/mholt/archives v0.1.5 h1:Fh2hl1j7VEhc6DZs2DLMgiBNChUux154a1G+2esNvzQ=
@@ -668,7 +668,6 @@ golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.42.0 h1:omrd2nAlyT5ESRdCLYdm3+fMfNFE/+Rf4bDIQImRJeo=
 golang.org/x/sys v0.42.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
