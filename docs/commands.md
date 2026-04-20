@@ -54,6 +54,7 @@ Manage policies
 
 * [witness](witness.md)	 - Collect and verify attestations about your build environments
 * [witness policy check](witness_policy_check.md)	 - Check a policy file
+* [witness policy generate](witness_policy_generate.md)	 - Generate a policy file
 
 ## witness run
 
