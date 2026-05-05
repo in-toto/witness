@@ -94,6 +94,7 @@ witness run [cmd] [flags]
       --env-allow-sensitive-key strings                                      Allow specific keys from the list of sensitive environment keys. Note: This does not support globs.
       --env-disable-default-sensitive-vars                                   Disable the default list of sensitive vars and only use the items mentioned by --add-sensitive-key.
       --env-filter-sensitive-vars                                            Switch from obfuscate to filtering variables which removes them from the output completely.
+      --experimental                                                         Enable experimental attestors in Witness
       --hashes strings                                                       Hashes selected for digest calculation. Defaults to SHA256 (default [sha256])
   -h, --help                                                                 help for run
   -o, --outfile string                                                       File to write signed data to
