@@ -78,7 +78,7 @@ jobs:
       pull_request: ${{ github.event_name == 'pull_request' }}
       step: e2e-test
       attestations: "git github environment"
-      command: cd test/ && ./test.sh
+      command: "cd test/ && ./test.sh"
       artifact-upload-name: profile.cov
       artifact-upload-path: profile.cov
 
@@ -132,8 +132,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         with:
+          step: "release"
+          attestations: "git github slsa"
+          version: 0.11.0
+          outfile: release-attestation.json
+          enable-archivista: false
           witness-install-dir: /usr/local/bin
-          version: 0.9.1
-          step: "build"
-          attestations: "github"
           command: goreleaser release --clean
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-attestation
+          path: release-attestation.json
