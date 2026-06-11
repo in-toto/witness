@@ -42,7 +42,7 @@ func Test_SchemaCmd(t *testing.T) {
 }
 
 func Test_runList(t *testing.T) {
-	err := runList(context.Background())
+	err := runList(context.Background(), true)
 	require.NoError(t, err)
 }
 

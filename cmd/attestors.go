@@ -41,6 +41,8 @@ func AttestorsCmd() *cobra.Command {
 }
 
 func ListCmd() *cobra.Command {
+	experimentalFlag := "experimental"
+
 	cmd := &cobra.Command{
 		Use:               "list",
 		Short:             "List all available attestors",
@@ -49,9 +51,16 @@ func ListCmd() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runList(cmd.Context())
+			showExperimental, err := cmd.Flags().GetBool(experimentalFlag)
+			if err != nil {
+				return fmt.Errorf("Error getting experimental flag: %w", err)
+			}
+
+			return runList(cmd.Context(), showExperimental)
 		},
 	}
+
+	cmd.PersistentFlags().BoolP(experimentalFlag, "e", false, "Include experimental attestors in the list")
 	return cmd
 }
 
@@ -70,11 +79,17 @@ func SchemaCmd() *cobra.Command {
 	return cmd
 }
 
-func runList(ctx context.Context) error {
+func runList(ctx context.Context, showExperimental bool) error {
 	items := [][]string{}
 	entries := attestation.RegistrationEntries()
 	for _, entry := range entries {
 		name := entry.Factory().Name()
+		if attestation.IsExperimental(entry.Factory()) {
+			if !showExperimental {
+				continue
+			}
+			name = name + " (experimental)"
+		}
 
 		for _, a := range alwaysRunAttestors {
 			if name == a.Name() || name == "command-run" {

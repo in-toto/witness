@@ -102,6 +102,10 @@ func runRun(ctx context.Context, ro options.RunOptions, args []string, signers .
 			if err != nil {
 				return fmt.Errorf("failed to create attestor: %w", err)
 			}
+			if !ro.Experimental && attestation.IsExperimental(attestor) {
+				return fmt.Errorf("attestor %s is experimental and cannot be used without --experimental flag", attestor.Name())
+			}
+
 			attestors = append(attestors, attestor)
 		}
 	}
