@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/go-witness/attestation/networktrace/network-trace",
+  "$ref": "#/$defs/NetworkTrace",
+  "$defs": {
+    "Config": {
+      "properties": {
+        "observe_pids": {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "observe_cgroups": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observe_commands": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observe_child_tree": {
+          "type": "boolean"
+        },
+        "proxy_port": {
+          "type": "integer"
+        },
+        "proxy_bind_ipv4": {
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PayloadConfig"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "observe_child_tree",
+        "proxy_port",
+        "proxy_bind_ipv4",
+        "payload"
+      ]
+    },
+    "Connection": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "protocol": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "process": {
+          "$ref": "#/$defs/ProcessInfo"
+        },
+        "destination": {
+          "$ref": "#/$defs/Endpoint"
+        },
+        "tcp_payloads": {
+          "items": {
+            "$ref": "#/$defs/TCPPayload"
+          },
+          "type": "array"
+        },
+        "bytes_sent": {
+          "type": "integer"
+        },
+        "bytes_received": {
+          "type": "integer"
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "protocol",
+        "start_time",
+        "process",
+        "destination",
+        "bytes_sent",
+        "bytes_received"
+      ]
+    },
+    "Endpoint": {
+      "properties": {
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "hostname": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "ip",
+        "port"
+      ]
+    },
+    "NetworkSummary": {
+      "properties": {
+        "total_connections": {
+          "type": "integer"
+        },
+        "protocol_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "unique_hosts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "unique_ips": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "total_bytes_sent": {
+          "type": "integer"
+        },
+        "total_bytes_received": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "total_connections",
+        "protocol_counts",
+        "unique_hosts",
+        "unique_ips",
+        "total_bytes_sent",
+        "total_bytes_received"
+      ]
+    },
+    "NetworkTrace": {
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "connections": {
+          "items": {
+            "$ref": "#/$defs/Connection"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "$ref": "#/$defs/NetworkSummary"
+        },
+        "config": {
+          "$ref": "#/$defs/Config"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "start_time",
+        "end_time",
+        "connections",
+        "summary",
+        "config"
+      ]
+    },
+    "Payload": {
+      "properties": {
+        "size": {
+          "type": "integer"
+        },
+        "data": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "size"
+      ]
+    },
+    "PayloadConfig": {
+      "properties": {
+        "record_payload": {
+          "type": "boolean"
+        },
+        "record_payload_hash": {
+          "type": "boolean"
+        },
+        "max_payload_size": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "record_payload",
+        "record_payload_hash",
+        "max_payload_size"
+      ]
+    },
+    "ProcessInfo": {
+      "properties": {
+        "pid": {
+          "type": "integer"
+        },
+        "comm": {
+          "type": "string"
+        },
+        "cgroup_id": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "pid",
+        "comm"
+      ]
+    },
+    "TCPPayload": {
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/Payload"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "timestamp",
+        "direction",
+        "payload"
+      ]
+    }
+  }
+}
+ 
