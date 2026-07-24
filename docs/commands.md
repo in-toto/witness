@@ -114,6 +114,7 @@ witness run [cmd] [flags]
       --signer-kms-aws-insecure-skip-verify                                  Skip verification of the server's certificate chain and host name
       --signer-kms-aws-profile string                                        The shared configuration profile to use with the AWS KMS signer provider
       --signer-kms-aws-remote-verify                                         verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
+      --signer-kms-azure-azure-remote-verify                                 verify signature using Azure Key Vault remote verification. If false, the public key will be pulled from Azure Key Vault and verification will take place locally (default true)
       --signer-kms-gcp-authorized-user                                       Set if the credentials file's type is an authorized user
       --signer-kms-gcp-credentials-file string                               The credentials file to use with the GCP KMS signer provider
       --signer-kms-gcp-service-account                                       Set if the credentials file's type is a service account
@@ -190,6 +191,7 @@ witness sign [file] [flags]
       --signer-kms-aws-insecure-skip-verify                                  Skip verification of the server's certificate chain and host name
       --signer-kms-aws-profile string                                        The shared configuration profile to use with the AWS KMS signer provider
       --signer-kms-aws-remote-verify                                         verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
+      --signer-kms-azure-azure-remote-verify                                 verify signature using Azure Key Vault remote verification. If false, the public key will be pulled from Azure Key Vault and verification will take place locally (default true)
       --signer-kms-gcp-authorized-user                                       Set if the credentials file's type is an authorized user
       --signer-kms-gcp-credentials-file string                               The credentials file to use with the GCP KMS signer provider
       --signer-kms-gcp-service-account                                       Set if the credentials file's type is a service account
@@ -273,6 +275,7 @@ witness verify [flags]
       --verifier-kms-aws-insecure-skip-verify                                  Skip verification of the server's certificate chain and host name
       --verifier-kms-aws-profile string                                        The shared configuration profile to use with the AWS KMS signer provider
       --verifier-kms-aws-remote-verify                                         verify signature using AWS KMS remote verification. If false, the public key will be pulled from AWS KMS and verification will take place locally (default true)
+      --verifier-kms-azure-azure-remote-verify                                 verify signature using Azure Key Vault remote verification. If false, the public key will be pulled from Azure Key Vault and verification will take place locally (default true)
       --verifier-kms-gcp-authorized-user                                       Set if the credentials file's type is an authorized user
       --verifier-kms-gcp-credentials-file string                               The credentials file to use with the GCP KMS signer provider
       --verifier-kms-gcp-service-account                                       Set if the credentials file's type is a service account
