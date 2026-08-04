@@ -22,6 +22,7 @@ import (
 	"github.com/in-toto/go-witness/cryptoutil"
 	"github.com/in-toto/go-witness/log"
 	"github.com/in-toto/go-witness/signer"
+	"github.com/in-toto/go-witness/signer/file"
 	"github.com/in-toto/go-witness/signer/kms"
 	"github.com/in-toto/witness/options"
 	"github.com/spf13/pflag"
@@ -66,6 +67,18 @@ func loadSigners(ctx context.Context, so options.SignerOptions, ko options.KMSSi
 						continue
 					}
 				}
+			}
+		}
+
+		// The file signer provider is activated as soon as any --signer-file-*
+		// flag is set, but a certificate, intermediate, or passphrase is useless
+		// without a key to pair it with. Left unchecked, this provider silently
+		// fails to build below while any other configured signer (e.g. KMS)
+		// still succeeds, so the command exits 0 with the certificate quietly
+		// dropped instead of surfacing a clear, actionable error.
+		if fsp, ok := sp.(file.FileSignerProvider); ok && fsp.KeyPath == "" {
+			if fsp.CertPath != "" || len(fsp.IntermediatePaths) > 0 || fsp.PassphrasePath != "" || fsp.Passphrase != nil {
+				return nil, fmt.Errorf("--signer-file-key-path is required when other --signer-file-* flags (e.g. --signer-file-cert-path) are set; attaching a file-based certificate to a non-file signer such as KMS is not currently supported")
 			}
 		}
 
