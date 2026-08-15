@@ -105,6 +105,29 @@ func Test_loadSignersCertificate(t *testing.T) {
 	require.IsType(t, &cryptoutil.X509Signer{}, signers[0])
 }
 
+// Test_loadSignersCertificateWithoutKey reproduces
+// https://github.com/in-toto/witness/issues/573: passing --signer-file-cert-path
+// without --signer-file-key-path (e.g. because the certificate was meant for a
+// KMS-based signer) must fail loudly with an actionable error instead of being
+// silently swallowed when another signer provider succeeds.
+func Test_loadSignersCertificateWithoutKey(t *testing.T) {
+	_, _, leafcert, _ := fullChain(t)
+
+	signerOptions := options.SignerOptions{}
+	signerOptions["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+		func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+			fsp := sp.(file.FileSignerProvider)
+			fsp.CertPath = leafcert.Name()
+			return fsp, nil
+		},
+	}
+
+	signers, err := loadSigners(context.Background(), signerOptions, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "signer-file-key-path")
+	require.Len(t, signers, 0)
+}
+
 func rsakeypair(t *testing.T) (privatePem *os.File, publicPem *os.File) {
 	privatekey, err := rsa.GenerateKey(rand.Reader, keybits)
 	if err != nil {
