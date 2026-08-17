@@ -9,7 +9,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/open-policy-agent/opa v1.19.0
 	github.com/sigstore/fulcio v1.8.8
-	github.com/sirupsen/logrus v1.9.4
+	github.com/sirupsen/logrus v1.10.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
