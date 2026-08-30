@@ -14,7 +14,9 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 // PolicyCmd has several subcommands for managing policies
 func PolicyCmd() *cobra.Command {
@@ -24,7 +26,45 @@ func PolicyCmd() *cobra.Command {
 	}
 	cmd.AddCommand(
 		PolicyCheckCmd(),
+		PolicyGenerateCmd(),
 	)
+	return cmd
+}
+
+type PolicyGenerateOptions struct {
+	StepNames        []string
+	RootCAs          []string
+	PublicKeys       []string
+	Intermediates    []string
+	AttestationTypes []string
+	// RegoPolicies     []string
+	CertCommonName []string
+	CertDNSNames   []string
+	CertEmails     []string
+	CertOrgs       []string
+	CertURIs       []string
+	ArtifactsFrom  []string
+	ExpiresIn      string
+	OutputFile     string
+}
+
+func PolicyGenerateCmd() *cobra.Command {
+	vo := PolicyGenerateOptions{}
+	cmd := &cobra.Command{
+		Use:   "generate",
+		Short: "Generate a policy file",
+		Long: `
+Example: 
+	witness policy generate --step "build" --step "deploy" --root-ca "build=rootCA.pem" --root-ca "deploy=deployCA.pem" --public-key "build=buildKey.pub" --public-key "deploy=deployKey.pub"`,
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return generatePolicy(cmd, &vo)
+		},
+	}
+	vo.AddFlags(cmd)
+
 	return cmd
 }
 
@@ -48,4 +88,35 @@ func PolicyCheckCmd() *cobra.Command {
 	cmd.Flags().Bool("json", false, "Output results in JSON format")
 
 	return cmd
+}
+
+func (vo *PolicyGenerateOptions) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().StringSliceVar(&vo.StepNames, "step", []string{},
+		"Name of a step to include in the policy (can be specified multiple times)")
+	cmd.Flags().StringSliceVar(&vo.RootCAs, "root-ca", []string{},
+		"Root CA certificate in format 'step=file.pem' (can be specified multiple times)")
+	cmd.Flags().StringSliceVar(&vo.PublicKeys, "public-key", []string{},
+		"Public key in format 'step=file.pub' (can be specified multiple times)")
+	cmd.Flags().StringSliceVar(&vo.Intermediates, "intermediate", []string{},
+		"Intermediate certificate in format 'step=file.pem' (can be specified multiple times)")
+	cmd.Flags().StringSliceVar(&vo.AttestationTypes, "attestation", []string{},
+		"Attestation type in format 'step=type-url' (can be specified multiple times)")
+	// cmd.Flags().StringSliceVar(&vo.RegoPolicies, "rego-policy", []string{},
+	// 	"Rego policy in format 'step=name=file.rego' (can be specified multiple times)")
+	cmd.Flags().StringSliceVar(&vo.CertCommonName, "cert-cn", []string{},
+		"Certificate common name constraint in format 'step=commonname'")
+	cmd.Flags().StringSliceVar(&vo.CertDNSNames, "cert-dns", []string{},
+		"Certificate DNS name constraint in format 'step=dnsname'")
+	cmd.Flags().StringSliceVar(&vo.CertEmails, "cert-email", []string{},
+		"Certificate email constraint in format 'step=email'")
+	cmd.Flags().StringSliceVar(&vo.CertOrgs, "cert-org", []string{},
+		"Certificate organization constraint in format 'step=organization'")
+	cmd.Flags().StringSliceVar(&vo.CertURIs, "cert-uri", []string{},
+		"Certificate URI constraint in format 'step=uri' (useful for SPIFFE IDs)")
+	cmd.Flags().StringSliceVar(&vo.ArtifactsFrom, "artifacts-from", []string{},
+		"Artifact dependency in format 'step=fromStep' (can be specified multiple times)")
+	cmd.Flags().StringVar(&vo.ExpiresIn, "expires-in", "720h",
+		"Duration until policy expires (e.g., '720h' for 30 days, '8760h' for 1 year)")
+	cmd.Flags().StringVarP(&vo.OutputFile, "output", "o", "policy.json",
+		"Output file path for the generated policy")
 }
