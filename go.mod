@@ -3,7 +3,7 @@ module github.com/in-toto/witness
 go 1.26.5
 
 require (
-	github.com/gobwas/glob v1.0.0
+	github.com/gobwas/glob v0.2.3
 	github.com/in-toto/go-witness v0.12.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/olekukonko/tablewriter v1.1.4
