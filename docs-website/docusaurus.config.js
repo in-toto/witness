@@ -71,6 +71,10 @@ const config = {
         },
         items: [
           {
+            type: 'docsVersionDropdown',
+            position: 'right',
+          },
+          {
             type: "search",
             position: "right",
           },
