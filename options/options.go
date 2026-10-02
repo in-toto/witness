@@ -79,6 +79,25 @@ func addFlags[T any](prefix string, regName string, options []registry.Configure
 				})
 			}
 
+		case *registry.ConfigOption[T, *string]:
+			{
+				defaultVal := optT.DefaultVal()
+				if defaultVal == nil {
+					emptyString := ""
+					defaultVal = &emptyString
+				}
+
+				val := cmd.Flags().String(name, *defaultVal, opt.Description())
+				optSettersMap[regName] = append(optSettersMap[regName], func(a T) (T, error) {
+					// if the user hasn't supplied the flag, don't call the setter
+					if !cmd.Flags().Changed(name) {
+						return a, nil
+					}
+
+					return optT.Setter()(a, val)
+				})
+			}
+
 		default:
 			log.Debugf("unrecognized attestor option type: %T", optT)
 		}
