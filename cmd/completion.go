@@ -24,31 +24,34 @@ func CompletionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
 		Short: "Generate completion script",
-		Long: `To load completions:
-Bash:
+		Long: `Generate the autocompletion script for witness for the specified shell.
+See the examples below for how to load the generated script in each shell.`,
+		Example: `  # Bash:
   $ source <(witness completion bash)
   # To load completions for each session, execute once:
   # Linux:
   $ witness completion bash > /etc/bash_completion.d/witness
   # macOS:
   $ witness completion bash > /usr/local/etc/bash_completion.d/witness
-Zsh:
+
+  # Zsh:
   # If shell completion is not already enabled in your environment,
   # you will need to enable it.  You can execute the following once:
   $ echo "autoload -U compinit; compinit" >> ~/.zshrc
   # To load completions for each session, execute once:
   $ witness completion zsh > "${fpath[1]}/_witness"
   # You will need to start a new shell for this setup to take effect.
-fish:
+
+  # fish:
   $ witness completion fish | source
   # To load completions for each session, execute once:
   $ witness completion fish > ~/.config/fish/completions/witness.fish
-PowerShell:
+
+  # PowerShell:
   PS> witness completion powershell | Out-String | Invoke-Expression
   # To load completions for every new session, run:
   PS> witness completion powershell > witness.ps1
-  # and source this file from your PowerShell profile.
-`,
+  # and source this file from your PowerShell profile.`,
 		DisableFlagsInUseLine: true,
 		DisableAutoGenTag:     true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
