@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -103,5 +104,24 @@ func Test_CompletionCmd_Run(t *testing.T) {
 			// Check the output contains the expected content
 			assert.Contains(t, buf.String(), tc.contains)
 		})
+	}
+}
+
+func Test_CompletionCmd_Markdown(t *testing.T) {
+	rootCmd := &cobra.Command{Use: "witness"}
+	completionCmd := CompletionCmd()
+	rootCmd.AddCommand(completionCmd)
+
+	var buf bytes.Buffer
+	require.NoError(t, doc.GenMarkdown(completionCmd, &buf))
+	md := buf.String()
+
+	// The shell instructions contain things like "<(...)" and "${fpath[1]}"
+	// that do not render as Markdown prose, so they must be kept in Example,
+	// which the generated docs wrap in a fenced code block.
+	assert.NotContains(t, completionCmd.Long, "$ ")
+	assert.Contains(t, md, "### Examples\n\n```\n"+completionCmd.Example+"\n```")
+	for _, shell := range completionCmd.ValidArgs {
+		assert.Contains(t, completionCmd.Example, "witness completion "+shell)
 	}
 }
