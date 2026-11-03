@@ -77,7 +77,8 @@ func runVerify(ctx context.Context, vo options.VerifyOptions, verifiers ...crypt
 
 	collectionSource = memSource
 	if vo.ArchivistaOptions.Enable {
-		archivistaClient, err := vo.ArchivistaOptions.Client()
+		var err error
+		archivistaClient, err = vo.ArchivistaOptions.Client()
 		if err != nil {
 			return fmt.Errorf("failed to create archivista client: %w", err)
 		}

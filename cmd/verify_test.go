@@ -23,6 +23,9 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -307,6 +310,89 @@ func TestRunVerifyKeyPair(t *testing.T) {
 	}
 
 	require.NoError(t, runVerify(context.Background(), vo))
+}
+
+func TestRunVerifyPolicyFromArchivista(t *testing.T) {
+	logger := newLogger()
+	log.SetLogger(logger)
+
+	policy, funcPriv := makepolicyRSAPub(t)
+	signedPolicy, pub := signPolicyRSA(t, policy)
+	workingDir := t.TempDir()
+	attestationDir := t.TempDir()
+
+	policyPubFilePath := filepath.Join(workingDir, "policy-pub.pem")
+	require.NoError(t, os.WriteFile(policyPubFilePath, pub, 0644))
+
+	funcPrivFilepath := filepath.Join(workingDir, "func-priv.pem")
+	require.NoError(t, os.WriteFile(funcPrivFilepath, funcPriv, 0644))
+
+	// The policy only exists in Archivista, referenced by its gitoid.
+	const policyGitoid = "policy-gitoid"
+	policyDownloaded := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/download/" + policyGitoid:
+			policyDownloaded = true
+			_, _ = w.Write(signedPolicy)
+		case "/query":
+			_, _ = w.Write([]byte(`{"data":{"dsses":{"edges":[]}}}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	so := options.SignerOptions{}
+	so["file"] = []func(signer.SignerProvider) (signer.SignerProvider, error){
+		func(sp signer.SignerProvider) (signer.SignerProvider, error) {
+			fsp := sp.(file.FileSignerProvider)
+			fsp.KeyPath = funcPrivFilepath
+			return fsp, nil
+		},
+	}
+
+	signers, err := loadSigners(context.Background(), so, options.KMSSignerProviderOptions{}, map[string]struct{}{"file": {}})
+	require.NoError(t, err)
+
+	artifactPath := filepath.Join(workingDir, "test.txt")
+	subjects := []string{}
+	attestationPaths := []string{}
+	for i, step := range []string{"step01", "step02"} {
+		outFilePath := filepath.Join(attestationDir, step+".json")
+		ro := options.RunOptions{
+			SignerOptions: so,
+			WorkingDir:    workingDir,
+			Attestations:  []string{},
+			OutFilePath:   outFilePath,
+			StepName:      step,
+			Tracing:       false,
+		}
+
+		args := []string{"bash", "-c", fmt.Sprintf("echo 'test%02d' >> test.txt", i+1)}
+		require.NoError(t, runRun(context.Background(), ro, args, signers...))
+		attestationPaths = append(attestationPaths, outFilePath)
+
+		artifactDigest, err := cryptoutil.CalculateDigestSetFromFile(artifactPath, []cryptoutil.DigestValue{{Hash: crypto.SHA256}})
+		require.NoError(t, err)
+		for _, digest := range artifactDigest {
+			subjects = append(subjects, digest)
+		}
+	}
+
+	vo := options.VerifyOptions{
+		ArchivistaOptions: options.ArchivistaOptions{
+			Enable: true,
+			Url:    server.URL,
+		},
+		KeyPath:              policyPubFilePath,
+		AttestationFilePaths: attestationPaths,
+		PolicyFilePath:       policyGitoid,
+		AdditionalSubjects:   subjects,
+	}
+
+	require.NoError(t, runVerify(context.Background(), vo))
+	require.True(t, policyDownloaded, "expected the policy to be downloaded from archivista")
 }
 
 func signPolicyRSA(t *testing.T, p []byte) (signedPolicy []byte, pub []byte) {
